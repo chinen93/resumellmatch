@@ -1,4 +1,7 @@
-from sqlalchemy.orm import DeclarativeBase
+from datetime import datetime
+
+from sqlalchemy import TIMESTAMP, Date, ForeignKey
+from sqlalchemy.orm import DeclarativeBase, relationship
 from sqlalchemy.schema import Column
 from sqlalchemy.types import Integer, String
 
@@ -13,3 +16,21 @@ class User(Base):
     id = Column(Integer, primary_key=True)
     name = Column(String, nullable=False)
     email = Column(String, nullable=False, unique=True)
+    star_metadatas = relationship(
+        "star_metadatas", backref="users.id", cascade="all, delete-orphan"
+    )
+
+
+class StarMetadata(Base):
+
+    __tablename__ = "star_metadatas"
+
+    id = Column(Integer, primary_key=True)
+    user_id = Column(Integer, ForeignKey("users.id"))
+    type = Column(String, nullable=False)  # education, project, work
+    title = Column(String, nullable=False)  # job title, degree, project name
+    subtitle = Column(String, nullable=False)  # company, school, etc.
+    location = Column(String, nullable=False)
+    start_date = Column(Date, nullable=False)
+    end_date = Column(Date, nullable=True)  # if null, still working on it
+    created_at = Column(TIMESTAMP, default=datetime.now)
