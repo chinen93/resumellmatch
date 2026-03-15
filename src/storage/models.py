@@ -10,17 +10,6 @@ class Base(DeclarativeBase):
     pass
 
 
-class User(Base):
-
-    __tablename__ = "users"
-    id = Column(Integer, primary_key=True)
-    name = Column(String, nullable=False)
-    email = Column(String, nullable=False, unique=True)
-    star_metadatas = relationship(
-        "star_metadatas", backref="users.id", cascade="all, delete-orphan"
-    )
-
-
 class StarMetadata(Base):
 
     __tablename__ = "star_metadatas"
@@ -34,3 +23,17 @@ class StarMetadata(Base):
     start_date = Column(Date, nullable=False)
     end_date = Column(Date, nullable=True)  # if null, still working on it
     created_at = Column(TIMESTAMP, default=datetime.now)
+
+
+class User(Base):
+
+    __tablename__ = "users"
+    id = Column(Integer, primary_key=True)
+    name = Column(String, nullable=False)
+    email = Column(String, nullable=False, unique=True)
+    star_metadatas = relationship(
+        StarMetadata, backref="users.id", cascade="all, delete-orphan"
+    )
+
+    def __repr__(self):
+        return f"User(id={self.id}, name={self.name}, email={self.email})"
