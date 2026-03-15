@@ -8,11 +8,12 @@ db = DatabaseConnection()
 
 class UserRepo:
     @classmethod
-    def create_user(cls, name: str, email: str) -> int:
+    def create(cls, name: str, email: str) -> int:
         result = None
 
         with db.get_session() as session:
             session.begin()
+            session.expire_on_commit = False
             try:
                 user = User(name=name, email=email)
                 session.add(user)
@@ -28,19 +29,20 @@ class UserRepo:
         return result
 
     @classmethod
-    def get_user_by_id(cls, user_id: int) -> Optional[User]:
+    def get_by_id(cls, user_id: int) -> Optional[User]:
         with db.get_session() as session:
             session.begin()
+            session.expire_on_commit = False
             return session.query(User).filter(User.id == user_id).first()
 
     @classmethod
-    def get_all_users(cls) -> List[User]:
+    def get_all(cls) -> List[User]:
         with db.get_session() as session:
             session.begin()
             return session.query(User).all()
 
     @classmethod
-    def update_user(
+    def update(
         cls, user_id: int, name: Optional[str] = None, email: Optional[str] = None
     ) -> User:
         with db.get_session() as session:
@@ -66,9 +68,10 @@ class UserRepo:
                 raise e
 
     @classmethod
-    def delete_user(cls, user_id: int) -> bool:
+    def delete(cls, user_id: int) -> bool:
         with db.get_session() as session:
             session.begin()
+            session.expire_on_commit = False
 
             try:
                 user = session.query(User).filter(User.id == user_id).first()

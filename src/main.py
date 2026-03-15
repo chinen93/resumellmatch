@@ -5,24 +5,24 @@ def main():
 
     print("Clean")
     # Get all and Delete
-    users = UserRepo.get_all_users()
+    users = UserRepo.get_all()
     for user in users:
         print(user)
-        UserRepo.delete_user(user.id)
+        UserRepo.delete(user.id)
 
     # Create
     print("Create")
-    user_id = UserRepo.create_user(name="Teste", email="teste@test1.com")
+    user_id = UserRepo.create(name="Teste", email="teste@test1.com")
     print(user_id)
 
     # Read
     print("Read")
-    user = UserRepo.get_user_by_id(user_id)
+    user = UserRepo.get_by_id(user_id)
     print(user)
 
     # Update
     print("Update")
-    user = UserRepo.update_user(user_id, name="Jane Doe")
+    user = UserRepo.update(user_id, name="Jane Doe")
     print(user)
 
     print("Hello World")
