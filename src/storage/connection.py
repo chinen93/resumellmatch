@@ -1,6 +1,9 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 
+# TODO
+# Add another database connection to be used on the tests, and pass it via dependency injection
+
 
 class DatabaseConnection:
     """

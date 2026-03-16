@@ -2,7 +2,8 @@ from datetime import date
 from typing import List, Optional
 
 from src.storage.connection import DatabaseConnection
-from src.storage.models import StarMetadata
+from src.storage.models import StarEntry, StarMetadata
+from src.storage.repositories.skill_repo import SkillRepo
 
 db = DatabaseConnection()
 
@@ -137,6 +138,140 @@ class StarMetadataRepo:
             except Exception as e:
                 session.rollback()
                 print("Error when deleting StartMetadata:", star_metadata)
+                raise e
+
+            return True
+
+
+class StarEntryRepo:
+    @classmethod
+    def create(
+        cls,
+        metadata_id: int,
+        title: str,
+        situation: str,
+        task: str,
+        action: str,
+        result: str,
+        skills: List[int] = [],
+    ) -> int:
+        ret = None
+
+        with db.get_session() as session:
+            session.begin()
+            session.expire_on_commit = False
+
+            try:
+                star_entry = StarEntry(
+                    metadata_id=metadata_id,
+                    title=title,
+                    situation=situation,
+                    task=task,
+                    action=action,
+                    result=result,
+                )
+                session.add(star_entry)
+                session.commit()
+
+                if skills != []:
+                    for skill_id in skills:
+                        skill = SkillRepo.get_by_id(skill_id)
+                        star_entry.skills.append(skill)
+                    session.commit()
+
+                ret = int(star_entry.id)
+                session.commit()
+            except Exception as e:
+                session.rollback()
+                print("Error when creating StarEntry:", star_entry)
+                raise e
+
+        return ret
+
+    @classmethod
+    def get_by_id(cls, star_entry_id: int) -> Optional[StarEntry]:
+        with db.get_session() as session:
+            session.begin()
+            session.expire_on_commit = False
+
+            return (
+                session.query(StarEntry).filter(StarEntry.id == star_entry_id).first()
+            )
+
+    @classmethod
+    def get_all(cls, metadata_id: int) -> List[StarEntry]:
+        with db.get_session() as session:
+            session.begin()
+            session.expire_on_commit = False
+
+            return (
+                session.query(StarEntry)
+                .filter(StarEntry.metadata_id == metadata_id)
+                .all()
+            )
+
+    @classmethod
+    def update(
+        cls,
+        star_entry_id: int,
+        title: Optional[str] = None,
+        situation: Optional[str] = None,
+        task: Optional[str] = None,
+        action: Optional[str] = None,
+        result: Optional[str] = None,
+    ) -> StarEntry:
+        with db.get_session() as session:
+            session.begin()
+            session.expire_on_commit = False
+
+            try:
+                star_entry = (
+                    session.query(StarEntry)
+                    .filter(StarEntry.id == star_entry_id)
+                    .first()
+                )
+                if not star_entry:
+                    raise ValueError(f"StarEntry with id {star_entry_id} not found")
+                if title is not None:
+                    star_entry.title = title  # type: ignore
+                if situation is not None:
+                    star_entry.situation = situation  # type: ignore
+                if task is not None:
+                    star_entry.task = task  # type: ignore
+                if action is not None:
+                    star_entry.action = action  # type: ignore
+                if result is not None:
+                    star_entry.result = result  # type: ignore
+
+                session.add(star_entry)
+                session.commit()
+
+                return star_entry
+
+            except Exception as e:
+                session.rollback()
+                print("Error when updating StarEntry:", star_entry)
+                raise e
+
+    @classmethod
+    def delete(cls, star_entry_id: int) -> bool:
+        with db.get_session() as session:
+            session.begin()
+            session.expire_on_commit = False
+
+            try:
+                star_entry = (
+                    session.query(StarEntry)
+                    .filter(StarEntry.id == star_entry_id)
+                    .first()
+                )
+                if not star_entry:
+                    raise ValueError(f"StarEntry with id {star_entry_id} not found")
+                session.delete(star_entry)
+                session.commit()
+            except Exception as e:
+                session.rollback()
+                print("Error when deleting StarEntry:", star_entry)
                 raise e
 
             return True
