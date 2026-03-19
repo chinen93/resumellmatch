@@ -1,9 +1,6 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 
-# TODO
-# Add another database connection to be used on the tests, and pass it via dependency injection
-
 
 class DatabaseConnection:
     """
@@ -16,7 +13,15 @@ class DatabaseConnection:
 
     engine = None
 
-    def __new__(cls):
+    def __new__(cls, isTest=False):
+
+        if isTest:
+            cls._instance = super().__new__(cls)
+            cls._instance.engine = create_engine(
+                "sqlite:///./output/test_storage.db", echo=False
+            )
+            return cls._instance
+
         if cls._instance is None:
             cls._instance = super().__new__(cls)
 
@@ -24,6 +29,7 @@ class DatabaseConnection:
             cls._instance.engine = create_engine(
                 "sqlite:///./output/storage.db", echo=False
             )
+
         return cls._instance
 
     def get_session(self) -> Session:

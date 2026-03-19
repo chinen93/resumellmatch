@@ -3,15 +3,16 @@ from typing import List, Optional
 from src.storage.connection import DatabaseConnection
 from src.storage.models import User
 
-db = DatabaseConnection()
-
 
 class UserRepo:
-    @classmethod
-    def create(cls, name: str, email: str) -> int:
+
+    def __init__(self, isTest):
+        self.db = DatabaseConnection(isTest)
+
+    def create(self, name: str, email: str) -> int:
         result = None
 
-        with db.get_session() as session:
+        with self.db.get_session() as session:
             session.begin()
             session.expire_on_commit = False
             try:
@@ -28,24 +29,21 @@ class UserRepo:
 
         return result
 
-    @classmethod
-    def get_by_id(cls, user_id: int) -> Optional[User]:
-        with db.get_session() as session:
+    def get_by_id(self, user_id: int) -> Optional[User]:
+        with self.db.get_session() as session:
             session.begin()
             session.expire_on_commit = False
             return session.query(User).filter(User.id == user_id).first()
 
-    @classmethod
-    def get_all(cls) -> List[User]:
-        with db.get_session() as session:
+    def get_all(self) -> List[User]:
+        with self.db.get_session() as session:
             session.begin()
             return session.query(User).all()
 
-    @classmethod
     def update(
-        cls, user_id: int, name: Optional[str] = None, email: Optional[str] = None
+        self, user_id: int, name: Optional[str] = None, email: Optional[str] = None
     ) -> User:
-        with db.get_session() as session:
+        with self.db.get_session() as session:
             session.begin()
             session.expire_on_commit = False
             try:
@@ -67,9 +65,8 @@ class UserRepo:
                 print("Error when deleting User:", user)
                 raise e
 
-    @classmethod
-    def delete(cls, user_id: int) -> bool:
-        with db.get_session() as session:
+    def delete(self, user_id: int) -> bool:
+        with self.db.get_session() as session:
             session.begin()
             session.expire_on_commit = False
 

@@ -5,13 +5,14 @@ from src.storage.connection import DatabaseConnection
 from src.storage.models import StarEntry, StarMetadata
 from src.storage.repositories.skill_repo import SkillRepo
 
-db = DatabaseConnection()
-
 
 class StarMetadataRepo:
-    @classmethod
+
+    def __init__(self, isTest):
+        self.db = DatabaseConnection(isTest)
+
     def create(
-        cls,
+        self,
         user_id: int,
         type: str,
         title: str,
@@ -22,7 +23,7 @@ class StarMetadataRepo:
     ) -> int:
         result = None
 
-        with db.get_session() as session:
+        with self.db.get_session() as session:
             session.begin()
             session.expire_on_commit = False
 
@@ -48,9 +49,8 @@ class StarMetadataRepo:
 
         return result
 
-    @classmethod
-    def get_by_id(cls, star_metadata_id: int) -> Optional[StarMetadata]:
-        with db.get_session() as session:
+    def get_by_id(self, star_metadata_id: int) -> Optional[StarMetadata]:
+        with self.db.get_session() as session:
             session.begin()
             session.expire_on_commit = False
 
@@ -60,9 +60,8 @@ class StarMetadataRepo:
                 .first()
             )
 
-    @classmethod
-    def get_all(cls, user_id: int) -> List[StarMetadata]:
-        with db.get_session() as session:
+    def get_all(self, user_id: int) -> List[StarMetadata]:
+        with self.db.get_session() as session:
             session.begin()
             session.expire_on_commit = False
 
@@ -72,9 +71,8 @@ class StarMetadataRepo:
                 .all()
             )
 
-    @classmethod
     def update(
-        cls,
+        self,
         star_metadata_id: int,
         title: Optional[str] = None,
         subtitle: Optional[str] = None,
@@ -82,7 +80,7 @@ class StarMetadataRepo:
         start_date: Optional[date] = None,
         end_date: Optional[date] = None,
     ) -> StarMetadata:
-        with db.get_session() as session:
+        with self.db.get_session() as session:
             session.begin()
             session.expire_on_commit = False
 
@@ -117,9 +115,8 @@ class StarMetadataRepo:
                 print("Error when updating StarMetadata:", star_metadata)
                 raise e
 
-    @classmethod
-    def delete(cls, star_metadata_id: int) -> bool:
-        with db.get_session() as session:
+    def delete(self, star_metadata_id: int) -> bool:
+        with self.db.get_session() as session:
             session.begin()
             session.expire_on_commit = False
 
@@ -144,9 +141,13 @@ class StarMetadataRepo:
 
 
 class StarEntryRepo:
-    @classmethod
+
+    def __init__(self, isTest):
+        self.db = DatabaseConnection(isTest)
+        self.skill_repo = SkillRepo(isTest)
+
     def create(
-        cls,
+        self,
         metadata_id: int,
         title: str,
         situation: str,
@@ -157,7 +158,7 @@ class StarEntryRepo:
     ) -> int:
         ret = None
 
-        with db.get_session() as session:
+        with self.db.get_session() as session:
             session.begin()
             session.expire_on_commit = False
 
@@ -175,7 +176,7 @@ class StarEntryRepo:
 
                 if skills != []:
                     for skill_id in skills:
-                        skill = SkillRepo.get_by_id(skill_id)
+                        skill = self.skill_repo.get_by_id(skill_id)
                         star_entry.skills.append(skill)
                     session.commit()
 
@@ -188,9 +189,8 @@ class StarEntryRepo:
 
         return ret
 
-    @classmethod
-    def get_by_id(cls, star_entry_id: int) -> Optional[StarEntry]:
-        with db.get_session() as session:
+    def get_by_id(self, star_entry_id: int) -> Optional[StarEntry]:
+        with self.db.get_session() as session:
             session.begin()
             session.expire_on_commit = False
 
@@ -198,9 +198,8 @@ class StarEntryRepo:
                 session.query(StarEntry).filter(StarEntry.id == star_entry_id).first()
             )
 
-    @classmethod
-    def get_all(cls, metadata_id: int) -> List[StarEntry]:
-        with db.get_session() as session:
+    def get_all(self, metadata_id: int) -> List[StarEntry]:
+        with self.db.get_session() as session:
             session.begin()
             session.expire_on_commit = False
 
@@ -210,9 +209,8 @@ class StarEntryRepo:
                 .all()
             )
 
-    @classmethod
     def update(
-        cls,
+        self,
         star_entry_id: int,
         title: Optional[str] = None,
         situation: Optional[str] = None,
@@ -220,7 +218,7 @@ class StarEntryRepo:
         action: Optional[str] = None,
         result: Optional[str] = None,
     ) -> StarEntry:
-        with db.get_session() as session:
+        with self.db.get_session() as session:
             session.begin()
             session.expire_on_commit = False
 
@@ -253,9 +251,8 @@ class StarEntryRepo:
                 print("Error when updating StarEntry:", star_entry)
                 raise e
 
-    @classmethod
-    def delete(cls, star_entry_id: int) -> bool:
-        with db.get_session() as session:
+    def delete(self, star_entry_id: int) -> bool:
+        with self.db.get_session() as session:
             session.begin()
             session.expire_on_commit = False
 

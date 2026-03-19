@@ -3,15 +3,16 @@ from typing import List, Optional
 from src.storage.connection import DatabaseConnection
 from src.storage.models import Skill
 
-db = DatabaseConnection()
-
 
 class SkillRepo:
-    @classmethod
-    def create(cls, name: str) -> int:
+
+    def __init__(self, isTest):
+        self.db = DatabaseConnection(isTest)
+
+    def create(self, name: str) -> int:
         result = None
 
-        with db.get_session() as session:
+        with self.db.get_session() as session:
             session.begin()
             session.expire_on_commit = False
 
@@ -29,25 +30,22 @@ class SkillRepo:
 
         return result
 
-    @classmethod
-    def get_by_id(cls, skill_id: int) -> Optional[Skill]:
-        with db.get_session() as session:
+    def get_by_id(self, skill_id: int) -> Optional[Skill]:
+        with self.db.get_session() as session:
             session.begin()
             session.expire_on_commit = False
 
             return session.query(Skill).filter(Skill.id == skill_id).first()
 
-    @classmethod
-    def get_all(cls) -> List[Skill]:
-        with db.get_session() as session:
+    def get_all(self) -> List[Skill]:
+        with self.db.get_session() as session:
             session.begin()
             session.expire_on_commit = False
 
             return session.query(Skill).all()
 
-    @classmethod
-    def update(cls, skill_id: int, name: Optional[str] = None) -> Skill:
-        with db.get_session() as session:
+    def update(self, skill_id: int, name: Optional[str] = None) -> Skill:
+        with self.db.get_session() as session:
             session.begin()
             session.expire_on_commit = False
 
@@ -68,9 +66,8 @@ class SkillRepo:
                 print("Error when updating Skill:", skill)
                 raise e
 
-    @classmethod
-    def delete(cls, skill_id: int) -> bool:
-        with db.get_session() as session:
+    def delete(self, skill_id: int) -> bool:
+        with self.db.get_session() as session:
             session.begin()
             session.expire_on_commit = False
 
