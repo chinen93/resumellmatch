@@ -1,28 +1,9 @@
-from src.storage.repositories.user_repo import UserRepo
+from src.logging_config import get_logger, setup_logging
+
+_log = get_logger("Main")
 
 
 def main():
 
-    print("Clean")
-    # Get all and Delete
-    users = UserRepo.get_all()
-    for user in users:
-        print(user)
-        UserRepo.delete(user.id)
-
-    # Create
-    print("Create")
-    user_id = UserRepo.create(name="Teste", email="teste@test1.com")
-    print(user_id)
-
-    # Read
-    print("Read")
-    user = UserRepo.get_by_id(user_id)
-    print(user)
-
-    # Update
-    print("Update")
-    user = UserRepo.update(user_id, name="Jane Doe")
-    print(user)
-
-    print("Hello World")
+    setup_logging(testing=False)
+    _log.info("Hello World")

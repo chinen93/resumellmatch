@@ -5,9 +5,10 @@ from src.storage.models import Base
 from src.storage.repositories.skill_repo import SkillRepo
 from src.storage.repositories.star_repo import StarEntryRepo, StarMetadataRepo
 from src.storage.repositories.user_repo import UserRepo
+from tests.conf_log_test import BaseTestCase
 
 
-class TestStarMetadataRepo(unittest.TestCase):
+class TestStarMetadataRepo(BaseTestCase):
     @classmethod
     def setUpClass(cls):
         cls.star_metadata_repo = StarMetadataRepo(isTest=True)

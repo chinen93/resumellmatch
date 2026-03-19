@@ -2,9 +2,10 @@ import unittest
 
 from src.storage.models import Base
 from src.storage.repositories.user_repo import UserRepo
+from tests.conf_log_test import BaseTestCase
 
 
-class TestUserRepo(unittest.TestCase):
+class TestUserRepo(BaseTestCase):
     @classmethod
     def setUpClass(cls):
         cls.user_repo = UserRepo(isTest=True)

@@ -1,6 +1,13 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 
+from src.logging_config import get_logger
+
+_log = get_logger("Connection")
+
+TEST_ENGINE = "sqlite:///./output/test_storage.db"
+PROD_ENGINE = "sqlite:///./output/storage.db"
+
 
 class DatabaseConnection:
     """
@@ -17,18 +24,17 @@ class DatabaseConnection:
 
         if isTest:
             cls._instance = super().__new__(cls)
-            cls._instance.engine = create_engine(
-                "sqlite:///./output/test_storage.db", echo=False
-            )
+            cls._instance.engine = create_engine(TEST_ENGINE, echo=False)
+            _log.debug("New Connection to '%s'", TEST_ENGINE)
             return cls._instance
 
         if cls._instance is None:
             cls._instance = super().__new__(cls)
 
             # Initialize engine with SQLite for MVP; configurable later
-            cls._instance.engine = create_engine(
-                "sqlite:///./output/storage.db", echo=False
-            )
+            cls._instance.engine = create_engine(PROD_ENGINE, echo=False)
+
+            _log.debug("New Connection to '%s'", PROD_ENGINE)
 
         return cls._instance
 

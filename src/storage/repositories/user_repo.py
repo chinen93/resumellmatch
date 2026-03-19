@@ -1,7 +1,10 @@
 from typing import List, Optional
 
+from src.logging_config import get_logger
 from src.storage.connection import DatabaseConnection
 from src.storage.models import User
+
+_log = get_logger("UserRepo")
 
 
 class UserRepo:
@@ -24,7 +27,7 @@ class UserRepo:
                 session.commit()
             except Exception as e:
                 session.rollback()
-                print("Error when creating User:", user)
+                _log.error("Error when creating User:", user)
                 raise e
 
         return result
@@ -62,7 +65,7 @@ class UserRepo:
 
             except Exception as e:
                 session.rollback()
-                print("Error when deleting User:", user)
+                _log.error("Error when deleting User:", user)
                 raise e
 
     def delete(self, user_id: int) -> bool:
@@ -78,7 +81,7 @@ class UserRepo:
                 session.commit()
             except Exception as e:
                 session.rollback()
-                print("Error when deleting User:", user)
+                _log.error("Error when deleting User:", user)
                 raise e
 
             return True

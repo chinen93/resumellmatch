@@ -1,5 +1,6 @@
 .DS_Store
 *storage.db
+message.log
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

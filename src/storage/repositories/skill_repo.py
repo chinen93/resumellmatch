@@ -1,7 +1,10 @@
 from typing import List, Optional
 
+from src.logging_config import get_logger
 from src.storage.connection import DatabaseConnection
 from src.storage.models import Skill
+
+_log = get_logger("SkillRepo")
 
 
 class SkillRepo:
@@ -25,7 +28,7 @@ class SkillRepo:
                 session.commit()
             except Exception as e:
                 session.rollback()
-                print("Error when creating Skill:", skill)
+                _log.error("Error when creating Skill:", skill)
                 raise e
 
         return result
@@ -63,7 +66,7 @@ class SkillRepo:
 
             except Exception as e:
                 session.rollback()
-                print("Error when updating Skill:", skill)
+                _log.error("Error when updating Skill:", skill)
                 raise e
 
     def delete(self, skill_id: int) -> bool:
@@ -79,7 +82,7 @@ class SkillRepo:
                 session.commit()
             except Exception as e:
                 session.rollback()
-                print("Error when deleting Skill:", skill)
+                _log.error("Error when deleting Skill:", skill)
                 raise e
 
             return True

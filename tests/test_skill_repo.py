@@ -2,9 +2,10 @@ import unittest
 
 from src.storage.models import Base
 from src.storage.repositories.skill_repo import SkillRepo
+from tests.conf_log_test import BaseTestCase
 
 
-class TestSkillRepo(unittest.TestCase):
+class TestSkillRepo(BaseTestCase):
     @classmethod
     def setUpClass(cls):
         cls.skill_repo = SkillRepo(isTest=True)
