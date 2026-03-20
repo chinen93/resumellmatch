@@ -99,6 +99,24 @@ class StarMetadata(Base):
         )
 
 
+class Resume(Base):
+
+    __tablename__ = "resumes"
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    user_id = Column(Integer, ForeignKey("users.id"))
+    raw_text = Column(String, nullable=False)
+    created_at = Column(TIMESTAMP, default=datetime.now)
+
+    def __repr__(self):
+        return (
+            f"Resume("
+            f"id={self.id}, "
+            f"user_id={self.user_id}), "
+            f"created_at={self.created_at}"
+            f")"
+        )
+
+
 class User(Base):
 
     __tablename__ = "users"
@@ -110,4 +128,73 @@ class User(Base):
     )
 
     def __repr__(self):
-        return f"User(id={self.id}, name={self.name}, email={self.email}, star_metadatas={self.star_metadatas})"
+        return (
+            f"User("
+            f"id={self.id}, "
+            f"name={self.name}, "
+            f"email={self.email}, "
+            f"star_metadatas={self.star_metadatas}"
+            f")"
+        )
+
+
+class JobDescription(Base):
+
+    __tablename__ = "job_descriptions"
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    url = Column(String, nullable=False)
+    title = Column(String, nullable=False)
+    raw_text = Column(String, nullable=False)
+    created_at = Column(TIMESTAMP, default=datetime.now)
+
+    def __repr__(self):
+        return (
+            f"JobDescription("
+            f"id={self.id}, "
+            f"url={self.url}, "
+            f"title={self.title}"
+            f")"
+        )
+
+
+class JobDescriptionParsed(Base):
+
+    __tablename__ = "job_descriptions_parsed"
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    job_description_id = Column(Integer, ForeignKey("job_descriptions.id"))
+    summary = Column(String, nullable=False)
+    required_skills = Column(String, nullable=False)  # CSV separated skills from JD
+    prefered_skills = Column(String, nullable=False)  # CSV separated skills from JD
+    keywords = Column(String, nullable=False)  # CSV separated keywords from JD
+
+    def __repr__(self):
+        return (
+            f"JobDescriptionParsed("
+            f"id={self.id}, "
+            f"job_description_id={self.job_description_id}), "
+            f"summary={self.summary}"
+            f")"
+        )
+
+
+class Matches(Base):
+
+    __tablename__ = "matches"
+
+    resume_id = Column(Integer, ForeignKey("resumes.id"), primary_key=True)
+    job_description_parsed_id = Column(
+        Integer, ForeignKey("job_descriptions_parsed.id"), primary_key=True
+    )
+
+    score = Column(Integer, nullable=False)
+    llm_analysis = Column(String, nullable=False)
+
+    def __repr__(self):
+        return (
+            f"Match("
+            f"resume_id={self.resume_id}, "
+            f"job_description_parsed_id={self.job_description_parsed_id}), "
+            f"score={self.score}"
+            # f"llm_analysis={self.llm_analysis}"
+            f")"
+        )
