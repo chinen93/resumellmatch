@@ -6,12 +6,11 @@ from src.storage.connection import DatabaseConnection
 from src.storage.models import StarEntry, StarMetadata
 from src.storage.repositories.skill_repo import SkillRepo
 
-_log = get_logger("StarRepo")
-
 
 class StarMetadataRepo:
 
     def __init__(self, isTest):
+        self._log = get_logger("StarMetadataRepo")
         self.db = DatabaseConnection(isTest)
 
     def create(
@@ -47,7 +46,7 @@ class StarMetadataRepo:
                 session.commit()
             except Exception as e:
                 session.rollback()
-                _log.error("Error when creating StarMetadata:", star_metadata)
+                self._log.error(f"Error when creating StarMetadata: {star_metadata}")
                 raise e
 
         return result
@@ -115,7 +114,7 @@ class StarMetadataRepo:
 
             except Exception as e:
                 session.rollback()
-                _log.error("Error when updating StarMetadata:", star_metadata)
+                self._log.error(f"Error when updating StarMetadata: {star_metadata}")
                 raise e
 
     def delete(self, star_metadata_id: int) -> bool:
@@ -137,7 +136,7 @@ class StarMetadataRepo:
                 session.commit()
             except Exception as e:
                 session.rollback()
-                _log.error("Error when deleting StartMetadata:", star_metadata)
+                self._log.error(f"Error when deleting StartMetadata: {star_metadata}")
                 raise e
 
             return True
@@ -146,6 +145,7 @@ class StarMetadataRepo:
 class StarEntryRepo:
 
     def __init__(self, isTest):
+        self._log = get_logger("StarEntryRepo")
         self.db = DatabaseConnection(isTest)
         self.skill_repo = SkillRepo(isTest)
 
@@ -187,7 +187,7 @@ class StarEntryRepo:
                 session.commit()
             except Exception as e:
                 session.rollback()
-                _log.error("Error when creating StarEntry:", star_entry)
+                self._log.error(f"Error when creating StarEntry: {star_entry}")
                 raise e
 
         return ret
@@ -251,7 +251,7 @@ class StarEntryRepo:
 
             except Exception as e:
                 session.rollback()
-                _log.error("Error when updating StarEntry:", star_entry)
+                self._log.error(f"Error when updating StarEntry: {star_entry}")
                 raise e
 
     def delete(self, star_entry_id: int) -> bool:
@@ -271,7 +271,7 @@ class StarEntryRepo:
                 session.commit()
             except Exception as e:
                 session.rollback()
-                _log.error("Error when deleting StarEntry:", star_entry)
+                self._log.error(f"Error when deleting StarEntry: {star_entry}")
                 raise e
 
             return True

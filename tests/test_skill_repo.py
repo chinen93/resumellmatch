@@ -8,12 +8,14 @@ from tests.conf_log_test import BaseTestCase
 class TestSkillRepo(BaseTestCase):
     @classmethod
     def setUpClass(cls):
+        super().setUpClass()
         cls.skill_repo = SkillRepo(isTest=True)
 
         Base.metadata.create_all(cls.skill_repo.db.engine)
 
     @classmethod
     def tearDownClass(cls):
+        super().tearDownClass()
         Base.metadata.drop_all(cls.skill_repo.db.engine)
 
     def setUp(self):

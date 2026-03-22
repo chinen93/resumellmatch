@@ -4,12 +4,11 @@ from src.logging_config import get_logger
 from src.storage.connection import DatabaseConnection
 from src.storage.models import User
 
-_log = get_logger("UserRepo")
-
 
 class UserRepo:
 
     def __init__(self, isTest):
+        self._log = get_logger("UserRepo")
         self.db = DatabaseConnection(isTest)
 
     def create(self, name: str, email: str) -> int:
@@ -27,7 +26,7 @@ class UserRepo:
                 session.commit()
             except Exception as e:
                 session.rollback()
-                _log.error("Error when creating User:", user)
+                self._log.error(f"Error when creating User: {user}")
                 raise e
 
         return result
@@ -65,7 +64,7 @@ class UserRepo:
 
             except Exception as e:
                 session.rollback()
-                _log.error("Error when deleting User:", user)
+                self._log.error(f"Error when updating User: {user}")
                 raise e
 
     def delete(self, user_id: int) -> bool:
@@ -81,7 +80,7 @@ class UserRepo:
                 session.commit()
             except Exception as e:
                 session.rollback()
-                _log.error("Error when deleting User:", user)
+                self._log.debug(f"Error when deleting User: {user_id}")
                 raise e
 
             return True

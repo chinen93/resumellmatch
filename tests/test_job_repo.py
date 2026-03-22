@@ -11,12 +11,14 @@ from tests.conf_log_test import BaseTestCase
 class TestJobDescriptionRepo(BaseTestCase):
     @classmethod
     def setUpClass(cls):
+        super().setUpClass()
         cls.job_desc_repo = JobDescriptionRepo(isTest=True)
 
         Base.metadata.create_all(cls.job_desc_repo.db.engine)
 
     @classmethod
     def tearDownClass(cls):
+        super().tearDownClass()
         Base.metadata.drop_all(cls.job_desc_repo.db.engine)
 
     def setUp(self):
@@ -71,6 +73,7 @@ class TestJobDescriptionRepo(BaseTestCase):
 class TestJobDescriptionParsedRepo(BaseTestCase):
     @classmethod
     def setUpClass(cls):
+        super().setUpClass()
         cls.job_desc_repo = JobDescriptionRepo(isTest=True)
         cls.job_desc_parsed_repo = JobDescriptionParsedRepo(isTest=True)
 
@@ -78,6 +81,7 @@ class TestJobDescriptionParsedRepo(BaseTestCase):
 
     @classmethod
     def tearDownClass(cls):
+        super().tearDownClass()
         Base.metadata.drop_all(cls.job_desc_parsed_repo.db.engine)
 
     def setUp(self):

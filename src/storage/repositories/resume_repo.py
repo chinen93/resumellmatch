@@ -4,11 +4,10 @@ from src.logging_config import get_logger
 from src.storage.connection import DatabaseConnection
 from src.storage.models import Resume
 
-_log = get_logger("ResumeRepo")
-
 
 class ResumeRepo:
     def __init__(self, isTest):
+        self._log = get_logger("ResumeRepo")
         self.db = DatabaseConnection(isTest)
 
     def create(self, user_id: int, raw_text: str) -> int:
@@ -25,7 +24,7 @@ class ResumeRepo:
                 session.commit()
             except Exception as e:
                 session.rollback()
-                _log.error(f"Error when creating Resume: {e}")
+                self._log.error(f"Error when creating Resume: {e}")
                 raise e
 
         return result
@@ -77,7 +76,7 @@ class ResumeRepo:
 
             except Exception as e:
                 session.rollback()
-                _log.error(f"Error when updating Resume: {e}")
+                self._log.error(f"Error when updating Resume: {e}")
                 raise e
 
     def delete(self, resume_id: int) -> bool:
@@ -93,7 +92,7 @@ class ResumeRepo:
                 session.commit()
             except Exception as e:
                 session.rollback()
-                _log.error(f"Error when deleting Resume: {e}")
+                self._log.error(f"Error when deleting Resume: {e}")
                 raise e
 
             return True

@@ -25,7 +25,7 @@ Or manually in a test module:
 
 import unittest
 
-from src.logging_config import enable_logging, setup_logging
+from config.settings import dependent_load_dotenv
 
 
 class BaseTestCase(unittest.TestCase):
@@ -47,11 +47,10 @@ class BaseTestCase(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         """Configure logging for test class"""
-        setup_logging(testing=True)
+        dependent_load_dotenv(isTest=True)
         super().setUpClass()
 
     @classmethod
     def tearDownClass(cls):
         """Re-enable logging after tests"""
-        enable_logging()
         super().tearDownClass()

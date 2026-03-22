@@ -11,6 +11,7 @@ from tests.conf_log_test import BaseTestCase
 class TestStarMetadataRepo(BaseTestCase):
     @classmethod
     def setUpClass(cls):
+        super().setUpClass()
         cls.star_metadata_repo = StarMetadataRepo(isTest=True)
         cls.user_repo = UserRepo(isTest=True)
 
@@ -18,6 +19,7 @@ class TestStarMetadataRepo(BaseTestCase):
 
     @classmethod
     def tearDownClass(cls):
+        super().tearDownClass()
         Base.metadata.drop_all(cls.star_metadata_repo.db.engine)
 
     def setUp(self):
@@ -147,6 +149,7 @@ class TestStarMetadataRepo(BaseTestCase):
 class TestStarEntryRepo(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
+        super().setUpClass()
         cls.star_entry_repo = StarEntryRepo(isTest=True)
         cls.star_metadata_repo = StarMetadataRepo(isTest=True)
         cls.skill_repo = SkillRepo(isTest=True)
@@ -156,6 +159,7 @@ class TestStarEntryRepo(unittest.TestCase):
 
     @classmethod
     def tearDownClass(cls):
+        super().tearDownClass()
         Base.metadata.drop_all(cls.star_entry_repo.db.engine)
 
     def setUp(self):

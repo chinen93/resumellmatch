@@ -4,11 +4,10 @@ from src.logging_config import get_logger
 from src.storage.connection import DatabaseConnection
 from src.storage.models import JobDescription, JobDescriptionParsed
 
-_log = get_logger("JobRepo")
-
 
 class JobDescriptionRepo:
     def __init__(self, isTest):
+        self._log = get_logger("JobDescRepo")
         self.db = DatabaseConnection(isTest)
 
     def create(self, url: str, title: str, raw_text: str) -> int:
@@ -27,7 +26,7 @@ class JobDescriptionRepo:
                 session.commit()
             except Exception as e:
                 session.rollback()
-                _log.error(f"Error when creating JobDescription: {e}")
+                self._log.error(f"Error when creating JobDescription: {e}")
                 raise e
 
         return result
@@ -83,7 +82,7 @@ class JobDescriptionRepo:
 
             except Exception as e:
                 session.rollback()
-                _log.error(f"Error when updating JobDescription: {e}")
+                self._log.error(f"Error when updating JobDescription: {e}")
                 raise e
 
     def delete(self, job_id: int) -> bool:
@@ -103,7 +102,7 @@ class JobDescriptionRepo:
                 session.commit()
             except Exception as e:
                 session.rollback()
-                _log.error(f"Error when deleting JobDescription: {e}")
+                self._log.error(f"Error when deleting JobDescription: {e}")
                 raise e
 
             return True
@@ -111,6 +110,7 @@ class JobDescriptionRepo:
 
 class JobDescriptionParsedRepo:
     def __init__(self, isTest):
+        self._log = get_logger("JobDescParsedRepo")
         self.db = DatabaseConnection(isTest)
 
     def create(
@@ -140,7 +140,7 @@ class JobDescriptionParsedRepo:
                 session.commit()
             except Exception as e:
                 session.rollback()
-                _log.error(f"Error when creating JobDescriptionParsed: {e}")
+                self._log.error(f"Error when creating JobDescriptionParsed: {e}")
                 raise e
 
         return result
@@ -212,7 +212,7 @@ class JobDescriptionParsedRepo:
 
             except Exception as e:
                 session.rollback()
-                _log.error(f"Error when updating JobDescriptionParsed: {e}")
+                self._log.error(f"Error when updating JobDescriptionParsed: {e}")
                 raise e
 
     def delete(self, parsed_id: int) -> bool:
@@ -234,7 +234,7 @@ class JobDescriptionParsedRepo:
                 session.commit()
             except Exception as e:
                 session.rollback()
-                _log.error(f"Error when deleting JobDescriptionParsed: {e}")
+                self._log.error(f"Error when deleting JobDescriptionParsed: {e}")
                 raise e
 
             return True

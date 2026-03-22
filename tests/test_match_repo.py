@@ -14,6 +14,7 @@ from tests.conf_log_test import BaseTestCase
 class TestMatchRepo(BaseTestCase):
     @classmethod
     def setUpClass(cls):
+        super().setUpClass()
         cls.match_repo = MatchRepo(isTest=True)
         cls.job_desc_repo = JobDescriptionRepo(isTest=True)
         cls.job_desc_parsed_repo = JobDescriptionParsedRepo(isTest=True)
@@ -24,6 +25,8 @@ class TestMatchRepo(BaseTestCase):
 
     @classmethod
     def tearDownClass(cls):
+        super().tearDownClass()
+
         Base.metadata.drop_all(cls.match_repo.db.engine)
 
     def setUp(self):

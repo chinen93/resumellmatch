@@ -4,12 +4,11 @@ from src.logging_config import get_logger
 from src.storage.connection import DatabaseConnection
 from src.storage.models import Skill
 
-_log = get_logger("SkillRepo")
-
 
 class SkillRepo:
 
     def __init__(self, isTest):
+        self._log = get_logger("SkillRepo")
         self.db = DatabaseConnection(isTest)
 
     def create(self, name: str) -> int:
@@ -28,7 +27,7 @@ class SkillRepo:
                 session.commit()
             except Exception as e:
                 session.rollback()
-                _log.error("Error when creating Skill:", skill)
+                self._log.error(f"Error when creating Skill: {skill}")
                 raise e
 
         return result
@@ -66,7 +65,7 @@ class SkillRepo:
 
             except Exception as e:
                 session.rollback()
-                _log.error("Error when updating Skill:", skill)
+                self._log.error(f"Error when updating Skill: {skill}")
                 raise e
 
     def delete(self, skill_id: int) -> bool:
@@ -82,7 +81,7 @@ class SkillRepo:
                 session.commit()
             except Exception as e:
                 session.rollback()
-                _log.error("Error when deleting Skill:", skill)
+                self._log.error(f"Error when deleting Skill: {skill}")
                 raise e
 
             return True

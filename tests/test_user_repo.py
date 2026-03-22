@@ -6,14 +6,17 @@ from tests.conf_log_test import BaseTestCase
 
 
 class TestUserRepo(BaseTestCase):
+
     @classmethod
     def setUpClass(cls):
+        super().setUpClass()
         cls.user_repo = UserRepo(isTest=True)
 
         Base.metadata.create_all(cls.user_repo.db.engine)
 
     @classmethod
     def tearDownClass(cls):
+        super().tearDownClass()
         Base.metadata.drop_all(cls.user_repo.db.engine)
 
     def setUp(self):

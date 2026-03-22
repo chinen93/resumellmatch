@@ -19,6 +19,8 @@ import logging
 import logging.config
 from pathlib import Path
 
+from config.settings import get_settings
+
 
 def get_config_path(testing: bool = False) -> str:
     """
@@ -56,84 +58,57 @@ def setup_logging(testing: bool = False) -> None:
     Args:
         testing: If True, use test configuration (suppresses logs).
                 If False, use production configuration (logs to file and console).
-
-    Example:
-        # In your main.py or application startup
-        from src.logging_config import setup_logging
-
-        if __name__ == "__main__":
-            setup_logging(testing=False)
-            # Your application code here
-
-        # In your test conftest.py
-        import pytest
-        from src.logging_config import setup_logging
-
-        @pytest.fixture(scope="session", autouse=True)
-        def configure_test_logging():
-            setup_logging(testing=True)
     """
     # Ensure logs directory exists for production mode
     if not testing:
         ensure_logs_directory()
 
     # Get the appropriate config file
-    config_file = get_config_path(testing=testing)
+    # config_file = get_config_path(testing=testing)
 
     # Load logging configuration
-    logging.config.fileConfig(config_file, disable_existing_loggers=False)
+    # logging.config.fileConfig(config_file, disable_existing_loggers=False)
 
-    mode = "TESTING" if testing else "PRODUCTION"
+    # mode = "TESTING" if testing else "PRODUCTION"
 
-    logger = logging.getLogger(__name__)
-    logger.info("=" * 30)
-    logger.debug(f"Logging configured for {mode} mode using {config_file}")
-
-
-def disable_logging() -> None:
-    """
-    Completely disable logging (useful for tests that don't want any output).
-
-    Example:
-        from src.logging_config import disable_logging
-
-        class MyTestCase(unittest.TestCase):
-            @classmethod
-            def setUpClass(cls):
-                disable_logging()
-    """
-    logging.disable(logging.CRITICAL)
+    # logger = logging.getLogger(__name__)
+    # logger.info("=" * 30)
+    # logger.debug(f"Logging configured for {mode} mode using {config_file}")
 
 
-def enable_logging() -> None:
-    """
-    Re-enable logging after it was disabled.
+def configure_root_logger() -> None:
 
-    Example:
-        from src.logging_config import enable_logging
+    root = logging.getLogger()
+    if root.handlers:
+        return
 
-        class MyTestCase(unittest.TestCase):
-            @classmethod
-            def tearDownClass(cls):
-                enable_logging()
-    """
-    logging.disable(logging.NOTSET)
+    settings = get_settings()
+
+    level = getattr(logging, settings.LOG_LEVEL.upper(), logging.INFO)
+    root.setLevel(level)
+
+    formatter = logging.Formatter(settings.LOG_FORMAT)
+
+    if settings.LOG_TO_CONSOLE:
+        ch = logging.StreamHandler()
+        ch.setLevel(level)
+        ch.setFormatter(formatter)
+        root.addHandler(ch)
+
+    if settings.LOG_FILE:
+        fh = logging.FileHandler(settings.LOG_FILE)
+        fh.setLevel(level)
+        fh.setFormatter(formatter)
+        root.addHandler(fh)
+
+    root.info("=" * 30)
 
 
 def get_logger(name: str) -> logging.Logger:
     """
     Get a logger instance with the given name.
 
-    Args:
-        name: Logger name (usually __name__)
-
-    Returns:
-        Logger instance
-
-    Example:
-        from src.logging_config import get_logger
-
-        logger = get_logger(__name__)
-        logger.info("Application started")
     """
+    print(name)
+    configure_root_logger()
     return logging.getLogger(name)

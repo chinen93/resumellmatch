@@ -9,6 +9,7 @@ from tests.conf_log_test import BaseTestCase
 class TestResumeRepo(BaseTestCase):
     @classmethod
     def setUpClass(cls):
+        super().setUpClass()
         # Use a test database
         cls.resume_repo = ResumeRepo(isTest=True)
         cls.user_repo = UserRepo(isTest=True)
@@ -17,6 +18,7 @@ class TestResumeRepo(BaseTestCase):
 
     @classmethod
     def tearDownClass(cls):
+        super().tearDownClass()
         Base.metadata.drop_all(cls.resume_repo.db.engine)
 
     def setUp(self):

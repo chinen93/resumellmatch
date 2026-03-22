@@ -4,11 +4,10 @@ from src.logging_config import get_logger
 from src.storage.connection import DatabaseConnection
 from src.storage.models import Matches
 
-_log = get_logger("MatchRepo")
-
 
 class MatchRepo:
     def __init__(self, isTest):
+        self._log = get_logger("MatchRepo")
         self.db = DatabaseConnection(isTest)
 
     def create(
@@ -33,7 +32,7 @@ class MatchRepo:
                 session.commit()
             except Exception as e:
                 session.rollback()
-                _log.error(f"Error when creating Match: {e}")
+                self._log.error(f"Error when creating Match: {e}")
                 raise e
 
         return True
@@ -115,7 +114,7 @@ class MatchRepo:
 
             except Exception as e:
                 session.rollback()
-                _log.error(f"Error when updating Match: {e}")
+                self._log.error(f"Error when updating Match: {e}")
                 raise e
 
     def delete(self, resume_id: int, job_description_parsed_id: int) -> bool:
@@ -140,7 +139,7 @@ class MatchRepo:
                 session.commit()
             except Exception as e:
                 session.rollback()
-                _log.error(f"Error when deleting Match: {e}")
+                self._log.error(f"Error when deleting Match: {e}")
                 raise e
 
             return True
