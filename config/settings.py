@@ -1,6 +1,7 @@
 import os
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Optional
 
 from dotenv import load_dotenv
 
@@ -14,17 +15,20 @@ class Singleton(type):
         return cls._instances[cls]
 
 
-def dependent_load_dotenv(isTest=False) -> None:
+def dependent_load_dotenv(isTest=False):
 
     print("a" * 20)
 
+    BASE_DIR = Path(__file__).parent.parent
+    env_file = str(BASE_DIR) + "/"
+
     if isTest:
-        BASE_DIR = Path(__file__).parent.parent
-        env_file = BASE_DIR / ".env.test"
-        print(env_file, env_file.exists())
-        load_dotenv(env_file)
+        env_file += ".env.test"
     else:
-        load_dotenv()
+        env_file += ".env"
+
+    print(f"loading {env_file}")
+    load_dotenv(env_file)
 
     return get_settings()
 
@@ -33,13 +37,13 @@ def get_settings():  # type: ignore
 
     @dataclass(frozen=True)
     class Settings(metaclass=Singleton):
-        ENVIRONMENT: str = os.getenv("ENVIRONMENT")
+        ENVIRONMENT: Optional[str] = os.getenv("ENVIRONMENT")  # type: ignore
 
-        LOG_LEVEL: str = os.getenv("LOG_LEVEL")
-        LOG_FORMAT: str = os.getenv("LOG_FORMAT")
-        LOG_FILE: str = os.getenv("LOG_FILE")
-        LOG_TO_CONSOLE: bool = os.getenv("LOG_TO_CONSOLE")
-        DATABASE_URL: str = os.getenv("DATABASE_URL")
+        LOG_LEVEL: Optional[str] = os.getenv("LOG_LEVEL")  # type: ignore
+        LOG_FORMAT: Optional[str] = os.getenv("LOG_FORMAT")  # type: ignore
+        LOG_FILE: Optional[str] = os.getenv("LOG_FILE")  # type: ignore
+        LOG_TO_CONSOLE: Optional[str] = os.getenv("LOG_TO_CONSOLE")  # type: ignore
+        DATABASE_URL: Optional[str] = os.getenv("DATABASE_URL")  # type: ignore
 
         def __post_init__(self):
             missing = [

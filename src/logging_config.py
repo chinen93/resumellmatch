@@ -19,7 +19,7 @@ import logging
 import logging.config
 from pathlib import Path
 
-from config.settings import get_settings
+from config.settings import dependent_load_dotenv, get_settings
 
 
 def get_config_path(testing: bool = False) -> str:
@@ -62,6 +62,8 @@ def setup_logging(testing: bool = False) -> None:
     # Ensure logs directory exists for production mode
     if not testing:
         ensure_logs_directory()
+
+    dependent_load_dotenv(isTest=False)
 
     # Get the appropriate config file
     # config_file = get_config_path(testing=testing)
