@@ -39,7 +39,8 @@ def get_settings():  # type: ignore
     class Settings(metaclass=Singleton):
         ENVIRONMENT: Optional[str] = os.getenv("ENVIRONMENT")  # type: ignore
 
-        LOG_LEVEL: Optional[str] = os.getenv("LOG_LEVEL")  # type: ignore
+        LOG_LEVEL: str = os.getenv("LOG_LEVEL", "INFO")  # type: ignore
+
         LOG_FORMAT: Optional[str] = os.getenv("LOG_FORMAT")  # type: ignore
         LOG_FILE: Optional[str] = os.getenv("LOG_FILE")  # type: ignore
         LOG_TO_CONSOLE: Optional[str] = os.getenv("LOG_TO_CONSOLE")  # type: ignore
