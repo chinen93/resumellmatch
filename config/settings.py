@@ -5,6 +5,8 @@ from typing import Optional
 
 from dotenv import load_dotenv
 
+ENV_FILEPATH = ""
+
 
 class Singleton(type):
     _instances: dict[type, type] = {}
@@ -17,8 +19,6 @@ class Singleton(type):
 
 def dependent_load_dotenv(isTest=False):
 
-    print("a" * 20)
-
     BASE_DIR = Path(__file__).parent.parent
     env_file = str(BASE_DIR) + "/"
 
@@ -27,7 +27,8 @@ def dependent_load_dotenv(isTest=False):
     else:
         env_file += ".env"
 
-    print(f"loading {env_file}")
+    global ENV_FILEPATH
+    ENV_FILEPATH = env_file
     load_dotenv(env_file)
 
     return get_settings()
@@ -37,6 +38,9 @@ def get_settings():  # type: ignore
 
     @dataclass(frozen=True)
     class Settings(metaclass=Singleton):
+
+        ENV_FILEPATH: str = ENV_FILEPATH  # type: ignore
+
         ENVIRONMENT: Optional[str] = os.getenv("ENVIRONMENT")  # type: ignore
 
         LOG_LEVEL: str = os.getenv("LOG_LEVEL", "INFO")  # type: ignore
@@ -63,5 +67,4 @@ def get_settings():  # type: ignore
                 raise ValueError(f"Missing required settings: {', '.join(missing)}")
 
     settings = Settings()
-    print(settings)
     return settings

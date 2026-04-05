@@ -7,7 +7,7 @@ class StarMetadataProcessor:
     def new_item(
         self, user_id, type, title, subtitle, location, start_date, end_date
     ) -> None:
-        metadata = StarMetadata(
+        _ = StarMetadata(
             user_id=user_id,
             type=type,
             title=title,

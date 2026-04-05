@@ -29,7 +29,7 @@ class SkillRepo:
                 self._log.error(f"Error when creating Skill: {skill}")
                 raise e
 
-        return result
+        return result  # type: ignore
 
     def get_by_id(self, skill_id: int) -> Optional[Skill]:
         with self.db.get_session() as session:

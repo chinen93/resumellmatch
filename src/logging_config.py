@@ -16,7 +16,6 @@ Usage:
 """
 
 import logging
-import logging.config
 from pathlib import Path
 
 from config.settings import dependent_load_dotenv, get_settings
@@ -104,6 +103,7 @@ def configure_root_logger() -> None:
         root.addHandler(fh)
 
     root.info("=" * 30)
+    root.debug(f"ENV FILE: '{settings.ENV_FILEPATH}'")
 
 
 def get_logger(name: str) -> logging.Logger:
@@ -111,6 +111,5 @@ def get_logger(name: str) -> logging.Logger:
     Get a logger instance with the given name.
 
     """
-    print(name)
     configure_root_logger()
     return logging.getLogger(name)

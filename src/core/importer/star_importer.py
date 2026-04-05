@@ -45,7 +45,7 @@ class StarMetadataImporter:
         )
 
     def run(self, filepath: str) -> List[str]:
-        ret = []
+        ret: List[str] = []
 
         try:
             self.loader.load_csv(
