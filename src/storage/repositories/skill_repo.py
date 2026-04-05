@@ -23,8 +23,7 @@ class SkillRepo:
                 session.add(skill)
                 session.commit()
 
-                result = int(skill.id)
-                session.commit()
+                result = skill.id
             except Exception as e:
                 session.rollback()
                 self._log.error(f"Error when creating Skill: {skill}")
