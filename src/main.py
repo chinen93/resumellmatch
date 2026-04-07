@@ -14,4 +14,4 @@ def main():
     # print(resume)
 
     client = OllamaLocalClient()
-    client.extract_keywords(resume)
+    client.extract_resume_keywords(resume)

@@ -1,19 +1,13 @@
 from pathlib import Path
-from typing import List, Optional
+from typing import Any, List, Optional
 
 from ollama import generate
-from pydantic import BaseModel
 
+from src.llm.client.response import ExtractKeywordResponse, SimpleResponse
 from src.logging_config import get_logger
 
-
-class OutputResponse(BaseModel):
-    name: str
-    content_text: List[str]
-
-
 PROMPT_HELLO_WORLD = "hello_world.txt"
-PROMPT_EXTRACT_KEYWORDS = "extract_keywords.txt"
+PROMPT_EXTRACT_RESUME_KEYWORDS = "extract_resume_keywords.txt"
 
 
 class OllamaLocalClient:
@@ -30,14 +24,14 @@ class OllamaLocalClient:
         except ConnectionError:
             self.ready = False
 
-    def _generate(self, message: str) -> str:
+    def _generate(self, message: str, format: dict[str, Any]) -> str:
         # print(message)
 
         output = generate(
             model="gemma3:1b",  # Faster
             # model="gemma3:4b", # Slower
             prompt=message,
-            # format=OutputResponse.model_json_schema(),
+            format=format,
             stream=False,
             options={"temperature": 0},
         )
@@ -68,9 +62,11 @@ class OllamaLocalClient:
         response = output["response"]
         return response
 
-    def _generate_when_ready(self, message: str) -> Optional[str]:
+    def _generate_when_ready(
+        self, message: str, format: dict[str, Any]
+    ) -> Optional[str]:
         if self.ready:
-            return self._generate(message=message)
+            return self._generate(message=message, format=format)
 
         return None
 
@@ -96,19 +92,21 @@ class OllamaLocalClient:
         message = self._get_prompt(PROMPT_HELLO_WORLD)
 
         if message is not None:
-            content = self._generate(message)
+            content = self._generate(message, SimpleResponse.model_json_schema())
             self._log.info(content)
 
     # ===============================================================
     # LLM Commands
     # ===============================================================
 
-    def extract_keywords(self, text: str) -> List[str]:
+    def extract_resume_keywords(self, text: str) -> List[str]:
         ret: List[str] = []
-        message = self._get_prompt(PROMPT_EXTRACT_KEYWORDS)
+        message = self._get_prompt(PROMPT_EXTRACT_RESUME_KEYWORDS)
 
         if message is not None:
-            content = self._generate_when_ready(message.format(text=text))
+            content = self._generate_when_ready(
+                message.format(text=text), ExtractKeywordResponse.model_json_schema()
+            )
 
             if content is not None:
                 self._log.info(content)
