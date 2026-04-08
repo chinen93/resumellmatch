@@ -1,13 +1,19 @@
 from pathlib import Path
-from typing import Any, List, Optional
+from typing import Optional
 
 from ollama import generate
 
-from src.llm.client.response import ExtractKeywordResponse, SimpleResponse
+from src.llm.client.response import (
+    BaseResponse,
+    ExtractKeywordResponse,
+    JobDescriptioKeywordsResponse,
+    SimpleResponse,
+)
 from src.logging_config import get_logger
 
 PROMPT_HELLO_WORLD = "hello_world.txt"
 PROMPT_EXTRACT_RESUME_KEYWORDS = "extract_resume_keywords.txt"
+PROMPT_EXTRACT_JOB_DESCRIPTION_KEYWORDS = "extract_job_description_keywords.txt"
 
 
 class OllamaLocalClient:
@@ -24,14 +30,14 @@ class OllamaLocalClient:
         except ConnectionError:
             self.ready = False
 
-    def _generate(self, message: str, format: dict[str, Any]) -> str:
+    def _generate(self, message: str, format: type[BaseResponse]) -> str:
         # print(message)
 
         output = generate(
-            model="gemma3:1b",  # Faster
-            # model="gemma3:4b", # Slower
+            # model="gemma3:1b",  # Faster
+            model="gemma3:4b",  # Slower
             prompt=message,
-            format=format,
+            format=format.model_json_schema(),
             stream=False,
             options={"temperature": 0},
         )
@@ -60,11 +66,19 @@ class OllamaLocalClient:
         self._log.debug(f"Eval Count: {eval_count}")
 
         response = output["response"]
-        return response
+
+        try:
+            validate_response = format.model_validate_json(response)
+        except Exception as e:
+            validate_response = BaseResponse()
+            self._log.error(f"Failed to parse resume keyword response: {e}")
+
+        return validate_response.model_dump_json()
 
     def _generate_when_ready(
-        self, message: str, format: dict[str, Any]
+        self, message: str, format: type[BaseResponse]
     ) -> Optional[str]:
+
         if self.ready:
             return self._generate(message=message, format=format)
 
@@ -92,23 +106,37 @@ class OllamaLocalClient:
         message = self._get_prompt(PROMPT_HELLO_WORLD)
 
         if message is not None:
-            content = self._generate(message, SimpleResponse.model_json_schema())
+            content = self._generate(message, SimpleResponse)
             self._log.info(content)
 
     # ===============================================================
     # LLM Commands
     # ===============================================================
 
-    def extract_resume_keywords(self, text: str) -> List[str]:
-        ret: List[str] = []
+    def extract_resume_keywords(self, text: str) -> Optional[str]:
         message = self._get_prompt(PROMPT_EXTRACT_RESUME_KEYWORDS)
 
         if message is not None:
             content = self._generate_when_ready(
-                message.format(text=text), ExtractKeywordResponse.model_json_schema()
+                message.format(text=text), ExtractKeywordResponse
             )
 
             if content is not None:
                 self._log.info(content)
+                return content
 
-        return ret
+        return None
+
+    def extract_job_description_keywords(self, text: str) -> Optional[str]:
+        message = self._get_prompt(PROMPT_EXTRACT_JOB_DESCRIPTION_KEYWORDS)
+
+        if message is not None:
+            content = self._generate_when_ready(
+                message.format(text=text), JobDescriptioKeywordsResponse
+            )
+
+            if content is not None:
+                self._log.info(content)
+                return content
+
+        return None
