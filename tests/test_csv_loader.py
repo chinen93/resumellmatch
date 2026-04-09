@@ -4,10 +4,15 @@ import unittest
 from typing import List
 
 from src.data_ingestion.csv_loader import CSVLoader
+from tests.conf_log_test import BaseTestCase
 
 
-class TestCSVLoader(unittest.TestCase):
+class TestCSVLoader(BaseTestCase):
     """Unit tests for CSVLoader class."""
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
 
     def setUp(self):
         """Set up test fixtures before each test method."""
