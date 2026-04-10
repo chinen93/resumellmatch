@@ -18,5 +18,18 @@ def main():
     client = OllamaLocalClient()
     # client.extract_resume_keywords(resume)
 
+    # Extract Job Description Information
     job_description = FileReader.read_txt_file("job_description.txt")
-    client.extract_job_description_keywords(job_description)
+
+    # TODO: Store job_parsed
+    # TODO: Hash job_description so it does can get job_parsed faster from the storage
+    job_parsed = client.extract_job_description_keywords(job_description)
+
+    if job_parsed:
+        # Load STAR info
+        star = FileReader.read_json_file("star/star_2.json")
+
+        match_job_star = client.match_job_with_star(job_parsed, star)
+
+        if match_job_star:
+            client.rewrite_star_to_bullet_point(star, job_parsed, match_job_star)

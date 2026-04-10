@@ -34,5 +34,5 @@ Rules:
 
 Resume:
 """
-{text}
+{resume_text}
 """

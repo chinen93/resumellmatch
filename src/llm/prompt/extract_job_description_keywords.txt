@@ -6,7 +6,7 @@ Think critically about what a recruiter really needs to see in a candidate to co
 
 Job Description:
 """
-{text}
+{job_description}
 """
 
 STEP 1 – In-Depth Job Description Analysis. Go beyond surface-level extraction. Carefully analyze the job posting to uncover:

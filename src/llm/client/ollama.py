@@ -7,6 +7,8 @@ from src.llm.client.response import (
     BaseResponse,
     ExtractKeywordResponse,
     JobDescriptioKeywordsResponse,
+    MatchJobWithStarResponse,
+    RewriteStarResponse,
     SimpleResponse,
 )
 from src.logging_config import get_logger
@@ -14,6 +16,8 @@ from src.logging_config import get_logger
 PROMPT_HELLO_WORLD = "hello_world.txt"
 PROMPT_EXTRACT_RESUME_KEYWORDS = "extract_resume_keywords.txt"
 PROMPT_EXTRACT_JOB_DESCRIPTION_KEYWORDS = "extract_job_description_keywords.txt"
+PROMPT_MATCH_JOB_WITH_STAR = "match_job_with_star.txt"
+PROMPT_REWRITE_STAR_BULLET_POINT = "rewrite_star_bullet_point.txt"
 
 
 class OllamaLocalClient:
@@ -31,7 +35,8 @@ class OllamaLocalClient:
             self.ready = False
 
     def _generate(self, message: str, format: type[BaseResponse]) -> str:
-        # print(message)
+
+        self._log.debug(message)
 
         output = generate(
             # model="gemma3:1b",  # Faster
@@ -113,12 +118,12 @@ class OllamaLocalClient:
     # LLM Commands
     # ===============================================================
 
-    def extract_resume_keywords(self, text: str) -> Optional[str]:
+    def extract_resume_keywords(self, resume_text: str) -> Optional[str]:
         message = self._get_prompt(PROMPT_EXTRACT_RESUME_KEYWORDS)
 
         if message is not None:
             content = self._generate_when_ready(
-                message.format(text=text), ExtractKeywordResponse
+                message.format(resume_text=resume_text), ExtractKeywordResponse
             )
 
             if content is not None:
@@ -127,12 +132,47 @@ class OllamaLocalClient:
 
         return None
 
-    def extract_job_description_keywords(self, text: str) -> Optional[str]:
+    def extract_job_description_keywords(self, job_description: str) -> Optional[str]:
         message = self._get_prompt(PROMPT_EXTRACT_JOB_DESCRIPTION_KEYWORDS)
 
         if message is not None:
             content = self._generate_when_ready(
-                message.format(text=text), JobDescriptioKeywordsResponse
+                message.format(job_description=job_description),
+                JobDescriptioKeywordsResponse,
+            )
+
+            if content is not None:
+                self._log.info(content)
+                return content
+
+        return None
+
+    def match_job_with_star(self, job_parsed: str, star_text: str) -> Optional[str]:
+        message = self._get_prompt(PROMPT_MATCH_JOB_WITH_STAR)
+
+        if message is not None:
+            content = self._generate_when_ready(
+                message.format(job_parsed=job_parsed, star_text=star_text),
+                MatchJobWithStarResponse,
+            )
+
+            if content is not None:
+                self._log.info(content)
+                return content
+
+        return None
+
+    def rewrite_star_to_bullet_point(
+        self, star_text: str, job_parsed: str, match_score: str
+    ) -> Optional[str]:
+        message = self._get_prompt(PROMPT_REWRITE_STAR_BULLET_POINT)
+
+        if message is not None:
+            content = self._generate_when_ready(
+                message.format(
+                    star_text=star_text, job_parsed=job_parsed, match_score=match_score
+                ),
+                RewriteStarResponse,
             )
 
             if content is not None:

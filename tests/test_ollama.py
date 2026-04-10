@@ -71,15 +71,17 @@ class TestOllamaLocalClient(BaseTestCase):
         self.assertIsInstance(result, str)
         self.assertEqual(len(mock_generate.mock_calls), 2)
 
-    def test_get_filepath(self):
+    @patch("src.llm.client.ollama.generate")
+    def test_get_filepath(self, _):
         """Test getting filepath for prompts."""
         client = OllamaLocalClient()
         path = client._get_filepath("test.txt")
 
         self.assertTrue(str(path).endswith("prompt/test.txt"))
 
+    @patch("src.llm.client.ollama.generate")
     @patch("builtins.open")
-    def test_get_prompt_success(self, mock_open):
+    def test_get_prompt_success(self, mock_open, _):
         """Test successful prompt retrieval."""
         mock_file = MagicMock()
         mock_file.read.return_value = "prompt content"
@@ -90,8 +92,9 @@ class TestOllamaLocalClient(BaseTestCase):
 
         self.assertEqual(result, "prompt content")
 
+    @patch("src.llm.client.ollama.generate")
     @patch("builtins.open")
-    def test_get_prompt_file_not_found(self, mock_open):
+    def test_get_prompt_file_not_found(self, mock_open, _):
         """Test prompt retrieval when file not found."""
         mock_open.side_effect = FileNotFoundError()
 
@@ -100,11 +103,12 @@ class TestOllamaLocalClient(BaseTestCase):
 
         self.assertIsNone(result)
 
+    @patch("src.llm.client.ollama.generate")
     @patch("src.llm.client.ollama.OllamaLocalClient._generate_when_ready")
     @patch("src.llm.client.ollama.OllamaLocalClient._get_prompt")
-    def test_extract_resume_keywords(self, mock_get_prompt, mock_generate_ready):
+    def test_extract_resume_keywords(self, mock_get_prompt, mock_generate_ready, _):
         """Test extracting resume keywords."""
-        mock_get_prompt.return_value = "Extract keywords from: {text}"
+        mock_get_prompt.return_value = "Extract keywords from: {resume_text}"
         mock_generate_ready.return_value = '{"keywords": ["python", "testing"]}'
 
         client = OllamaLocalClient()
@@ -114,13 +118,14 @@ class TestOllamaLocalClient(BaseTestCase):
         self.assertEqual(result, '{"keywords": ["python", "testing"]}')
         mock_get_prompt.assert_called_with("extract_resume_keywords.txt")
 
+    @patch("src.llm.client.ollama.generate")
     @patch("src.llm.client.ollama.OllamaLocalClient._generate_when_ready")
     @patch("src.llm.client.ollama.OllamaLocalClient._get_prompt")
     def test_extract_job_description_keywords(
-        self, mock_get_prompt, mock_generate_ready
+        self, mock_get_prompt, mock_generate_ready, _
     ):
         """Test extracting job description keywords."""
-        mock_get_prompt.return_value = "Extract keywords from: {text}"
+        mock_get_prompt.return_value = "Extract keywords from: {job_description}"
         mock_generate_ready.return_value = '{"keywords": ["software", "engineer"]}'
 
         client = OllamaLocalClient()
@@ -130,8 +135,9 @@ class TestOllamaLocalClient(BaseTestCase):
         self.assertEqual(result, '{"keywords": ["software", "engineer"]}')
         mock_get_prompt.assert_called_with("extract_job_description_keywords.txt")
 
+    @patch("src.llm.client.ollama.generate")
     @patch("src.llm.client.ollama.OllamaLocalClient._get_prompt")
-    def test_extract_keywords_not_ready(self, mock_get_prompt):
+    def test_extract_keywords_not_ready(self, mock_get_prompt, _):
         """Test keyword extraction when client is not ready."""
         mock_get_prompt.return_value = "prompt"
 

@@ -39,3 +39,12 @@ class JobDescriptioKeywordsResponse(BaseResponse):
     domain_knowledge: List[str]
     work_model: List[str]
     compensation: List[str]
+
+
+class MatchJobWithStarResponse(BaseResponse):
+    score: int
+    explanation: str
+
+
+class RewriteStarResponse(BaseResponse):
+    bullet_point: str
