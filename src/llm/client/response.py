@@ -29,7 +29,13 @@ class JobDescriptionResponse(BaseResponse):
 
 class JobDescriptioKeywordsResponse(BaseResponse):
     summary: str
-    core: List[str]
-    context: List[str]
+    role: List[str]
+    technical_skills: List[str]
+    soft_skills: List[str]
+    responsabilities: List[str]
+    ownership: List[str]
+    tools: List[str]
+    methodologies: List[str]
+    domain_knowledge: List[str]
     work_model: List[str]
     compensation: List[str]
