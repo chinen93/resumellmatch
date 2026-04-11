@@ -104,7 +104,7 @@ class TestOllamaLocalClient(BaseTestCase):
         self.assertIsNone(result)
 
     @patch("src.llm.client.ollama.generate")
-    @patch("src.llm.client.ollama.OllamaLocalClient._generate_when_ready")
+    @patch("src.llm.client.ollama.OllamaLocalClient._generate_when_ready_with_cache")
     @patch("src.llm.client.ollama.OllamaLocalClient._get_prompt")
     def test_extract_resume_keywords(self, mock_get_prompt, mock_generate_ready, _):
         """Test extracting resume keywords."""
@@ -119,7 +119,7 @@ class TestOllamaLocalClient(BaseTestCase):
         mock_get_prompt.assert_called_with("extract_resume_keywords.txt")
 
     @patch("src.llm.client.ollama.generate")
-    @patch("src.llm.client.ollama.OllamaLocalClient._generate_when_ready")
+    @patch("src.llm.client.ollama.OllamaLocalClient._generate_when_ready_with_cache")
     @patch("src.llm.client.ollama.OllamaLocalClient._get_prompt")
     def test_extract_job_description_keywords(
         self, mock_get_prompt, mock_generate_ready, _

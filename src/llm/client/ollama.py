@@ -12,6 +12,8 @@ from src.llm.client.response import (
     SimpleResponse,
 )
 from src.logging_config import get_logger
+from src.storage.repositories.llm_cache_repo import LLMCacheRepo
+from src.utils.hash import compute_hash
 
 PROMPT_HELLO_WORLD = "hello_world.txt"
 PROMPT_EXTRACT_RESUME_KEYWORDS = "extract_resume_keywords.txt"
@@ -76,18 +78,48 @@ class OllamaLocalClient:
             validate_response = format.model_validate_json(response)
         except Exception as e:
             validate_response = BaseResponse()
-            self._log.error(f"Failed to parse resume keyword response: {e}")
+            self._log.error(f"Failed to format generated response: {e}")
 
-        return validate_response.model_dump_json()
+        response_json = validate_response.model_dump_json()
 
-    def _generate_when_ready(
+        return response_json
+
+    def _generate_when_ready_with_cache(
         self, message: str, format: type[BaseResponse]
     ) -> Optional[str]:
 
-        if self.ready:
-            return self._generate(message=message, format=format)
+        if not self.ready:
+            return None
 
-        return None
+        # Check cache for prompt
+        try:
+            cache_repo = LLMCacheRepo()
+            prompt_hash = compute_hash(message)
+            cached = cache_repo.get_by_prompt_hash(prompt_hash)
+            if cached:
+                self._log.info("LLM cache hit for prompt")
+                return str(cached.response_json)
+        except Exception:
+            # Cache failures should not block LLM calls
+            pass
+
+        response_json = self._generate(message=message, format=format)
+
+        # Persist cache entry (best-effort)
+        try:
+            response_hash = compute_hash(response_json)
+            cache_repo.create(
+                prompt_hash=compute_hash(message),
+                prompt_text=message,
+                response_hash=response_hash,
+                response_json=response_json,
+                llm_name="ollama",
+            )
+        except Exception:
+            # Do not fail on cache write errors
+            pass
+
+        return response_json
 
     def _get_filepath(self, filename: str) -> Path:
         filepath = Path(__file__).parent.parent / "prompt" / filename
@@ -122,7 +154,7 @@ class OllamaLocalClient:
         message = self._get_prompt(PROMPT_EXTRACT_RESUME_KEYWORDS)
 
         if message is not None:
-            content = self._generate_when_ready(
+            content = self._generate_when_ready_with_cache(
                 message.format(resume_text=resume_text), ExtractKeywordResponse
             )
 
@@ -136,7 +168,7 @@ class OllamaLocalClient:
         message = self._get_prompt(PROMPT_EXTRACT_JOB_DESCRIPTION_KEYWORDS)
 
         if message is not None:
-            content = self._generate_when_ready(
+            content = self._generate_when_ready_with_cache(
                 message.format(job_description=job_description),
                 JobDescriptioKeywordsResponse,
             )
@@ -151,7 +183,7 @@ class OllamaLocalClient:
         message = self._get_prompt(PROMPT_MATCH_JOB_WITH_STAR)
 
         if message is not None:
-            content = self._generate_when_ready(
+            content = self._generate_when_ready_with_cache(
                 message.format(job_parsed=job_parsed, star_text=star_text),
                 MatchJobWithStarResponse,
             )
@@ -168,7 +200,7 @@ class OllamaLocalClient:
         message = self._get_prompt(PROMPT_REWRITE_STAR_BULLET_POINT)
 
         if message is not None:
-            content = self._generate_when_ready(
+            content = self._generate_when_ready_with_cache(
                 message.format(
                     star_text=star_text, job_parsed=job_parsed, match_score=match_score
                 ),

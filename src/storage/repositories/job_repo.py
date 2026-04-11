@@ -120,6 +120,8 @@ class JobDescriptionParsedRepo:
         required_skills: str,
         prefered_skills: str,
         keywords: str,
+        input_hash: str | None = None,
+        full_response: str | None = None,
     ) -> int:
         with self.db.get_session() as session:
             session.begin()
@@ -128,6 +130,8 @@ class JobDescriptionParsedRepo:
             try:
                 job_parsed = JobDescriptionParsed(
                     job_description_id=job_description_id,
+                    input_hash=input_hash,
+                    full_response=full_response,
                     summary=summary,
                     required_skills=required_skills,
                     prefered_skills=prefered_skills,
@@ -164,6 +168,17 @@ class JobDescriptionParsedRepo:
             return (
                 session.query(JobDescriptionParsed)
                 .filter(JobDescriptionParsed.job_description_id == job_id)
+                .first()
+            )
+
+    def get_by_input_hash(self, input_hash: str) -> Optional[JobDescriptionParsed]:
+        with self.db.get_session() as session:
+            session.begin()
+            session.expire_on_commit = False
+
+            return (
+                session.query(JobDescriptionParsed)
+                .filter(JobDescriptionParsed.input_hash == input_hash)
                 .first()
             )
 

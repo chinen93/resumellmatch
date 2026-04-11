@@ -3,7 +3,7 @@ from datetime import datetime
 from sqlalchemy import TIMESTAMP, Date, ForeignKey
 from sqlalchemy.orm import DeclarativeBase, relationship
 from sqlalchemy.schema import Column
-from sqlalchemy.types import Integer, String
+from sqlalchemy.types import Integer, String, Text
 
 
 class Base(DeclarativeBase):
@@ -162,6 +162,8 @@ class JobDescriptionParsed(Base):
     __tablename__ = "job_descriptions_parsed"
     id = Column(Integer, primary_key=True, autoincrement=True)
     job_description_id = Column(Integer, ForeignKey("job_descriptions.id"))
+    input_hash = Column(String, nullable=True, index=True)
+    full_response = Column(Text, nullable=True)
     summary = Column(String, nullable=False)
     required_skills = Column(String, nullable=False)  # CSV separated skills from JD
     prefered_skills = Column(String, nullable=False)  # CSV separated skills from JD
@@ -198,3 +200,18 @@ class Matches(Base):
             # f"llm_analysis={self.llm_analysis}"
             f")"
         )
+
+
+class LLMCache(Base):
+    __tablename__ = "llm_cache"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    prompt_hash = Column(String, nullable=False, index=True)
+    prompt_text = Column(Text, nullable=False)
+    response_hash = Column(String, nullable=False, index=True)
+    response_json = Column(Text, nullable=False)
+    llm_name = Column(String, nullable=True)
+    created_at = Column(TIMESTAMP, default=datetime.now)
+
+    def __repr__(self):
+        return f"LLMCache(id={self.id}, prompt_hash={self.prompt_hash}, response_hash={self.response_hash})"
