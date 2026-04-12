@@ -15,11 +15,11 @@ from src.logging_config import get_logger
 from src.storage.repositories.llm_cache_repo import LLMCacheRepo
 from src.utils.hash import compute_hash
 
-PROMPT_HELLO_WORLD = "hello_world.txt"
-PROMPT_EXTRACT_RESUME_KEYWORDS = "extract_resume_keywords.txt"
-PROMPT_EXTRACT_JOB_DESCRIPTION_KEYWORDS = "extract_job_description_keywords.txt"
-PROMPT_MATCH_JOB_WITH_STAR = "match_job_with_star.txt"
-PROMPT_REWRITE_STAR_BULLET_POINT = "rewrite_star_bullet_point.txt"
+PROMPT_HELLO_WORLD = "hello_world.md"
+PROMPT_EXTRACT_RESUME_KEYWORDS = "extract_resume_keywords.md"
+PROMPT_EXTRACT_JOB_DESCRIPTION_KEYWORDS = "extract_job_description_keywords.md"
+PROMPT_MATCH_JOB_WITH_STAR = "match_job_with_star.md"
+PROMPT_REWRITE_STAR_BULLET_POINT = "rewrite_star_bullet_point.md"
 
 
 class OllamaLocalClient:
