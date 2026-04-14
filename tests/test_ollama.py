@@ -39,7 +39,7 @@ class TestOllamaLocalClient(BaseTestCase):
         client = OllamaLocalClient()
 
         self.assertTrue(client.ready)
-        mock_get_prompt.assert_called_with("hello_world.txt")
+        mock_get_prompt.assert_called_with("hello_world.md")
 
     @patch("src.llm.client.ollama.generate")
     @patch("src.llm.client.ollama.OllamaLocalClient._get_prompt")
@@ -75,9 +75,9 @@ class TestOllamaLocalClient(BaseTestCase):
     def test_get_filepath(self, _):
         """Test getting filepath for prompts."""
         client = OllamaLocalClient()
-        path = client._get_filepath("test.txt")
+        path = client._get_filepath("test.md")
 
-        self.assertTrue(str(path).endswith("prompt/test.txt"))
+        self.assertTrue(str(path).endswith("prompt/test.md"))
 
     @patch("src.llm.client.ollama.generate")
     @patch("builtins.open")
@@ -88,7 +88,7 @@ class TestOllamaLocalClient(BaseTestCase):
         mock_open.return_value.__enter__.return_value = mock_file
 
         client = OllamaLocalClient()
-        result = client._get_prompt("test.txt")
+        result = client._get_prompt("test.md")
 
         self.assertEqual(result, "prompt content")
 
@@ -99,7 +99,7 @@ class TestOllamaLocalClient(BaseTestCase):
         mock_open.side_effect = FileNotFoundError()
 
         client = OllamaLocalClient()
-        result = client._get_prompt("nonexistent.txt")
+        result = client._get_prompt("nonexistent.md")
 
         self.assertIsNone(result)
 
@@ -116,7 +116,7 @@ class TestOllamaLocalClient(BaseTestCase):
         result = client.extract_resume_keywords("some resume text")
 
         self.assertEqual(result, '{"keywords": ["python", "testing"]}')
-        mock_get_prompt.assert_called_with("extract_resume_keywords.txt")
+        mock_get_prompt.assert_called_with("extract_resume_keywords.md")
 
     @patch("src.llm.client.ollama.generate")
     @patch("src.llm.client.ollama.OllamaLocalClient._generate_when_ready_with_cache")
@@ -133,7 +133,7 @@ class TestOllamaLocalClient(BaseTestCase):
         result = client.extract_job_description_keywords("some job text")
 
         self.assertEqual(result, '{"keywords": ["software", "engineer"]}')
-        mock_get_prompt.assert_called_with("extract_job_description_keywords.txt")
+        mock_get_prompt.assert_called_with("extract_job_description_keywords.md")
 
     @patch("src.llm.client.ollama.generate")
     @patch("src.llm.client.ollama.OllamaLocalClient._get_prompt")
