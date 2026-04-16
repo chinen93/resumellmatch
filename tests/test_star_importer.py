@@ -55,6 +55,7 @@ class TestStarMetadataImporter(BaseTestCase):
     def test_run_success(self):
         """Test successful run of importer."""
         filepath = "test.csv"
+        expected_filepath = "input/" + filepath
         expected_headers = [
             "User_id",
             "Type",
@@ -68,7 +69,7 @@ class TestStarMetadataImporter(BaseTestCase):
         result = self.importer.run(filepath)
 
         self.mock_loader.load_csv.assert_called_once_with(
-            filepath, expected_headers, self.importer.importer_function
+            expected_filepath, expected_headers, self.importer.importer_function
         )
         self.assertEqual(result, [])
 

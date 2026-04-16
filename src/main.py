@@ -1,5 +1,8 @@
 import json
 
+from src.core.importer.star_importer import StarEntryImporter, StarMetadataImporter
+from src.core.processor.star_processor import StarEntryProcessor, StarMetadataProcessor
+from src.data_ingestion.csv_loader import CSVLoader
 from src.data_ingestion.file_reader import FileReader
 from src.llm.client.ollama import OllamaLocalClient
 from src.logging_config import get_logger
@@ -23,10 +26,6 @@ def handle_job():
 
     # resume = PDFReader.read("resume.pdf")
     # print(resume)
-
-    # TODO: Process all STAR responses to create keywords, save them on the DB to be easier to retrieve
-    # After the job_description parser, match the extracted keywords with the keywords from the parser
-    # Do some math to calculate a score for each STAR in relation to the job_parsed
 
     # client = OllamaLocalClient()
     # client.extract_resume_keywords(resume)
@@ -87,6 +86,22 @@ def handle_job():
 def handle_star():
     handler = Handler()
     handler._log.info("Handle STAR responses")
+
+    csvLoader = CSVLoader()
+
+    star_metadata_processor = StarMetadataProcessor(isTest=False)
+    star_metadata_importer = StarMetadataImporter(
+        loader=csvLoader, processor=star_metadata_processor
+    )
+    star_metadata_importer.run(filename="star/star_metadata.csv")
+
+    star_entry_processor = StarEntryProcessor(isTest=False)
+    star_entry_importer = StarEntryImporter(
+        loader=csvLoader, processor=star_entry_processor
+    )
+    star_entry_importer.run(filename="star/star_entries.csv")
+
+    handler._log.info("Finished handling STAR responses")
 
 
 def handle_resume():
