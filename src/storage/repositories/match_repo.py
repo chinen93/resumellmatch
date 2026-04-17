@@ -1,5 +1,6 @@
 from typing import List, Optional
 
+from src.core.models import Match as MatchModel
 from src.logging_config import get_logger
 from src.storage.connection import DatabaseConnection
 from src.storage.models import Matches
@@ -12,21 +13,30 @@ class MatchRepo:
 
     def create(
         self,
-        resume_id: int,
-        job_description_parsed_id: int,
-        score: int,
-        llm_analysis: str,
+        model: Optional[MatchModel] = None,
+        resume_id: Optional[int] = None,
+        job_description_parsed_id: Optional[int] = None,
+        score: Optional[int] = None,
+        llm_analysis: Optional[str] = None,
     ) -> bool:
         with self.db.get_session() as session:
             session.begin()
             session.expire_on_commit = False
 
             try:
+                if model is None:
+                    model = MatchModel(
+                        resume_id=resume_id,
+                        job_description_parsed_id=job_description_parsed_id,
+                        score=score or 0,
+                        llm_analysis=llm_analysis or "",
+                    )
+
                 match = Matches(
-                    resume_id=resume_id,
-                    job_description_parsed_id=job_description_parsed_id,
-                    score=score,
-                    llm_analysis=llm_analysis,
+                    resume_id=model.resume_id,
+                    job_description_parsed_id=model.job_description_parsed_id,
+                    score=model.score,
+                    llm_analysis=model.llm_analysis,
                 )
                 session.add(match)
                 session.commit()
@@ -36,6 +46,25 @@ class MatchRepo:
                 raise e
 
         return True
+
+    def create_from_model(self, model: MatchModel) -> bool:
+        """Create a Match using a `core.models.Match` instance."""
+        return self.create(model=model)
+
+    def create_from_fields(
+        self,
+        resume_id: int,
+        job_description_parsed_id: int,
+        score: int,
+        llm_analysis: str,
+    ) -> bool:
+        """Create a Match using individual fields (legacy style)."""
+        return self.create(
+            resume_id=resume_id,
+            job_description_parsed_id=job_description_parsed_id,
+            score=score,
+            llm_analysis=llm_analysis,
+        )
 
     def get_by_ids(
         self, resume_id: int, job_description_parsed_id: int
@@ -82,6 +111,7 @@ class MatchRepo:
         self,
         resume_id: int,
         job_description_parsed_id: int,
+        model: Optional[MatchModel] = None,
         score: Optional[int] = None,
         llm_analysis: Optional[str] = None,
     ) -> Matches:
@@ -102,10 +132,14 @@ class MatchRepo:
                     raise ValueError(
                         f"Match with resume_id {resume_id} and job_description_parsed_id {job_description_parsed_id} not found"
                     )
-                if score is not None:
-                    match.score = score  # type: ignore
-                if llm_analysis is not None:
-                    match.llm_analysis = llm_analysis  # type: ignore
+                if model is not None:
+                    match.score = model.score  # type: ignore
+                    match.llm_analysis = model.llm_analysis  # type: ignore
+                else:
+                    if score is not None:
+                        match.score = score  # type: ignore
+                    if llm_analysis is not None:
+                        match.llm_analysis = llm_analysis  # type: ignore
 
                 session.add(match)
                 session.commit()

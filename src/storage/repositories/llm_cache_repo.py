@@ -1,3 +1,4 @@
+from src.core.models import LLMCache as LLMCacheModel
 from src.logging_config import get_logger
 from src.storage.connection import DatabaseConnection
 from src.storage.models import LLMCache
@@ -50,3 +51,30 @@ class LLMCacheRepo:
                 raise e
 
         return result
+
+    def create_from_model(self, model: LLMCacheModel) -> int:
+        """Create LLMCache using a `core.models.LLMCache` instance."""
+        return self.create(
+            prompt_hash=model.prompt_hash,
+            prompt_text=model.prompt_text,
+            response_hash=model.response_hash,
+            response_json=model.response_json,
+            llm_name=model.llm_name,
+        )
+
+    def create_from_fields(
+        self,
+        prompt_hash: str,
+        prompt_text: str,
+        response_hash: str,
+        response_json: str,
+        llm_name: str | None = None,
+    ) -> int:
+        """Create LLMCache using individual fields (legacy style)."""
+        return self.create(
+            prompt_hash=prompt_hash,
+            prompt_text=prompt_text,
+            response_hash=response_hash,
+            response_json=response_json,
+            llm_name=llm_name,
+        )

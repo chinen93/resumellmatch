@@ -1,6 +1,8 @@
 from datetime import date
 from typing import List, Optional
 
+from src.core.models import StarEntry as StarEntryModel
+from src.core.models import StarMetadata as StarMetadataModel
 from src.logging_config import get_logger
 from src.storage.connection import DatabaseConnection
 from src.storage.models import StarEntry, StarMetadata
@@ -15,13 +17,14 @@ class StarMetadataRepo:
 
     def create(
         self,
-        user_id: int,
-        type: str,
-        title: str,
-        subtitle: str,
-        location: str,
-        start_date: date,
-        end_date: date,
+        model: Optional[StarMetadataModel] = None,
+        user_id: Optional[int] = None,
+        type: Optional[str] = None,
+        title: Optional[str] = None,
+        subtitle: Optional[str] = None,
+        location: Optional[str] = None,
+        start_date: Optional[date] = None,
+        end_date: Optional[date] = None,
     ) -> int:
         result = None
 
@@ -30,14 +33,25 @@ class StarMetadataRepo:
             session.expire_on_commit = False
 
             try:
+                if model is None:
+                    model = StarMetadataModel(
+                        user_id=user_id,
+                        type=type or "",
+                        title=title or "",
+                        subtitle=subtitle or "",
+                        location=location or "",
+                        start_date=start_date,
+                        end_date=end_date,
+                    )
+
                 star_metadata = StarMetadata(
-                    user_id=user_id,
-                    type=type,
-                    title=title,
-                    subtitle=subtitle,
-                    location=location,
-                    start_date=start_date,
-                    end_date=end_date,
+                    user_id=model.user_id,
+                    type=model.type,
+                    title=model.title,
+                    subtitle=model.subtitle,
+                    location=model.location,
+                    start_date=model.start_date,
+                    end_date=model.end_date,
                 )
                 session.add(star_metadata)
                 session.commit()
@@ -50,6 +64,31 @@ class StarMetadataRepo:
                 raise e
 
         return result
+
+    def create_from_model(self, model: StarMetadataModel) -> int:
+        """Create StarMetadata using a `core.models.StarMetadata` instance."""
+        return self.create(model=model)
+
+    def create_from_fields(
+        self,
+        user_id: int,
+        type: str,
+        title: str,
+        subtitle: str,
+        location: str,
+        start_date: date,
+        end_date: date,
+    ) -> int:
+        """Create StarMetadata using individual fields (legacy style)."""
+        return self.create(
+            user_id=user_id,
+            type=type,
+            title=title,
+            subtitle=subtitle,
+            location=location,
+            start_date=start_date,
+            end_date=end_date,
+        )
 
     def get_by_id(self, star_metadata_id: int) -> Optional[StarMetadata]:
         with self.db.get_session() as session:
@@ -151,12 +190,13 @@ class StarEntryRepo:
 
     def create(
         self,
-        metadata_id: int,
-        title: str,
-        situation: str,
-        task: str,
-        action: str,
-        result: str,
+        model: Optional[StarEntryModel] = None,
+        metadata_id: Optional[int] = None,
+        title: Optional[str] = None,
+        situation: Optional[str] = None,
+        task: Optional[str] = None,
+        action: Optional[str] = None,
+        result: Optional[str] = None,
         skills: List[int] = [],
     ) -> int:
         ret = None
@@ -166,19 +206,37 @@ class StarEntryRepo:
             session.expire_on_commit = False
 
             try:
+                if model is None:
+                    model = StarEntryModel(
+                        metadata_id=metadata_id,
+                        title=title or "",
+                        situation=situation or "",
+                        task=task or "",
+                        action=action or "",
+                        result=result or "",
+                        skills=[],
+                    )
+
                 star_entry = StarEntry(
-                    metadata_id=metadata_id,
-                    title=title,
-                    situation=situation,
-                    task=task,
-                    action=action,
-                    result=result,
+                    metadata_id=model.metadata_id,
+                    title=model.title,
+                    situation=model.situation,
+                    task=model.task,
+                    action=model.action,
+                    result=model.result,
                 )
                 session.add(star_entry)
                 session.commit()
 
-                if skills != []:
-                    for skill_id in skills:
+                # attach skills either from provided ids or from model
+                skill_ids = skills
+                if model is not None and model.skills:
+                    # if model.skills contains Skill dataclasses, try to use their ids
+                    model_skill_ids = [s.id for s in model.skills if s.id is not None]
+                    skill_ids = model_skill_ids or skill_ids
+
+                if skill_ids != []:
+                    for skill_id in skill_ids:
                         skill = self.skill_repo.get_by_id(skill_id)
                         star_entry.skills.append(skill)
                     session.commit()
@@ -191,6 +249,31 @@ class StarEntryRepo:
                 raise e
 
         return ret
+
+    def create_from_model(self, model: StarEntryModel) -> int:
+        """Create StarEntry using a `core.models.StarEntry` instance."""
+        return self.create(model=model)
+
+    def create_from_fields(
+        self,
+        metadata_id: int,
+        title: str,
+        situation: str,
+        task: str,
+        action: str,
+        result: str,
+        skills: List[int] = [],
+    ) -> int:
+        """Create StarEntry using individual fields (legacy style)."""
+        return self.create(
+            metadata_id=metadata_id,
+            title=title,
+            situation=situation,
+            task=task,
+            action=action,
+            result=result,
+            skills=skills,
+        )
 
     def get_by_id(self, star_entry_id: int) -> Optional[StarEntry]:
         with self.db.get_session() as session:

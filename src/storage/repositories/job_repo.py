@@ -1,5 +1,7 @@
 from typing import List, Optional
 
+from src.core.models import JobDescription as JobDescriptionModel
+from src.core.models import JobDescriptionParsed as JobDescriptionParsedModel
 from src.logging_config import get_logger
 from src.storage.connection import DatabaseConnection
 from src.storage.models import JobDescription, JobDescriptionParsed
@@ -10,14 +12,25 @@ class JobDescriptionRepo:
         self._log = get_logger("JobDescRepo")
         self.db = DatabaseConnection(isTest)
 
-    def create(self, url: str, title: str, raw_text: str) -> int:
+    def create(
+        self,
+        model: Optional[JobDescriptionModel] = None,
+        url: Optional[str] = None,
+        title: Optional[str] = None,
+        raw_text: Optional[str] = None,
+    ) -> int:
         with self.db.get_session() as session:
             session.begin()
             session.expire_on_commit = False
 
             try:
+                if model is None:
+                    model = JobDescriptionModel(
+                        url=url or "", title=title or "", raw_text=raw_text or ""
+                    )
+
                 job_description = JobDescription(
-                    url=url, title=title, raw_text=raw_text
+                    url=model.url, title=model.title, raw_text=model.raw_text
                 )
                 session.add(job_description)
                 session.commit()
@@ -30,6 +43,14 @@ class JobDescriptionRepo:
                 raise e
 
         return result
+
+    def create_from_model(self, model: JobDescriptionModel) -> int:
+        """Create using a `core.models.JobDescription` instance."""
+        return self.create(model=model)
+
+    def create_from_fields(self, url: str, title: str, raw_text: str) -> int:
+        """Create using individual fields (legacy style)."""
+        return self.create(url=url, title=title, raw_text=raw_text)
 
     def get_by_id(self, job_id: int) -> Optional[JobDescription]:
         with self.db.get_session() as session:
@@ -115,11 +136,12 @@ class JobDescriptionParsedRepo:
 
     def create(
         self,
-        job_description_id: int,
-        summary: str,
-        required_skills: str,
-        prefered_skills: str,
-        keywords: str,
+        model: Optional[JobDescriptionParsedModel] = None,
+        job_description_id: Optional[int] = None,
+        summary: Optional[str] = None,
+        required_skills: Optional[str] = None,
+        prefered_skills: Optional[str] = None,
+        keywords: Optional[str] = None,
         input_hash: str | None = None,
         full_response: str | None = None,
     ) -> int:
@@ -128,14 +150,25 @@ class JobDescriptionParsedRepo:
             session.expire_on_commit = False
 
             try:
+                if model is None:
+                    model = JobDescriptionParsedModel(
+                        job_description_id=job_description_id,
+                        input_hash=input_hash,
+                        full_response=full_response,
+                        summary=summary or "",
+                        required_skills=required_skills or "",
+                        prefered_skills=prefered_skills or "",
+                        keywords=keywords or "",
+                    )
+
                 job_parsed = JobDescriptionParsed(
-                    job_description_id=job_description_id,
-                    input_hash=input_hash,
-                    full_response=full_response,
-                    summary=summary,
-                    required_skills=required_skills,
-                    prefered_skills=prefered_skills,
-                    keywords=keywords,
+                    job_description_id=model.job_description_id,
+                    input_hash=model.input_hash,
+                    full_response=model.full_response,
+                    summary=model.summary,
+                    required_skills=model.required_skills,
+                    prefered_skills=model.prefered_skills,
+                    keywords=model.keywords,
                 )
                 session.add(job_parsed)
                 session.commit()
@@ -148,6 +181,31 @@ class JobDescriptionParsedRepo:
                 raise e
 
         return result
+
+    def create_parsed_from_model(self, model: JobDescriptionParsedModel) -> int:
+        """Create parsed JD using a `core.models.JobDescriptionParsed` instance."""
+        return self.create(model=model)
+
+    def create_parsed_from_fields(
+        self,
+        job_description_id: int,
+        summary: str,
+        required_skills: str,
+        prefered_skills: str,
+        keywords: str,
+        input_hash: str | None = None,
+        full_response: str | None = None,
+    ) -> int:
+        """Create parsed JD using individual fields (legacy style)."""
+        return self.create(
+            job_description_id=job_description_id,
+            summary=summary,
+            required_skills=required_skills,
+            prefered_skills=prefered_skills,
+            keywords=keywords,
+            input_hash=input_hash,
+            full_response=full_response,
+        )
 
     def get_by_id(self, parsed_id: int) -> Optional[JobDescriptionParsed]:
         with self.db.get_session() as session:

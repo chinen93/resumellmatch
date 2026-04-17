@@ -1,5 +1,6 @@
 from typing import List, Optional
 
+from src.core.models import User as UserModel
 from src.logging_config import get_logger
 from src.storage.connection import DatabaseConnection
 from src.storage.models import User
@@ -11,14 +12,22 @@ class UserRepo:
         self._log = get_logger("UserRepo")
         self.db = DatabaseConnection(isTest)
 
-    def create(self, name: str, email: str) -> int:
+    def create(
+        self,
+        model: Optional[UserModel] = None,
+        name: Optional[str] = None,
+        email: Optional[str] = None,
+    ) -> int:
         result = None
 
         with self.db.get_session() as session:
             session.begin()
             session.expire_on_commit = False
             try:
-                user = User(name=name, email=email)
+                if model is None:
+                    model = UserModel(name=name or "", email=email or "")
+
+                user = User(name=model.name, email=model.email)
                 session.add(user)
                 session.commit()
 
@@ -30,6 +39,14 @@ class UserRepo:
                 raise e
 
         return result
+
+    def create_from_model(self, model: UserModel) -> int:
+        """Create using a `core.models.User` instance."""
+        return self.create(model=model)
+
+    def create_from_fields(self, name: str, email: str) -> int:
+        """Create using individual fields (legacy style)."""
+        return self.create(name=name, email=email)
 
     def get_by_id(self, user_id: int) -> Optional[User]:
         with self.db.get_session() as session:
@@ -43,7 +60,11 @@ class UserRepo:
             return session.query(User).all()
 
     def update(
-        self, user_id: int, name: Optional[str] = None, email: Optional[str] = None
+        self,
+        user_id: int,
+        model: Optional[UserModel] = None,
+        name: Optional[str] = None,
+        email: Optional[str] = None,
     ) -> User:
         with self.db.get_session() as session:
             session.begin()
@@ -52,10 +73,16 @@ class UserRepo:
                 user = session.query(User).filter(User.id == user_id).first()
                 if not user:
                     raise ValueError(f"User with id {user_id} not found")
-                if name is not None:
-                    user.name = name  # type: ignore
-                if email is not None:
-                    user.email = email  # type: ignore
+                if model is not None:
+                    if model.name is not None:
+                        user.name = model.name  # type: ignore
+                    if model.email is not None:
+                        user.email = model.email  # type: ignore
+                else:
+                    if name is not None:
+                        user.name = name  # type: ignore
+                    if email is not None:
+                        user.email = email  # type: ignore
 
                 session.add(user)
                 session.commit()
