@@ -29,7 +29,9 @@ class TestStarMetadataRepo(BaseTestCase):
             self.user_repo.delete(user.id)
 
         # Create a test user
-        self.user_id = self.user_repo.create("Test User", "test@example.com")
+        self.user_id = self.user_repo.create_from_fields(
+            "Test User", "test@example.com"
+        )
 
     def test_create(self):
         user = self.user_repo.get_by_id(user_id=self.user_id)
@@ -37,7 +39,7 @@ class TestStarMetadataRepo(BaseTestCase):
 
         start = date(2020, 1, 1)
         end = date(2023, 12, 31)
-        star_id = self.star_metadata_repo.create(
+        star_id = self.star_metadata_repo.create_from_fields(
             user_id=self.user_id,
             type="work",
             title="Engineer",
@@ -55,7 +57,7 @@ class TestStarMetadataRepo(BaseTestCase):
     def test_get_by_id(self):
         start = date(2020, 1, 1)
         end = date(2023, 12, 31)
-        star_id = self.star_metadata_repo.create(
+        star_id = self.star_metadata_repo.create_from_fields(
             user_id=self.user_id,
             type="work",
             title="Engineer",
@@ -76,7 +78,7 @@ class TestStarMetadataRepo(BaseTestCase):
     def test_get_all(self):
         start1 = date(2020, 1, 1)
         end1 = date(2023, 12, 31)
-        self.star_metadata_repo.create(
+        self.star_metadata_repo.create_from_fields(
             user_id=self.user_id,
             type="work",
             title="Engineer",
@@ -87,7 +89,7 @@ class TestStarMetadataRepo(BaseTestCase):
         )
         start2 = date(2018, 6, 1)
         end2 = date(2019, 12, 31)
-        self.star_metadata_repo.create(
+        self.star_metadata_repo.create_from_fields(
             user_id=self.user_id,
             type="education",
             title="Degree",
@@ -104,7 +106,7 @@ class TestStarMetadataRepo(BaseTestCase):
     def test_update(self):
         start = date(2020, 1, 1)
         end = date(2023, 12, 31)
-        star_id = self.star_metadata_repo.create(
+        star_id = self.star_metadata_repo.create_from_fields(
             user_id=self.user_id,
             type="work",
             title="Engineer",
@@ -127,7 +129,7 @@ class TestStarMetadataRepo(BaseTestCase):
     def test_delete(self):
         start = date(2020, 1, 1)
         end = date(2023, 12, 31)
-        star_id = self.star_metadata_repo.create(
+        star_id = self.star_metadata_repo.create_from_fields(
             user_id=self.user_id,
             type="work",
             title="Engineer",
@@ -169,10 +171,12 @@ class TestStarEntryRepo(unittest.TestCase):
             self.user_repo.delete(user.id)
 
         # Create a test user and star_metadata
-        self.user_id = self.user_repo.create("Test User", "test@example.com")
+        self.user_id = self.user_repo.create_from_fields(
+            "Test User", "test@example.com"
+        )
         start = date(2020, 1, 1)
         end = date(2023, 12, 31)
-        self.star_metadata_id = self.star_metadata_repo.create(
+        self.star_metadata_id = self.star_metadata_repo.create_from_fields(
             user_id=self.user_id,
             type="work",
             title="Engineer",
@@ -182,11 +186,11 @@ class TestStarEntryRepo(unittest.TestCase):
             end_date=end,
         )
 
-        self.skill_id_1 = self.skill_repo.create("Python")
-        self.skill_id_2 = self.skill_repo.create("Python3")
+        self.skill_id_1 = self.skill_repo.create_from_fields("Python")
+        self.skill_id_2 = self.skill_repo.create_from_fields("Python3")
 
     def test_create(self):
-        entry_id = self.star_entry_repo.create(
+        entry_id = self.star_entry_repo.create_from_fields(
             metadata_id=self.star_metadata_id,
             title="Project A",
             situation="Situation",
@@ -199,7 +203,7 @@ class TestStarEntryRepo(unittest.TestCase):
         self.assertGreater(entry_id, 0)
 
     def test_get_by_id(self):
-        entry_id = self.star_entry_repo.create(
+        entry_id = self.star_entry_repo.create_from_fields(
             metadata_id=self.star_metadata_id,
             title="Project B",
             situation="Situation",
@@ -218,7 +222,7 @@ class TestStarEntryRepo(unittest.TestCase):
         self.assertIsNone(entry)
 
     def test_get_all(self):
-        self.star_entry_repo.create(
+        self.star_entry_repo.create_from_fields(
             metadata_id=self.star_metadata_id,
             title="Entry1",
             situation="Sit1",
@@ -226,7 +230,7 @@ class TestStarEntryRepo(unittest.TestCase):
             action="Act1",
             result="Res1",
         )
-        self.star_entry_repo.create(
+        self.star_entry_repo.create_from_fields(
             metadata_id=self.star_metadata_id,
             title="Entry2",
             situation="Sit2",
@@ -240,7 +244,7 @@ class TestStarEntryRepo(unittest.TestCase):
         self.assertEqual(entries[1].title, "Entry2")
 
     def test_update(self):
-        entry_id = self.star_entry_repo.create(
+        entry_id = self.star_entry_repo.create_from_fields(
             metadata_id=self.star_metadata_id,
             title="Old Title",
             situation="Old Sit",
@@ -259,7 +263,7 @@ class TestStarEntryRepo(unittest.TestCase):
             self.star_entry_repo.update(999, title="Fail")
 
     def test_delete(self):
-        entry_id = self.star_entry_repo.create(
+        entry_id = self.star_entry_repo.create_from_fields(
             metadata_id=self.star_metadata_id,
             title="To Delete",
             situation="Sit",

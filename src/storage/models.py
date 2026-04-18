@@ -1,7 +1,7 @@
 from datetime import datetime
 
 from sqlalchemy import TIMESTAMP, Date, ForeignKey
-from sqlalchemy.orm import DeclarativeBase, relationship
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 from sqlalchemy.schema import Column
 from sqlalchemy.types import Integer, String, Text
 
@@ -160,7 +160,7 @@ class JobDescription(Base):
 class JobDescriptionParsed(Base):
 
     __tablename__ = "job_descriptions_parsed"
-    id = Column(Integer, primary_key=True, autoincrement=True)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     job_description_id = Column(Integer, ForeignKey("job_descriptions.id"))
     input_hash = Column(String, nullable=True, index=True)
     full_response = Column(Text, nullable=True)

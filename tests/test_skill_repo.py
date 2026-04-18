@@ -24,12 +24,12 @@ class TestSkillRepo(BaseTestCase):
             self.skill_repo.delete(skill.id)
 
     def test_create(self):
-        skill_id = self.skill_repo.create("Python")
+        skill_id = self.skill_repo.create_from_fields("Python")
         self.assertIsInstance(skill_id, int)
         self.assertGreater(skill_id, 0)
 
     def test_get_by_id(self):
-        skill_id = self.skill_repo.create("JavaScript")
+        skill_id = self.skill_repo.create_from_fields("JavaScript")
         skill = self.skill_repo.get_by_id(skill_id)
         self.assertIsNotNone(skill)
         self.assertEqual(skill.name, "JavaScript")
@@ -39,15 +39,15 @@ class TestSkillRepo(BaseTestCase):
         self.assertIsNone(skill)
 
     def test_get_all(self):
-        self.skill_repo.create("Python")
-        self.skill_repo.create("SQL")
+        self.skill_repo.create_from_fields("Python")
+        self.skill_repo.create_from_fields("SQL")
         skills = self.skill_repo.get_all()
         self.assertEqual(len(skills), 2)
         self.assertEqual(skills[0].name, "Python")
         self.assertEqual(skills[1].name, "SQL")
 
     def test_update(self):
-        skill_id = self.skill_repo.create("Old Name")
+        skill_id = self.skill_repo.create_from_fields("Old Name")
         updated_skill = self.skill_repo.update(skill_id, name="New Name")
         self.assertEqual(updated_skill.name, "New Name")
 
@@ -56,7 +56,7 @@ class TestSkillRepo(BaseTestCase):
             self.skill_repo.update(999, name="Fail")
 
     def test_delete(self):
-        skill_id = self.skill_repo.create("To Delete")
+        skill_id = self.skill_repo.create_from_fields("To Delete")
         result = self.skill_repo.delete(skill_id)
         self.assertTrue(result)
         skill = self.skill_repo.get_by_id(skill_id)
