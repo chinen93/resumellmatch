@@ -21,13 +21,19 @@ class TestMatchRepo(BaseTestCase):
         cls.resume_repo = ResumeRepo(isTest=True)
         cls.user_repo = UserRepo(isTest=True)
 
-        Base.metadata.create_all(cls.match_repo.db.engine)
+        engine = cls.match_repo.db.engine
+        assert engine is not None
+
+        Base.metadata.create_all(engine)
 
     @classmethod
     def tearDownClass(cls):
         super().tearDownClass()
 
-        Base.metadata.drop_all(cls.match_repo.db.engine)
+        engine = cls.match_repo.db.engine
+        assert engine is not None
+
+        Base.metadata.drop_all(engine)
 
     def setUp(self):
         users = self.user_repo.get_all()
@@ -72,6 +78,7 @@ class TestMatchRepo(BaseTestCase):
         )
         match = self.match_repo.get_by_ids(self.resume_id, self.parsed_id)
         self.assertIsNotNone(match)
+        assert match is not None
         self.assertEqual(match.score, 85)
 
     def test_get_match_not_found(self):

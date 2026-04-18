@@ -12,12 +12,19 @@ class TestUserRepo(BaseTestCase):
         super().setUpClass()
         cls.user_repo = UserRepo(isTest=True)
 
-        Base.metadata.create_all(cls.user_repo.db.engine)
+        engine = cls.user_repo.db.engine
+        assert engine is not None
+
+        Base.metadata.create_all(engine)
 
     @classmethod
     def tearDownClass(cls):
         super().tearDownClass()
-        Base.metadata.drop_all(cls.user_repo.db.engine)
+
+        engine = cls.user_repo.db.engine
+        assert engine is not None
+
+        Base.metadata.drop_all(engine)
 
     def setUp(self):
         users = self.user_repo.get_all()
@@ -33,6 +40,7 @@ class TestUserRepo(BaseTestCase):
         user_id = self.user_repo.create_from_fields("Test User", "test@example.com")
         user = self.user_repo.get_by_id(user_id)
         self.assertIsNotNone(user)
+        assert user is not None
         self.assertEqual(user.name, "Test User")
         self.assertEqual(user.email, "test@example.com")
 

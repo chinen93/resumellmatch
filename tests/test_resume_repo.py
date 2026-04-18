@@ -14,12 +14,19 @@ class TestResumeRepo(BaseTestCase):
         cls.resume_repo = ResumeRepo(isTest=True)
         cls.user_repo = UserRepo(isTest=True)
 
-        Base.metadata.create_all(cls.resume_repo.db.engine)
+        engine = cls.resume_repo.db.engine
+        assert engine is not None
+
+        Base.metadata.create_all(engine)
 
     @classmethod
     def tearDownClass(cls):
         super().tearDownClass()
-        Base.metadata.drop_all(cls.resume_repo.db.engine)
+
+        engine = cls.resume_repo.db.engine
+        assert engine is not None
+
+        Base.metadata.drop_all(engine)
 
     def setUp(self):
         resumes = self.resume_repo.get_all()
@@ -43,6 +50,7 @@ class TestResumeRepo(BaseTestCase):
         resume_id = self.resume_repo.create_from_fields(self.user_id, "Resume text")
         resume = self.resume_repo.get_by_id(resume_id)
         self.assertIsNotNone(resume)
+        assert resume is not None
         self.assertEqual(resume.raw_text, "Resume text")
 
     def test_get_by_id_not_found(self):

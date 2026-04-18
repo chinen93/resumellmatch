@@ -14,12 +14,19 @@ class TestJobDescriptionRepo(BaseTestCase):
         super().setUpClass()
         cls.job_desc_repo = JobDescriptionRepo(isTest=True)
 
-        Base.metadata.create_all(cls.job_desc_repo.db.engine)
+        engine = cls.job_desc_repo.db.engine
+        assert engine is not None
+
+        Base.metadata.create_all(engine)
 
     @classmethod
     def tearDownClass(cls):
         super().tearDownClass()
-        Base.metadata.drop_all(cls.job_desc_repo.db.engine)
+
+        engine = cls.job_desc_repo.db.engine
+        assert engine is not None
+
+        Base.metadata.drop_all(engine)
 
     def setUp(self):
         jobs = self.job_desc_repo.get_all()
@@ -39,6 +46,7 @@ class TestJobDescriptionRepo(BaseTestCase):
         )
         job = self.job_desc_repo.get_by_id(job_id)
         self.assertIsNotNone(job)
+        assert job is not None
         self.assertEqual(job.title, "Engineer")
 
     def test_get_by_id_not_found(self):
@@ -131,6 +139,7 @@ class TestJobDescriptionParsedRepo(BaseTestCase):
         )
         parsed = self.job_desc_parsed_repo.get_by_id(parsed_id)
         self.assertIsNotNone(parsed)
+        assert parsed is not None
         self.assertEqual(parsed.summary, "Summary")
 
     def test_get_by_job_id(self):
@@ -142,6 +151,7 @@ class TestJobDescriptionParsedRepo(BaseTestCase):
         )
         parsed = self.job_desc_parsed_repo.get_by_job_id(job_id)
         self.assertIsNotNone(parsed)
+        assert parsed is not None
         self.assertEqual(parsed.summary, "Summary")
 
     def test_get_all(self):

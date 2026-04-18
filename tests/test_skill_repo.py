@@ -11,12 +11,19 @@ class TestSkillRepo(BaseTestCase):
         super().setUpClass()
         cls.skill_repo = SkillRepo(isTest=True)
 
-        Base.metadata.create_all(cls.skill_repo.db.engine)
+        engine = cls.skill_repo.db.engine
+        assert engine is not None
+
+        Base.metadata.create_all(engine)
 
     @classmethod
     def tearDownClass(cls):
         super().tearDownClass()
-        Base.metadata.drop_all(cls.skill_repo.db.engine)
+
+        engine = cls.skill_repo.db.engine
+        assert engine is not None
+
+        Base.metadata.drop_all(engine)
 
     def setUp(self):
         skills = self.skill_repo.get_all()
@@ -32,6 +39,7 @@ class TestSkillRepo(BaseTestCase):
         skill_id = self.skill_repo.create_from_fields("JavaScript")
         skill = self.skill_repo.get_by_id(skill_id)
         self.assertIsNotNone(skill)
+        assert skill is not None
         self.assertEqual(skill.name, "JavaScript")
 
     def test_get_by_id_not_found(self):

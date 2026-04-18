@@ -12,7 +12,7 @@ class Base(DeclarativeBase):
 
 class Skill(Base):
     __tablename__ = "skills"
-    id = Column(Integer, primary_key=True, autoincrement=True)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     name = Column(String, nullable=False)
     created_at = Column(TIMESTAMP, default=datetime.now)
     star_entries = relationship(
@@ -27,15 +27,19 @@ class Skill(Base):
 
 class StarEntrySkillAssociation(Base):
     __tablename__ = "star_entries_skills_assoc"
-    star_entry_id = Column(Integer, ForeignKey("star_entries.id"), primary_key=True)
-    skill_id = Column(Integer, ForeignKey("skills.id"), primary_key=True)
+    star_entry_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("star_entries.id"), primary_key=True
+    )
+    skill_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("skills.id"), primary_key=True
+    )
 
 
 class StarEntry(Base):
     __tablename__ = "star_entries"
 
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    metadata_id = Column(Integer, ForeignKey("star_metadatas.id"))
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    metadata_id: Mapped[int] = mapped_column(Integer, ForeignKey("star_metadatas.id"))
     title = Column(String, nullable=False)
     situation = Column(String, nullable=False)
     task = Column(String, nullable=False)
@@ -74,8 +78,8 @@ class StarMetadata(Base):
 
     __tablename__ = "star_metadatas"
 
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    user_id = Column(Integer, ForeignKey("users.id"))
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    user_id: Mapped[int] = mapped_column(Integer, ForeignKey("users.id"))
     type = Column(String, nullable=False)  # education, project, work
     title = Column(String, nullable=False)  # job title, degree, project name
     subtitle = Column(String, nullable=False)  # company, school, etc.
@@ -102,8 +106,8 @@ class StarMetadata(Base):
 class Resume(Base):
 
     __tablename__ = "resumes"
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    user_id = Column(Integer, ForeignKey("users.id"))
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    user_id: Mapped[int] = mapped_column(Integer, ForeignKey("users.id"))
     raw_text = Column(String, nullable=False)
     created_at = Column(TIMESTAMP, default=datetime.now)
 
@@ -120,7 +124,7 @@ class Resume(Base):
 class User(Base):
 
     __tablename__ = "users"
-    id = Column(Integer, primary_key=True, autoincrement=True)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     name = Column(String, nullable=False)
     email = Column(String, nullable=False, unique=True)
     star_metadatas = relationship(
@@ -141,7 +145,7 @@ class User(Base):
 class JobDescription(Base):
 
     __tablename__ = "job_descriptions"
-    id = Column(Integer, primary_key=True, autoincrement=True)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     url = Column(String, nullable=False)
     title = Column(String, nullable=False)
     raw_text = Column(String, nullable=False)
@@ -161,7 +165,9 @@ class JobDescriptionParsed(Base):
 
     __tablename__ = "job_descriptions_parsed"
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
-    job_description_id = Column(Integer, ForeignKey("job_descriptions.id"))
+    job_description_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("job_descriptions.id")
+    )
     input_hash = Column(String, nullable=True, index=True)
     full_response = Column(Text, nullable=True)
     summary = Column(String, nullable=False)
@@ -183,8 +189,10 @@ class Matches(Base):
 
     __tablename__ = "matches"
 
-    resume_id = Column(Integer, ForeignKey("resumes.id"), primary_key=True)
-    job_description_parsed_id = Column(
+    resume_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("resumes.id"), primary_key=True
+    )
+    job_description_parsed_id: Mapped[int] = mapped_column(
         Integer, ForeignKey("job_descriptions_parsed.id"), primary_key=True
     )
 

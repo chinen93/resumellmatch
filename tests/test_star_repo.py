@@ -15,12 +15,19 @@ class TestStarMetadataRepo(BaseTestCase):
         cls.star_metadata_repo = StarMetadataRepo(isTest=True)
         cls.user_repo = UserRepo(isTest=True)
 
-        Base.metadata.create_all(cls.star_metadata_repo.db.engine)
+        engine = cls.star_metadata_repo.db.engine
+        assert engine is not None
+
+        Base.metadata.create_all(engine)
 
     @classmethod
     def tearDownClass(cls):
         super().tearDownClass()
-        Base.metadata.drop_all(cls.star_metadata_repo.db.engine)
+
+        engine = cls.star_metadata_repo.db.engine
+        assert engine is not None
+
+        Base.metadata.drop_all(engine)
 
     def setUp(self):
 
@@ -35,6 +42,8 @@ class TestStarMetadataRepo(BaseTestCase):
 
     def test_create(self):
         user = self.user_repo.get_by_id(user_id=self.user_id)
+        assert user is not None
+
         self.assertEqual(len(user.star_metadatas), 0)
 
         start = date(2020, 1, 1)
@@ -52,6 +61,8 @@ class TestStarMetadataRepo(BaseTestCase):
         self.assertGreater(star_id, 0)
 
         user = self.user_repo.get_by_id(user_id=self.user_id)
+
+        assert user is not None
         self.assertEqual(user.star_metadatas[0].id, star_id)
 
     def test_get_by_id(self):
@@ -68,6 +79,8 @@ class TestStarMetadataRepo(BaseTestCase):
         )
         star = self.star_metadata_repo.get_by_id(star_id)
         self.assertIsNotNone(star)
+        assert star is not None
+
         self.assertEqual(star.title, "Engineer")
         self.assertEqual(star.user_id, self.user_id)
 
@@ -157,12 +170,19 @@ class TestStarEntryRepo(unittest.TestCase):
         cls.skill_repo = SkillRepo(isTest=True)
         cls.user_repo = UserRepo(isTest=True)
 
-        Base.metadata.create_all(cls.star_entry_repo.db.engine)
+        engine = cls.star_entry_repo.db.engine
+        assert engine is not None
+
+        Base.metadata.create_all(engine)
 
     @classmethod
     def tearDownClass(cls):
         super().tearDownClass()
-        Base.metadata.drop_all(cls.star_entry_repo.db.engine)
+
+        engine = cls.star_entry_repo.db.engine
+        assert engine is not None
+
+        Base.metadata.drop_all(engine)
 
     def setUp(self):
 
@@ -214,6 +234,7 @@ class TestStarEntryRepo(unittest.TestCase):
         )
         entry = self.star_entry_repo.get_by_id(entry_id)
         self.assertIsNotNone(entry)
+        assert entry is not None
         self.assertEqual(entry.title, "Project B")
         self.assertEqual(entry.metadata_id, self.star_metadata_id)
 
