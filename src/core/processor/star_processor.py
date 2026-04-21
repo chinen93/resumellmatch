@@ -1,7 +1,9 @@
 from datetime import date, datetime
 from typing import List, Optional
 
-from src.storage.models import StarEntry, StarMetadata
+from src.core.models import StarEntry, StarMetadata
+#from src.storage.models import StarEntry, StarMetadata
+
 from src.storage.repositories.star_repo import StarEntryRepo, StarMetadataRepo
 
 
@@ -11,9 +13,9 @@ class StarMetadataProcessor:
     def __init__(self, isTest: bool = True):
         self.repo = StarMetadataRepo(isTest)
 
-    def _parse_date(self, value: Optional[str]) -> date:
+    def _parse_date(self, value: Optional[str]) -> Optional[date]:
         if value is None or str(value).strip() == "":
-            return datetime.now().date()
+            return None
 
         s = str(value).strip()
         # Accept year-only like '2015' or full ISO date 'YYYY-MM-DD'
@@ -22,47 +24,24 @@ class StarMetadataProcessor:
                 return date(int(s), 1, 1)
             return datetime.strptime(s, "%Y-%m-%d").date()
         except Exception:
-            return datetime.now().date()
+            return None
 
     def new_item(
-        self, user_id, type, title, subtitle, location, start_date, end_date
+        self, id, user_id, type, title, subtitle, location, start_date, end_date
     ) -> None:
-        # create a StarMetadata instance (useful for tests that patch the model)
-        _ = StarMetadata(
+        model = StarMetadata(
+            id=id,
             user_id=user_id,
             type=type,
             title=title,
             subtitle=subtitle,
             location=location,
-            start_date=start_date,
-            end_date=end_date,
+            start_date=self._parse_date(start_date),
+            end_date=self._parse_date(end_date),
         )
 
-        # persist using repository (convert types appropriately)
-        try:
-            u_id = (
-                int(user_id)
-                if user_id is not None and str(user_id).strip() != ""
-                else None
-            )
-        except Exception:
-            u_id = None
-
-        sd = self._parse_date(start_date)
-        ed = self._parse_date(end_date)
-
-        if u_id is None:
-            # repository expects an integer user id; raise to indicate bad data
-            raise ValueError("user_id is required and must be an integer")
-
         self.repo.create(
-            user_id=u_id,
-            type=type,
-            title=title,
-            subtitle=subtitle,
-            location=location,
-            start_date=sd,
-            end_date=ed,
+            model=model
         )
 
 

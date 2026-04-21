@@ -6,22 +6,24 @@ from src.data_ingestion.csv_loader import CSVLoader
 from src.logging_config import get_logger
 
 EXPECTED_STAR_METADATA_HEADER: List[str] = [
-    "User_id",
-    "Type",
-    "Title",
-    "Subtitle",
-    "Location",
-    "Start_date",
-    "End_date",
+    "id"
+    "user_id",
+    "type",
+    "title",
+    "subtitle",
+    "location",
+    "start_date",
+    "end_date",
 ]
 
 EXPECTED_STAR_ENTRY_HEADER: List[str] = [
-    "Star_metadata_id",
-    "Title",
-    "Situation",
-    "Task",
-    "Action",
-    "Result",
+    "id"
+    "star_metadata_id",
+    "title",
+    "situation",
+    "task",
+    "action",
+    "result",
 ]
 
 
@@ -38,10 +40,11 @@ class StarMetadataImporter:
     def importer_function(self, values: dict[str, str]) -> None:
         # Validate that the fields are not empty
         self.processor.new_item(
-            user_id=values["User_id"],
-            type=values["Type"],
-            title=values["Title"],
-            subtitle=values["Subtitle"],
+            id=values["id"],
+            user_id=values["user_id"],
+            type=values["type"],
+            title=values["title"],
+            subtitle=values["subtitle"],
             location=values["location"],
             start_date=values["start_date"],
             end_date=values["end_date"],
