@@ -1,8 +1,8 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 
-TEST_ENGINE = "sqlite:///./output/test_storage.db"
-PROD_ENGINE = "sqlite:///./output/storage.db"
+TEST_ENGINE = "sqlite:///./example/output/test_storage.db"
+PROD_ENGINE = "sqlite:///./example/output/storage.db"
 
 
 class DatabaseConnection:

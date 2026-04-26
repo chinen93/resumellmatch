@@ -1,5 +1,7 @@
 import json
-import os
+
+from src.data_ingestion.utils import get_filepath
+from src.logging_config import get_logger
 
 
 class FileReader:
@@ -19,8 +21,12 @@ class FileReader:
             FileNotFoundError: If the file does not exist.
             IOError: If there's an error reading the file.
         """
-        file_path = os.path.join("input", filename)
-        with open(file_path, "r", encoding="utf-8") as file:
+        filepath = get_filepath(filename)
+
+        _log = get_logger("FileReader")
+        _log.debug(f"Reading file: {filepath}")
+
+        with open(filepath, "r", encoding="utf-8") as file:
             return file.read()
 
     @classmethod
@@ -39,6 +45,10 @@ class FileReader:
             IOError: If there's an error reading the file.
             json.JSONDecodeError: If the file is not valid JSON.
         """
-        file_path = os.path.join("input", filename)
-        with open(file_path, "r", encoding="utf-8") as file:
+        filepath = get_filepath(filename)
+
+        _log = get_logger("FileReader")
+        _log.debug(f"Reading file: {filepath}")
+
+        with open(filepath, "r", encoding="utf-8") as file:
             return json.load(file)

@@ -1,0 +1,7 @@
+{
+    "title": "RL Model environment creation",
+    "situation": "Worked on a project to develop an AI model for trading stocks using Reinforcement Learning. A key challenge was building a training environment that accurately simulated stock marker dynamics, including buy/sell operations.",
+    "task": "Design and implement a training environment that replicated real world stock trading condition.",
+    "action": "- Created a custom simulated stock trading.;- Integrated historical stock data to provide realistic scenarios for model training.;- Created a basic reward function to incentivize profitable trades while penalizing unprofitable ones.",
+    "result": "The environment provided a robust platform for training and testing various RL algorithms. Making it easy to change reward functions and which data to give to models to better train them."
+}

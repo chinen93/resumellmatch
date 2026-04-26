@@ -1,7 +1,6 @@
-from pathlib import Path
-
 from pypdf import PdfReader
 
+from src.data_ingestion.utils import get_filepath
 from src.logging_config import get_logger
 
 
@@ -10,10 +9,9 @@ class PDFReader:
     @classmethod
     def read(cls, filename: str) -> str:
 
+        filepath = get_filepath(filename)
+
         _log = get_logger("PDFReader")
-
-        filepath = Path(__file__).parent.parent.parent / "input" / filename
-
         _log.debug(filepath)
 
         ret = ""

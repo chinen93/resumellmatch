@@ -28,6 +28,7 @@ def upgrade() -> None:
         sa.Column("name", sa.String(), nullable=False),
         sa.Column("created_at", sa.TIMESTAMP(), nullable=True),
         sa.PrimaryKeyConstraint("id"),
+        if_not_exists=True,
     )
     op.create_table(
         "star_entries",
@@ -45,6 +46,7 @@ def upgrade() -> None:
             ["star_metadatas.id"],
         ),
         sa.PrimaryKeyConstraint("id"),
+        if_not_exists=True,
     )
     op.create_table(
         "star_entries_skills_assoc",
@@ -59,6 +61,7 @@ def upgrade() -> None:
             ["star_entries.id"],
         ),
         sa.PrimaryKeyConstraint("star_entry_id", "skill_id"),
+        if_not_exists=True,
     )
     # ### end Alembic commands ###
 

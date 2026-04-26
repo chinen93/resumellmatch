@@ -1,0 +1,7 @@
+{
+    "title": "Implemented Visualization for MVP Tool",
+    "situation": "The internal MVP tool at created models by making API calls to multiple sistems. Manual checks were done after creation to ensure everything was created correctly. It was time-consuming and prone to errors.",
+    "task": "Improve the model verification process.",
+    "action": "- Designed a simplified JSON representation of the created models, capturing key attributes and relationships.; - Visualization tool to transform the JSON representation into a graph-like view, allowing faster inspections of what relationships and attributes.",
+    "result": "Enabled faster verification and more accurate models"
+}

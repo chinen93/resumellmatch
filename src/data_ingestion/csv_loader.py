@@ -1,6 +1,8 @@
 import csv
 from typing import Callable, List, Optional, Sequence
 
+from src.data_ingestion.utils import get_filepath
+
 
 class CSVLoader:
     """
@@ -12,7 +14,7 @@ class CSVLoader:
 
     def load_csv(
         self,
-        file_path: str,
+        filename: str,
         expected_header: List[str],
         callback: Optional[Callable[[dict[str, str]], None]] = None,
     ) -> None:
@@ -23,22 +25,24 @@ class CSVLoader:
         for each line call callback function if it exists
 
         Args:
-            file_path: Path to the CSV file
+            filepath: Path to the CSV file
 
         Raises:
             FileNotFoundError: If the CSV file doesn't exist
             ValueError: If the CSV file is empty
         """
         self.linesRead = 0
+        filepath = get_filepath(filename)
+
         try:
-            with open(file_path, "r", encoding="utf-8") as file:
+            with open(filepath, "r", encoding="utf-8") as file:
                 reader = csv.DictReader(file)
 
                 if reader.fieldnames is None:
-                    raise ValueError(f"CSV file is empty: {file_path}")
+                    raise ValueError(f"CSV file is empty: {filepath}")
 
                 if not self.validateHeader(reader.fieldnames, expected_header):
-                    raise ValueError(f"CSV file header incorrect: {file_path}")
+                    raise ValueError(f"CSV file header incorrect: {filepath}")
 
                 for row in reader:
                     self.linesRead += 1
@@ -47,10 +51,10 @@ class CSVLoader:
                         callback(row)
 
                 if self.linesRead == 0:
-                    raise ValueError(f"CSV file has no data rows: {file_path}")
+                    raise ValueError(f"CSV file has no data rows: {filepath}")
 
         except FileNotFoundError:
-            raise FileNotFoundError(f"CSV file not found: {file_path}")
+            raise FileNotFoundError(f"CSV file not found: {filepath}")
         except ValueError as e:
             raise e
         except Exception as e:
@@ -69,6 +73,7 @@ class CSVLoader:
         Returns:
             True if headers match, False otherwise
         """
+        # TODO: raise exception with the list of missing headers so it is easier to fix after seeing the logs
         for header in expected_headers:
             if header not in headers:
                 return False

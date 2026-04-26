@@ -49,6 +49,8 @@ def get_settings():  # type: ignore
         LOG_FILE: Optional[str] = os.getenv("LOG_FILE")  # type: ignore
         LOG_TO_CONSOLE: Optional[str] = os.getenv("LOG_TO_CONSOLE")  # type: ignore
         DATABASE_URL: Optional[str] = os.getenv("DATABASE_URL")  # type: ignore
+        DATA_DIR: Optional[str] = os.getenv("DATA_DIR")  # type: ignore
+        AGENT_MODEL: Optional[str] = os.getenv("AGENT_MODEL")  # type: ignore
 
         def __post_init__(self):
             missing = [
@@ -60,6 +62,8 @@ def get_settings():  # type: ignore
                     "LOG_FILE": self.LOG_FILE,
                     "LOG_TO_CONSOLE": self.LOG_TO_CONSOLE,
                     "DATABASE_URL": self.DATABASE_URL,
+                    "DATA_DIR": self.DATA_DIR,
+                    "AGENT_MODEL": self.AGENT_MODEL,
                 }.items()
                 if value is None or (isinstance(value, str) and not value.strip())
             ]

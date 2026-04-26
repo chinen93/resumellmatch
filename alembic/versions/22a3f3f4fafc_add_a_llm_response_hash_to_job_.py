@@ -32,12 +32,21 @@ def upgrade() -> None:
         sa.Column("llm_name", sa.String(), nullable=True),
         sa.Column("created_at", sa.TIMESTAMP(), nullable=True),
         sa.PrimaryKeyConstraint("id"),
+        if_not_exists=True,
     )
     op.create_index(
-        op.f("ix_llm_cache_prompt_hash"), "llm_cache", ["prompt_hash"], unique=False
+        op.f("ix_llm_cache_prompt_hash"),
+        "llm_cache",
+        ["prompt_hash"],
+        unique=False,
+        if_not_exists=True,
     )
     op.create_index(
-        op.f("ix_llm_cache_response_hash"), "llm_cache", ["response_hash"], unique=False
+        op.f("ix_llm_cache_response_hash"),
+        "llm_cache",
+        ["response_hash"],
+        unique=False,
+        if_not_exists=True,
     )
     op.add_column(
         "job_descriptions_parsed", sa.Column("input_hash", sa.String(), nullable=True)
@@ -50,6 +59,7 @@ def upgrade() -> None:
         "job_descriptions_parsed",
         ["input_hash"],
         unique=False,
+        if_not_exists=True,
     )
     # ### end Alembic commands ###
 

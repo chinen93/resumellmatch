@@ -3,6 +3,7 @@ from typing import Optional
 
 from ollama import generate
 
+from config.settings import get_settings
 from src.llm.client.response import (
     BaseResponse,
     ExtractKeywordResponse,
@@ -30,6 +31,13 @@ class OllamaLocalClient:
 
         self._log = get_logger("llm")
 
+        settings = get_settings()
+        assert (
+            settings.AGENT_MODEL is not None
+        ), "AGENT_MODEL must be set in environment variables"
+
+        self.agent_model = settings.AGENT_MODEL
+
         try:
             self._hello_world()
             self.ready = True
@@ -41,8 +49,7 @@ class OllamaLocalClient:
         self._log.debug(message)
 
         output = generate(
-            # model="gemma3:1b",  # Faster
-            model="gemma3:4b",  # Slower
+            model=self.agent_model,
             prompt=message,
             format=format.model_json_schema(),
             stream=False,

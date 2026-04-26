@@ -2,9 +2,9 @@ from datetime import date, datetime
 from typing import List, Optional
 
 from src.core.models import StarEntry, StarMetadata
-#from src.storage.models import StarEntry, StarMetadata
-
 from src.storage.repositories.star_repo import StarEntryRepo, StarMetadataRepo
+
+# from src.storage.models import StarEntry, StarMetadata
 
 
 class StarMetadataProcessor:
@@ -40,9 +40,7 @@ class StarMetadataProcessor:
             end_date=self._parse_date(end_date),
         )
 
-        self.repo.create(
-            model=model
-        )
+        self.repo.create(model=model)
 
 
 class StarEntryProcessor:

@@ -1,0 +1,45 @@
+The Company: 
+Marigold is a fast-growing marketing technology company helping growing businesses build stronger customer relationships through its three core platforms: Emma, Campaign Monitor, and Vuture. We deliver powerful tools for email, SMS, and marketing automation that elevate engagement and drive real results. Marigold is headquartered in Nashville, Tennessee with offices in Sydney and London.
+
+The Role: 
+At Emma, we’re looking for a driven, curious software engineer to join our team. The Emma Engineering organization is made up of passionate engineers focused on building elegant, reliable tooling that helps our customers succeed in their email marketing efforts. Our teams operate with clear ownership boundaries, allowing engineers to specialize, deepen their expertise, and build sustainable software that’s easy to support and evolve over time. We take pride in crafting creative, scalable solutions for a wide range of customers—and we genuinely enjoy doing it together.
+
+This is an entry-level, Software Engineer role. On the frontend, we work primarily with React and supporting libraries, including a proprietary UI toolkit. Our backend systems are Python-driven and AWS-based. Experience in any of these areas is a plus, but a strong desire to learn and grow across the full stack is essential. Within your first six months, you’ll also have opportunities to contribute to additional areas of development as you continue to build your skills and expand your technical foundation.
+
+ 
+
+What You’ll Do: 
+
+Build and ship code that solves real problems for real customers. Engineering is central to what we do, and you’ll work closely with your team to plan, experiment, and deliver impactful solutions.
+
+Collaborate in code reviews, sharing ideas, learning from others, and helping raise the bar on quality and best practices.
+
+Get hands-on with how Emma builds intuitive, scalable tooling that helps marketing teams do their best work.
+
+Have fun while doing it!  We care deeply about our customers, move with intention, and genuinely enjoy building great products together.
+
+About You:
+
+You’re an early-career developer who’s excited to learn, grow, and contribute as part of a collaborative engineering team. While you may not be a master of React, Python, or AWS yet, you bring curiosity, strong potential, and a genuine desire to build your skills and learn best practices. You care deeply about technology, the products you help create, and the customers who rely on them. You enjoy variety in your work, are eager to take on new challenges, and are motivated by opportunities to expand your knowledge and grow alongside a supportive team.
+
+Ideal Qualifications: 
+
+Early-career developer or recent graduate with a strong interest in software engineering
+
+Foundational experience or exposure to modern technologies such as React, Python, AWS, or similar tools
+
+Demonstrated curiosity and willingness to learn new technologies, frameworks, and best practices
+
+Passion for building quality products with the end user in mind
+
+Comfortable working across different areas of the codebase and contributing where needed
+
+Strong collaboration skills and openness to feedback and continuous improvement
+
+Location Eligibility
+
+This position is eligible for hire in the following US states: Arizona, California, Florida, Georgia, Michigan, New York, North Carolina, Tennessee, Texas, and Virginia.
+
+Employee-centric and supportive remote work environment with flexibility.
+
+Support for life events including paid parental leave.

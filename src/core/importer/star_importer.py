@@ -1,4 +1,3 @@
-import os
 from typing import List
 
 from src.core.processor.star_processor import StarEntryProcessor, StarMetadataProcessor
@@ -6,8 +5,7 @@ from src.data_ingestion.csv_loader import CSVLoader
 from src.logging_config import get_logger
 
 EXPECTED_STAR_METADATA_HEADER: List[str] = [
-    "id"
-    "user_id",
+    "id" "user_id",
     "type",
     "title",
     "subtitle",
@@ -17,8 +15,7 @@ EXPECTED_STAR_METADATA_HEADER: List[str] = [
 ]
 
 EXPECTED_STAR_ENTRY_HEADER: List[str] = [
-    "id"
-    "star_metadata_id",
+    "id" "star_metadata_id",
     "title",
     "situation",
     "task",
@@ -52,16 +49,14 @@ class StarMetadataImporter:
 
     def run(self, filename: str) -> List[str]:
         ret: List[str] = []
-        filepath = os.path.join("input", filename)
-
         try:
             self.loader.load_csv(
-                filepath, EXPECTED_STAR_METADATA_HEADER, self.importer_function
+                filename, EXPECTED_STAR_METADATA_HEADER, self.importer_function
             )
-        except FileNotFoundError:
-            self._log.info(f"File not found '{filepath}'")
-        except ValueError:
-            self._log.info(f"File '{filepath}' has unexpected headers")
+        except FileNotFoundError as e:
+            self._log.error(e)
+        except ValueError as e:
+            self._log.error(e)
 
         return ret
 
@@ -102,15 +97,14 @@ class StarEntryImporter:
 
     def run(self, filename: str) -> List[str]:
         ret: List[str] = []
-        filepath = os.path.join("input", filename)
 
         try:
             self.loader.load_csv(
-                filepath, EXPECTED_STAR_ENTRY_HEADER, self.importer_function
+                filename, EXPECTED_STAR_ENTRY_HEADER, self.importer_function
             )
-        except FileNotFoundError:
-            self._log.info(f"File not found '{filepath}'")
-        except ValueError:
-            self._log.info(f"File '{filepath}' has unexpected headers")
+        except FileNotFoundError as e:
+            self._log.error(e)
+        except ValueError as e:
+            self._log.error(e)
 
         return ret

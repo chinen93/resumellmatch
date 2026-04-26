@@ -30,6 +30,7 @@ def upgrade() -> None:
         sa.Column("raw_text", sa.String(), nullable=False),
         sa.Column("created_at", sa.TIMESTAMP(), nullable=True),
         sa.PrimaryKeyConstraint("id"),
+        if_not_exists=True,
     )
     op.create_table(
         "skills",
@@ -37,6 +38,7 @@ def upgrade() -> None:
         sa.Column("name", sa.String(), nullable=False),
         sa.Column("created_at", sa.TIMESTAMP(), nullable=True),
         sa.PrimaryKeyConstraint("id"),
+        if_not_exists=True,
     )
     op.create_table(
         "users",
@@ -45,6 +47,7 @@ def upgrade() -> None:
         sa.Column("email", sa.String(), nullable=False),
         sa.PrimaryKeyConstraint("id"),
         sa.UniqueConstraint("email"),
+        if_not_exists=True,
     )
     op.create_table(
         "job_descriptions_parsed",
@@ -59,6 +62,7 @@ def upgrade() -> None:
             ["job_descriptions.id"],
         ),
         sa.PrimaryKeyConstraint("id"),
+        if_not_exists=True,
     )
     op.create_table(
         "star_metadatas",
@@ -76,6 +80,7 @@ def upgrade() -> None:
             ["users.id"],
         ),
         sa.PrimaryKeyConstraint("id"),
+        if_not_exists=True,
     )
     op.create_table(
         "star_entries",
@@ -93,6 +98,7 @@ def upgrade() -> None:
             ["star_metadatas.id"],
         ),
         sa.PrimaryKeyConstraint("id"),
+        if_not_exists=True,
     )
     op.create_table(
         "star_entries_skills_assoc",
@@ -107,6 +113,7 @@ def upgrade() -> None:
             ["star_entries.id"],
         ),
         sa.PrimaryKeyConstraint("star_entry_id", "skill_id"),
+        if_not_exists=True,
     )
     # ### end Alembic commands ###
 

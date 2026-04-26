@@ -33,6 +33,7 @@ def upgrade() -> None:
             ["users.id"],
         ),
         sa.PrimaryKeyConstraint("id"),
+        if_not_exists=True,
     )
     op.create_table(
         "matches",
@@ -49,6 +50,7 @@ def upgrade() -> None:
             ["resumes.id"],
         ),
         sa.PrimaryKeyConstraint("resume_id", "job_description_parsed_id"),
+        if_not_exists=True,
     )
     # ### end Alembic commands ###
 
