@@ -2,6 +2,7 @@ import csv
 from typing import Callable, List, Optional, Sequence
 
 from src.data_ingestion.utils import get_filepath
+from src.logging_config import get_logger
 
 
 class CSVLoader:
@@ -11,6 +12,9 @@ class CSVLoader:
     """
 
     linesRead: int = 0
+
+    def __init__(self):
+        self._log = get_logger("CSVLoader")
 
     def load_csv(
         self,
@@ -41,13 +45,13 @@ class CSVLoader:
                 if reader.fieldnames is None:
                     raise ValueError(f"CSV file is empty: {filepath}")
 
-                if not self.validateHeader(reader.fieldnames, expected_header):
-                    raise ValueError(f"CSV file header incorrect: {filepath}")
+                self.validateHeader(filepath, reader.fieldnames, expected_header)
 
                 for row in reader:
                     self.linesRead += 1
 
                     if callback is not None:
+                        self._log.debug(f"{self.linesRead}: {callback}")
                         callback(row)
 
                 if self.linesRead == 0:
@@ -61,8 +65,8 @@ class CSVLoader:
             raise e
 
     def validateHeader(
-        self, headers: Sequence[str], expected_headers: List[str]
-    ) -> bool:
+        self, filepath: str, headers: Sequence[str], expected_headers: List[str]
+    ) -> None:
         """
         Validate the CSV headers with the expected header.
         Uses self.lines after load_csv to validate its accuracy.
@@ -74,8 +78,12 @@ class CSVLoader:
             True if headers match, False otherwise
         """
         # TODO: raise exception with the list of missing headers so it is easier to fix after seeing the logs
+        missed = []
         for header in expected_headers:
             if header not in headers:
-                return False
+                missed.append(header)
 
-        return True
+        if len(missed) > 0:
+            raise ValueError(
+                f"CSV file header incorrect: {filepath}, missing: '{";".join(missed)}'"
+            )
