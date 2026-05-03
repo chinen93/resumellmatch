@@ -31,7 +31,7 @@ class TestDatabaseConnection(BaseTestCase):
 
         self.assertIs(conn1, conn2)
         mock_create_engine.assert_called_once_with(
-            "sqlite:///./output/storage.db", echo=False
+            "sqlite:///./example/output/storage.db", echo=False
         )
 
     @patch("src.storage.connection.create_engine")
@@ -44,7 +44,7 @@ class TestDatabaseConnection(BaseTestCase):
         self.assertIsNot(conn1, conn2)
         self.assertEqual(mock_create_engine.call_count, 2)
         mock_create_engine.assert_called_with(
-            "sqlite:///./output/test_storage.db", echo=False
+            "sqlite:///./example/output/test_storage.db", echo=False
         )
 
     @patch("src.storage.connection.create_engine")

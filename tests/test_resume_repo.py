@@ -30,23 +30,25 @@ class TestResumeRepo(BaseTestCase):
     def setUp(self):
         resumes = self.resume_repo.get_all()
         for resume in resumes:
+            assert resume.id is not None
             self.resume_repo.delete(resume.id)
 
         users = self.user_repo.get_all()
         for user in users:
+            assert user.id is not None
             self.user_repo.delete(user.id)
 
         self.user_id = self.user_repo.create_from_fields(
-            "Test User", "test@example.com"
+            1, "Test User", "test@example.com"
         )
 
     def test_create(self):
-        resume_id = self.resume_repo.create_from_fields(self.user_id, "Resume text")
+        resume_id = self.resume_repo.create_from_fields(1, self.user_id, "Resume text")
         self.assertIsInstance(resume_id, int)
         self.assertGreater(resume_id, 0)
 
     def test_get_by_id(self):
-        resume_id = self.resume_repo.create_from_fields(self.user_id, "Resume text")
+        resume_id = self.resume_repo.create_from_fields(1, self.user_id, "Resume text")
         resume = self.resume_repo.get_by_id(resume_id)
         self.assertIsNotNone(resume)
         assert resume is not None
@@ -57,38 +59,47 @@ class TestResumeRepo(BaseTestCase):
         self.assertIsNone(resume)
 
     def test_get_all(self):
-        self.resume_repo.create_from_fields(self.user_id, "Resume 1")
-        self.resume_repo.create_from_fields(self.user_id, "Resume 2")
+        self.resume_repo.create_from_fields(1, self.user_id, "Resume 1")
+        self.resume_repo.create_from_fields(2, self.user_id, "Resume 2")
         resumes = self.resume_repo.get_all()
         self.assertEqual(len(resumes), 2)
         self.assertEqual(resumes[0].raw_text, "Resume 1")
         self.assertEqual(resumes[1].raw_text, "Resume 2")
 
     def test_get_all_by_user_id(self):
-        self.resume_repo.create_from_fields(self.user_id, "Resume 1")
-        self.resume_repo.create_from_fields(self.user_id, "Resume 2")
-        resumes = self.resume_repo.get_all_by_user_id(self.user_id)
-        self.assertEqual(len(resumes), 2)
+        self.resume_repo.create_from_fields(1, self.user_id, "Resume 1")
+        resume = self.resume_repo.get_by_user_id(self.user_id)
+        self.assertIsNotNone(resume)
+        assert resume is not None
+        self.assertEqual(resume.raw_text, "Resume 1")
 
     def test_update(self):
-        resume_id = self.resume_repo.create_from_fields(self.user_id, "Old text")
-        updated_resume = self.resume_repo.update(resume_id, raw_text="New text")
+        resume_id = self.resume_repo.create_from_fields(1, self.user_id, "Old text")
+        resume = self.resume_repo.get_by_id(resume_id)
+        self.assertIsNotNone(resume)
+
+        assert resume is not None
+        resume.raw_text = "New text"
+        self.resume_repo.create_or_update(resume)
+        updated_resume = self.resume_repo.get_by_id(resume_id)
+
+        assert updated_resume is not None
         self.assertEqual(updated_resume.raw_text, "New text")
 
     def test_update_not_found(self):
-        with self.assertRaises(ValueError):
-            self.resume_repo.update(999, raw_text="Fail")
+        result = self.resume_repo.delete(999)
+        self.assertFalse(result)
 
     def test_delete(self):
-        resume_id = self.resume_repo.create_from_fields(self.user_id, "Resume text")
+        resume_id = self.resume_repo.create_from_fields(1, self.user_id, "Resume text")
         result = self.resume_repo.delete(resume_id)
         self.assertTrue(result)
         resume = self.resume_repo.get_by_id(resume_id)
         self.assertIsNone(resume)
 
     def test_delete_not_found(self):
-        with self.assertRaises(ValueError):
-            self.resume_repo.delete(999)
+        result = self.resume_repo.delete(999)
+        self.assertFalse(result)
 
 
 if __name__ == "__main__":

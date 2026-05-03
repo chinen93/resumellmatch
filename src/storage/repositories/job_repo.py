@@ -30,9 +30,9 @@ class JobDescriptionRepo:
             storage_model = JobDescriptionMapper.to_storage_model(core_model)
             return self._create(storage_model)
 
-    def create_from_fields(self, url: str, title: str, raw_text: str) -> int:
+    def create_from_fields(self, id: int, url: str, title: str, raw_text: str) -> int:
         """Create using individual fields (builds model internally)."""
-        model = JobDescriptionMapper.from_raw_fields(url, title, raw_text)
+        model = JobDescriptionMapper.from_raw_fields(id, url, title, raw_text)
         return self.create_or_update(model)
 
     def get_by_id(self, job_id: int) -> Optional[JobDescriptionModel]:
@@ -159,6 +159,7 @@ class JobDescriptionParsedRepo:
 
     def create_from_fields(
         self,
+        id: int,
         job_description_id: int,
         summary: str,
         required_skills: str,
@@ -169,6 +170,7 @@ class JobDescriptionParsedRepo:
     ) -> int:
         """Create using individual fields (builds model internally)."""
         model = JobDescriptionParsedMapper.from_raw_fields(
+            id=id,
             job_description_id=job_description_id,
             summary=summary,
             required_skills=required_skills,

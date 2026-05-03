@@ -27,9 +27,9 @@ class UserRepo:
             storage_model = UserMapper.to_storage_model(core_model)
             return self._create(storage_model)
 
-    def create_from_fields(self, name: str, email: str) -> int:
+    def create_from_fields(self, id: int, name: str, email: str) -> int:
         """Create using individual fields (builds model internally)."""
-        model = UserMapper.from_raw_fields(name, email)
+        model = UserMapper.from_raw_fields(id, name, email)
         return self.create_or_update(model)
 
     def get_by_id(self, user_id: int) -> Optional[UserModel]:

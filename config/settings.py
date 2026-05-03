@@ -68,7 +68,9 @@ def get_settings():  # type: ignore
                 if value is None or (isinstance(value, str) and not value.strip())
             ]
             if missing:
-                raise ValueError(f"Missing required settings: {', '.join(missing)}")
+                raise ValueError(
+                    f"File '{ENV_FILEPATH}' missing required settings: {', '.join(missing)}"
+                )
 
     settings = Settings()
     return settings

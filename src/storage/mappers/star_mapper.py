@@ -44,6 +44,7 @@ class StarMetadataMapper:
 
     @staticmethod
     def from_raw_fields(
+        id: int,
         user_id: int,
         type: str,
         title: str,
@@ -54,6 +55,7 @@ class StarMetadataMapper:
     ) -> StarMetadataModel:
         """Builds the core model directly from raw input fields."""
         return StarMetadataModel(
+            id=id,
             user_id=user_id,
             type=type,
             title=title,
@@ -97,6 +99,7 @@ class StarEntryMapper:
 
     @staticmethod
     def from_raw_fields(
+        id: int,
         metadata_id: int,
         title: str,
         situation: str,
@@ -106,6 +109,7 @@ class StarEntryMapper:
     ) -> StarEntryModel:
         """Builds the core model directly from raw input fields."""
         return StarEntryModel(
+            id=id,
             metadata_id=metadata_id,
             title=title,
             situation=situation,

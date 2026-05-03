@@ -37,7 +37,7 @@ class StarEntrySkillAssociation(Base):
 class StarEntry(Base):
     __tablename__ = "star_entries"
 
-    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
     metadata_id: Mapped[int] = mapped_column(
         Integer, ForeignKey("star_metadatas.id"), primary_key=True
     )
@@ -79,7 +79,7 @@ class StarMetadata(Base):
 
     __tablename__ = "star_metadatas"
 
-    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
     user_id: Mapped[int] = mapped_column(
         Integer, ForeignKey("users.id"), primary_key=True
     )
@@ -117,7 +117,7 @@ class StarMetadata(Base):
 class Resume(Base):
 
     __tablename__ = "resumes"
-    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
     user_id: Mapped[int] = mapped_column(
         Integer, ForeignKey("users.id"), primary_key=True
     )
@@ -177,7 +177,7 @@ class JobDescription(Base):
 class JobDescriptionParsed(Base):
 
     __tablename__ = "job_descriptions_parsed"
-    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
     job_description_id: Mapped[int] = mapped_column(
         Integer, ForeignKey("job_descriptions.id"), primary_key=True
     )

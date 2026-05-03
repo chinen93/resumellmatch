@@ -25,7 +25,7 @@ class TestFileReader(BaseTestCase):
         """Test reading a valid .txt file."""
         content = "This is a test file content."
         with tempfile.NamedTemporaryFile(
-            mode="w", suffix=".txt", delete=False, dir="input"
+            mode="w", suffix=".txt", delete=False, dir="example/input"
         ) as f:
             f.write(content)
             temp_file = f.name
@@ -46,7 +46,7 @@ class TestFileReader(BaseTestCase):
         """Test reading a file with UTF-8 encoding."""
         content = "Test content with special chars: àáâãäå"
         with tempfile.NamedTemporaryFile(
-            mode="w", suffix=".txt", delete=False, dir="input", encoding="utf-8"
+            mode="w", suffix=".txt", delete=False, dir="example/input", encoding="utf-8"
         ) as f:
             f.write(content)
             temp_file = f.name

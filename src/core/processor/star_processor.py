@@ -30,7 +30,7 @@ class StarMetadataProcessor:
         self, id, user_id, type, title, subtitle, location, start_date, end_date
     ) -> None:
         self.repo.create_from_fields(
-            # id=id,
+            id=id,
             user_id=user_id,
             type=type,
             title=title,
@@ -49,6 +49,7 @@ class StarEntryProcessor:
 
     def new_item(
         self,
+        id,
         metadata_id,
         title,
         situation,
@@ -81,6 +82,7 @@ class StarEntryProcessor:
             raise ValueError("metadata_id is required and must be an integer")
 
         self.repo.create_from_fields(
+            id=id,
             metadata_id=m_id,
             title=title,
             situation=situation,

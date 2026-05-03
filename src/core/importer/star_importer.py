@@ -76,12 +76,13 @@ class StarEntryImporter:
 
     def importer_function(self, values: dict[str, str]) -> None:
         self.processor.new_item(
-            metadata_id=values[EXPECTED_STAR_ENTRY_HEADER[0]],
-            title=values[EXPECTED_STAR_ENTRY_HEADER[1]],
-            situation=values[EXPECTED_STAR_ENTRY_HEADER[2]],
-            task=values[EXPECTED_STAR_ENTRY_HEADER[3]],
-            action=values[EXPECTED_STAR_ENTRY_HEADER[4]],
-            result=values[EXPECTED_STAR_ENTRY_HEADER[5]],
+            id=values[EXPECTED_STAR_ENTRY_HEADER[0]],
+            metadata_id=values[EXPECTED_STAR_ENTRY_HEADER[2]],
+            title=values[EXPECTED_STAR_ENTRY_HEADER[2]],
+            situation=values[EXPECTED_STAR_ENTRY_HEADER[3]],
+            task=values[EXPECTED_STAR_ENTRY_HEADER[4]],
+            action=values[EXPECTED_STAR_ENTRY_HEADER[5]],
+            result=values[EXPECTED_STAR_ENTRY_HEADER[6]],
         )
 
     def run(self, filename: str) -> List[str]:

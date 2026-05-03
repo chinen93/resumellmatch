@@ -40,6 +40,7 @@ class StarMetadataRepo:
 
     def create_from_fields(
         self,
+        id: int,
         user_id: int,
         type: str,
         title: str,
@@ -50,6 +51,7 @@ class StarMetadataRepo:
     ) -> int:
         """Create using individual fields (builds model internally)."""
         model = StarMetadataMapper.from_raw_fields(
+            id=id,
             user_id=user_id,
             type=type,
             title=title,
@@ -207,6 +209,7 @@ class StarEntryRepo:
 
     def create_from_fields(
         self,
+        id: int,
         metadata_id: int,
         title: str,
         situation: str,
@@ -216,6 +219,7 @@ class StarEntryRepo:
     ) -> int:
         """Create using individual fields (builds model internally)."""
         model = StarEntryMapper.from_raw_fields(
+            id=id,
             metadata_id=metadata_id,
             title=title,
             situation=situation,

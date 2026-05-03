@@ -17,7 +17,9 @@ class SkillRepo:
         if core_model.id is None:
             return -1
 
-        storage_model = self._retrieve_by_name(core_model.name)
+        storage_model = self._retrieve(core_model.id)
+        if storage_model is None:
+            storage_model = self._retrieve_by_name(core_model.name)
 
         if storage_model is not None:
             return self._update(storage_model, core_model)
@@ -25,9 +27,9 @@ class SkillRepo:
             storage_model = SkillMapper.to_storage_model(core_model)
             return self._create(storage_model)
 
-    def create_from_fields(self, name: str) -> int:
+    def create_from_fields(self, id: int, name: str) -> int:
         """Create using individual fields (builds model internally)."""
-        model = SkillMapper.from_raw_fields(name)
+        model = SkillMapper.from_raw_fields(id, name)
         return self.create_or_update(model)
 
     def get_by_id(self, skill_id: int) -> Optional[SkillModel]:

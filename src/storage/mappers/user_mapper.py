@@ -29,9 +29,10 @@ class UserMapper:
         )
 
     @staticmethod
-    def from_raw_fields(name: str, email: str) -> UserModel:
+    def from_raw_fields(id: int, name: str, email: str) -> UserModel:
         """Builds the core model directly from raw input fields."""
         return UserModel(
+            id=id,
             name=name,
             email=email,
         )

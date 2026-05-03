@@ -31,10 +31,11 @@ class TestStarMetadataImporter(BaseTestCase):
     def test_importer_function(self):
         """Test the importer function processes values correctly."""
         values = {
-            "User_id": "1",
-            "Type": "work",
-            "Title": "Engineer",
-            "Subtitle": "Company",
+            "id": "1",
+            "user_id": "1",
+            "type": "work",
+            "title": "Engineer",
+            "subtitle": "Company",
             "location": "NYC",
             "start_date": "2020-01-01",
             "end_date": "2023-01-01",
@@ -43,6 +44,7 @@ class TestStarMetadataImporter(BaseTestCase):
         self.importer.importer_function(values)
 
         self.mock_processor.new_item.assert_called_once_with(
+            id="1",
             user_id="1",
             type="work",
             title="Engineer",
@@ -55,15 +57,16 @@ class TestStarMetadataImporter(BaseTestCase):
     def test_run_success(self):
         """Test successful run of importer."""
         filepath = "test.csv"
-        expected_filepath = "input/" + filepath
+        expected_filepath = filepath
         expected_headers = [
-            "User_id",
-            "Type",
-            "Title",
-            "Subtitle",
-            "Location",
-            "Start_date",
-            "End_date",
+            "id",
+            "user_id",
+            "type",
+            "title",
+            "subtitle",
+            "location",
+            "start_date",
+            "end_date",
         ]
 
         result = self.importer.run(filepath)

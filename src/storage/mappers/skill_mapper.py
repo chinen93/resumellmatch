@@ -20,5 +20,5 @@ class SkillMapper:
         )
 
     @staticmethod
-    def from_raw_fields(name: str) -> SkillModel:
-        return SkillModel(name=name)
+    def from_raw_fields(id: int, name: str) -> SkillModel:
+        return SkillModel(id=id, name=name)

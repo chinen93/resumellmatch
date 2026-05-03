@@ -18,8 +18,6 @@ class ResumeRepo:
             return -1
 
         storage_model = self._retrieve(core_model.id)
-        if storage_model is None and core_model.user_id:
-            storage_model = self._retrieve_by_user_id(core_model.user_id)
 
         if storage_model is not None:
             return self._update(storage_model, core_model)
@@ -27,9 +25,9 @@ class ResumeRepo:
             storage_model = ResumeMapper.to_storage_model(core_model)
             return self._create(storage_model)
 
-    def create_from_fields(self, user_id: int, raw_text: str) -> int:
+    def create_from_fields(self, id: int, user_id: int, raw_text: str) -> int:
         """Create using individual fields (builds model internally)."""
-        model = ResumeMapper.from_raw_fields(user_id, raw_text)
+        model = ResumeMapper.from_raw_fields(id, user_id, raw_text)
         return self.create_or_update(model)
 
     def get_by_id(self, resume_id: int) -> Optional[ResumeModel]:

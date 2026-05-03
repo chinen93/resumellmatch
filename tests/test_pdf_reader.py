@@ -33,7 +33,9 @@ class TestPDFReader(BaseTestCase):
         mock_pdf_reader.return_value.pages = [mock_page1, mock_page2]
 
         # Create a temporary file
-        with tempfile.NamedTemporaryFile(suffix=".pdf", delete=False, dir="input") as f:
+        with tempfile.NamedTemporaryFile(
+            suffix=".pdf", delete=False, dir="example/input"
+        ) as f:
             temp_file = f.name
 
         try:
@@ -51,7 +53,9 @@ class TestPDFReader(BaseTestCase):
         mock_page.extract_text.return_value = "Single page content."
         mock_pdf_reader.return_value.pages = [mock_page]
 
-        with tempfile.NamedTemporaryFile(suffix=".pdf", delete=False, dir="input") as f:
+        with tempfile.NamedTemporaryFile(
+            suffix=".pdf", delete=False, dir="example/input"
+        ) as f:
             temp_file = f.name
 
         try:
@@ -66,7 +70,9 @@ class TestPDFReader(BaseTestCase):
         """Test reading an empty PDF."""
         mock_pdf_reader.return_value.pages = []
 
-        with tempfile.NamedTemporaryFile(suffix=".pdf", delete=False, dir="input") as f:
+        with tempfile.NamedTemporaryFile(
+            suffix=".pdf", delete=False, dir="example/input"
+        ) as f:
             temp_file = f.name
 
         try:

@@ -35,9 +35,11 @@ class JobDescriptionMapper:
         )
 
     @staticmethod
-    def from_raw_fields(url: str, title: str, raw_text: str) -> JobDescriptionModel:
+    def from_raw_fields(
+        id: int, url: str, title: str, raw_text: str
+    ) -> JobDescriptionModel:
         """Builds the core model directly from raw input fields."""
-        return JobDescriptionModel(url=url, title=title, raw_text=raw_text)
+        return JobDescriptionModel(id=id, url=url, title=title, raw_text=raw_text)
 
 
 class JobDescriptionParsedMapper:
@@ -69,6 +71,7 @@ class JobDescriptionParsedMapper:
 
     @staticmethod
     def from_raw_fields(
+        id: int,
         job_description_id: int,
         summary: str,
         required_skills: str,
@@ -79,6 +82,7 @@ class JobDescriptionParsedMapper:
     ) -> JobDescriptionParsedModel:
         """Builds the core model directly from raw input fields."""
         return JobDescriptionParsedModel(
+            id=id,
             job_description_id=job_description_id,
             input_hash=input_hash,
             full_response=full_response,
