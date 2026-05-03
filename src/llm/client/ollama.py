@@ -13,7 +13,7 @@ from src.llm.client.response import (
     SimpleResponse,
 )
 from src.logging_config import get_logger
-from src.storage.repositories.llm_cache_repo import LLMCacheRepo
+from src.storage.repositories import LLMCacheRepo
 from src.utils.hash import compute_hash
 
 PROMPT_HELLO_WORLD = "hello_world.md"

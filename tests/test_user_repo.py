@@ -1,7 +1,7 @@
 import unittest
 
 from src.storage.models import Base
-from src.storage.repositories.user_repo import UserRepo
+from src.storage.repositories import UserRepo
 from tests.conf_log_test import BaseTestCase
 
 

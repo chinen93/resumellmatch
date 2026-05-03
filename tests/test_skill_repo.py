@@ -1,7 +1,7 @@
 import unittest
 
 from src.storage.models import Base
-from src.storage.repositories.skill_repo import SkillRepo
+from src.storage.repositories import SkillRepo
 from tests.conf_log_test import BaseTestCase
 
 

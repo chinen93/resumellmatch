@@ -2,9 +2,12 @@ import unittest
 from datetime import date
 
 from src.storage.models import Base
-from src.storage.repositories.skill_repo import SkillRepo
-from src.storage.repositories.star_repo import StarEntryRepo, StarMetadataRepo
-from src.storage.repositories.user_repo import UserRepo
+from src.storage.repositories import (
+    SkillRepo,
+    StarEntryRepo,
+    StarMetadataRepo,
+    UserRepo,
+)
 from tests.conf_log_test import BaseTestCase
 
 

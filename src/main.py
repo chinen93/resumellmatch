@@ -6,10 +6,7 @@ from src.data_ingestion.csv_loader import CSVLoader
 from src.data_ingestion.file_reader import FileReader
 from src.llm.client.ollama import OllamaLocalClient
 from src.logging_config import get_logger
-from src.storage.repositories.job_repo import (
-    JobDescriptionParsedRepo,
-    JobDescriptionRepo,
-)
+from src.storage.repositories import JobDescriptionParsedRepo, JobDescriptionRepo
 from src.utils.hash import compute_hash
 
 

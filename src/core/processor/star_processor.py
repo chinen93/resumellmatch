@@ -2,7 +2,7 @@ from datetime import date, datetime
 from typing import List, Optional
 
 from src.core.models import StarEntry
-from src.storage.repositories.star_repo import StarEntryRepo, StarMetadataRepo
+from src.storage.repositories import StarEntryRepo, StarMetadataRepo
 
 # from src.storage.models import StarEntry, StarMetadata
 

@@ -1,13 +1,13 @@
 import unittest
 
 from src.storage.models import Base
-from src.storage.repositories.job_repo import (
+from src.storage.repositories import (
     JobDescriptionParsedRepo,
     JobDescriptionRepo,
+    MatchRepo,
+    ResumeRepo,
+    UserRepo,
 )
-from src.storage.repositories.match_repo import MatchRepo
-from src.storage.repositories.resume_repo import ResumeRepo
-from src.storage.repositories.user_repo import UserRepo
 from tests.conf_log_test import BaseTestCase
 
 

@@ -1,10 +1,7 @@
 import unittest
 
 from src.storage.models import Base
-from src.storage.repositories.job_repo import (
-    JobDescriptionParsedRepo,
-    JobDescriptionRepo,
-)
+from src.storage.repositories import JobDescriptionParsedRepo, JobDescriptionRepo
 from tests.conf_log_test import BaseTestCase
 
 
