@@ -34,7 +34,7 @@ class StarMetadata:
     title: str = ""
     subtitle: str = ""
     location: str = ""
-    start_date: Optional[date] = None
+    start_date: date = field(default_factory=date.today)
     end_date: Optional[date] = None
     created_at: Optional[datetime] = None
     entries: List[StarEntry] = field(default_factory=list)

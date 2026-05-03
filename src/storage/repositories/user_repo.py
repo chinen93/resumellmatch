@@ -3,111 +3,118 @@ from typing import List, Optional
 from src.core.models import User as UserModel
 from src.logging_config import get_logger
 from src.storage.connection import DatabaseConnection
+from src.storage.mappers.user_mapper import UserMapper
 from src.storage.models import User
 
 
 class UserRepo:
-
     def __init__(self, isTest):
         self._log = get_logger("UserRepo")
         self.db = DatabaseConnection(isTest)
 
-    def create(
-        self,
-        model: Optional[UserModel] = None,
-        name: Optional[str] = None,
-        email: Optional[str] = None,
-    ) -> int:
-        result = None
+    def create_or_update(self, core_model: UserModel) -> int:
+        """Create or update a User from a model (checks by email)."""
+        if core_model.id is None:
+            return -1
 
-        with self.db.get_session() as session:
-            session.begin()
-            session.expire_on_commit = False
-            try:
-                if model is None:
-                    model = UserModel(name=name or "", email=email or "")
+        storage_model = self._retrieve(core_model.id)
+        if storage_model is None:
+            storage_model = self._retrieve_by_email(core_model.email)
 
-                user = User(name=model.name, email=model.email)
-                session.add(user)
-                session.commit()
-
-                result = int(user.id)
-                session.commit()
-            except Exception as e:
-                session.rollback()
-                self._log.error(f"Error when creating User: {user}")
-                raise e
-
-        return result
-
-    def create_from_model(self, model: UserModel) -> int:
-        """Create using a `core.models.User` instance."""
-        return self.create(model=model)
+        if storage_model is not None:
+            return self._update(storage_model, core_model)
+        else:
+            storage_model = UserMapper.to_storage_model(core_model)
+            return self._create(storage_model)
 
     def create_from_fields(self, name: str, email: str) -> int:
-        """Create using individual fields (legacy style)."""
-        return self.create(name=name, email=email)
+        """Create using individual fields (builds model internally)."""
+        model = UserMapper.from_raw_fields(name, email)
+        return self.create_or_update(model)
 
-    def get_by_id(self, user_id: int) -> Optional[User]:
+    def get_by_id(self, user_id: int) -> Optional[UserModel]:
+        """Fetches a record and converts it immediately to the Core Model."""
+        storage_model = self._retrieve(user_id)
+
+        if not storage_model:
+            return None
+
+        return UserMapper.to_core_model(storage_model)
+
+    def get_all(self) -> List[UserModel]:
+        """Fetches all records and converts them to the Core Model list."""
         with self.db.get_session() as session:
-            session.begin()
-            session.expire_on_commit = False
-            return session.query(User).filter(User.id == user_id).first()
+            storage_models = session.query(User).all()
 
-    def get_all(self) -> List[User]:
-        with self.db.get_session() as session:
-            session.begin()
-            return session.query(User).all()
-
-    def update(
-        self,
-        user_id: int,
-        model: Optional[UserModel] = None,
-        name: Optional[str] = None,
-        email: Optional[str] = None,
-    ) -> User:
-        with self.db.get_session() as session:
-            session.begin()
-            session.expire_on_commit = False
-            try:
-                user = session.query(User).filter(User.id == user_id).first()
-                if not user:
-                    raise ValueError(f"User with id {user_id} not found")
-                if model is not None:
-                    if model.name is not None:
-                        user.name = model.name  # type: ignore
-                    if model.email is not None:
-                        user.email = model.email  # type: ignore
-                else:
-                    if name is not None:
-                        user.name = name  # type: ignore
-                    if email is not None:
-                        user.email = email  # type: ignore
-
-                session.add(user)
-                session.commit()
-
-                return user
-
-            except Exception as e:
-                session.rollback()
-                self._log.error(f"Error when updating User: {user}")
-                raise e
+            return [UserMapper.to_core_model(model) for model in storage_models]
 
     def delete(self, user_id: int) -> bool:
+        storage_model = self._retrieve(user_id)
+
+        if not storage_model:
+            self._log.debug(f"User with id {user_id} not found")
+            return False
+
+        try:
+            self._delete(storage_model)
+            return True
+        except Exception:
+            return False
+
+    def _create(self, storage_model: User) -> int:
+        """Create a User from a storage model."""
         with self.db.get_session() as session:
             session.begin()
             session.expire_on_commit = False
 
             try:
-                user = session.query(User).filter(User.id == user_id).first()
-                if not user:
-                    raise ValueError(f"User with id {user_id} not found")
-                session.delete(user)
+                session.add(storage_model)
+                session.commit()
+                return int(storage_model.id)
+
+            except Exception as e:
+                session.rollback()
+                self._log.error(f"Error when creating User: {e}")
+                raise e
+
+    def _retrieve(self, user_id: int) -> Optional[User]:
+        with self.db.get_session() as session:
+            return session.query(User).filter(User.id == user_id).first()
+
+    def _retrieve_by_email(self, email: str) -> Optional[User]:
+        with self.db.get_session() as session:
+            return session.query(User).filter(User.email == email).first()
+
+    def _update(self, storage_model: User, core_model: UserModel) -> int:
+        storage_model.name = core_model.name
+        storage_model.email = core_model.email
+
+        with self.db.get_session() as session:
+            session.begin()
+            session.expire_on_commit = False
+
+            try:
+                session.add(storage_model)
+                session.commit()
+
+                return int(storage_model.id)
+
+            except Exception as e:
+                session.rollback()
+                self._log.error(f"Error when updating User: {e}")
+                raise e
+
+    def _delete(self, storage_model: User) -> bool:
+        with self.db.get_session() as session:
+            session.begin()
+            session.expire_on_commit = False
+
+            try:
+                session.delete(storage_model)
                 session.commit()
             except Exception as e:
                 session.rollback()
-                self._log.debug(f"Error when deleting User: {user_id}")
+                self._log.error(f"Error when deleting User: {e}")
                 raise e
 
-            return True
+        return True

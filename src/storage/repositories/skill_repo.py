@@ -3,106 +3,115 @@ from typing import List, Optional
 from src.core.models import Skill as SkillModel
 from src.logging_config import get_logger
 from src.storage.connection import DatabaseConnection
+from src.storage.mappers.skill_mapper import SkillMapper
 from src.storage.models import Skill
 
 
 class SkillRepo:
-
     def __init__(self, isTest):
         self._log = get_logger("SkillRepo")
         self.db = DatabaseConnection(isTest)
 
-    def create(
-        self, model: Optional[SkillModel] = None, name: Optional[str] = None
-    ) -> int:
-        """Accepts a `core.models.Skill` instance or legacy `name` parameter."""
-        result = None
+    def create_or_update(self, core_model: SkillModel) -> int:
+        """Create or update a Skill from a model (checks by name)."""
+        if core_model.id is None:
+            return -1
 
-        if model is None and name is not None:
-            model = SkillModel(name=name)
+        storage_model = self._retrieve_by_name(core_model.name)
 
-        with self.db.get_session() as session:
-            session.begin()
-            session.expire_on_commit = False
-
-            try:
-                skill = Skill(name=model.name)  # type: ignore
-                session.add(skill)
-                session.commit()
-
-                result = skill.id
-            except Exception as e:
-                session.rollback()
-                self._log.error(f"Error when creating Skill: {model}")
-                raise e
-
-        return result  # type: ignore
-
-    def create_from_model(self, model: SkillModel) -> int:
-        """Create using a `core.models.Skill` instance."""
-        return self.create(model=model)
+        if storage_model is not None:
+            return self._update(storage_model, core_model)
+        else:
+            storage_model = SkillMapper.to_storage_model(core_model)
+            return self._create(storage_model)
 
     def create_from_fields(self, name: str) -> int:
-        """Create using individual fields (legacy style)."""
-        return self.create(name=name)
+        """Create using individual fields (builds model internally)."""
+        model = SkillMapper.from_raw_fields(name)
+        return self.create_or_update(model)
 
-    def get_by_id(self, skill_id: int) -> Optional[Skill]:
+    def get_by_id(self, skill_id: int) -> Optional[SkillModel]:
+        """Fetches a record and converts it immediately to the Core Model."""
+        storage_model = self._retrieve(skill_id)
+
+        if not storage_model:
+            return None
+
+        return SkillMapper.to_core_model(storage_model)
+
+    def get_all(self) -> List[SkillModel]:
+        """Fetches all records and converts them to the Core Model list."""
         with self.db.get_session() as session:
-            session.begin()
-            session.expire_on_commit = False
+            storage_models = session.query(Skill).all()
 
-            return session.query(Skill).filter(Skill.id == skill_id).first()
-
-    def get_all(self) -> List[Skill]:
-        with self.db.get_session() as session:
-            session.begin()
-            session.expire_on_commit = False
-
-            return session.query(Skill).all()
-
-    def update(
-        self,
-        skill_id: int,
-        model: Optional[SkillModel] = None,
-        name: Optional[str] = None,
-    ) -> Skill:
-        with self.db.get_session() as session:
-            session.begin()
-            session.expire_on_commit = False
-
-            try:
-                skill = session.query(Skill).filter(Skill.id == skill_id).first()
-                if not skill:
-                    raise ValueError(f"Skill with id {skill_id} not found")
-                if model is not None:
-                    skill.name = model.name  # type: ignore
-                elif name is not None:
-                    skill.name = name  # type: ignore
-
-                session.add(skill)
-                session.commit()
-
-                return skill
-
-            except Exception as e:
-                session.rollback()
-                self._log.error(f"Error when updating Skill: {skill}")
-                raise e
+            return [SkillMapper.to_core_model(model) for model in storage_models]
 
     def delete(self, skill_id: int) -> bool:
+        storage_model = self._retrieve(skill_id)
+
+        if not storage_model:
+            self._log.debug(f"Skill with id {skill_id} not found")
+            return False
+
+        try:
+            self._delete(storage_model)
+            return True
+        except Exception:
+            return False
+
+    def _create(self, storage_model: Skill) -> int:
+        """Create a Skill from a storage model."""
         with self.db.get_session() as session:
             session.begin()
             session.expire_on_commit = False
 
             try:
-                skill = session.query(Skill).filter(Skill.id == skill_id).first()
-                if not skill:
-                    raise ValueError(f"Skill with id {skill_id} not found")
-                session.delete(skill)
+                session.add(storage_model)
+                session.commit()
+                return int(storage_model.id)
+
+            except Exception as e:
+                session.rollback()
+                self._log.error(f"Error when creating Skill: {e}")
+                raise e
+
+    def _retrieve(self, skill_id: int) -> Optional[Skill]:
+        with self.db.get_session() as session:
+            return session.query(Skill).filter(Skill.id == skill_id).first()
+
+    def _retrieve_by_name(self, name: str) -> Optional[Skill]:
+        with self.db.get_session() as session:
+            return session.query(Skill).filter(Skill.name == name).first()
+
+    def _update(self, storage_model: Skill, core_model: SkillModel) -> int:
+        storage_model.name = core_model.name
+
+        with self.db.get_session() as session:
+            session.begin()
+            session.expire_on_commit = False
+
+            try:
+                session.add(storage_model)
+                session.commit()
+
+                return int(storage_model.id)
+
+            except Exception as e:
+                session.rollback()
+                self._log.error(f"Error when updating Skill: {e}")
+                raise e
+
+    def _delete(self, storage_model: Skill) -> bool:
+        with self.db.get_session() as session:
+            session.begin()
+            session.expire_on_commit = False
+
+            try:
+                session.delete(storage_model)
                 session.commit()
             except Exception as e:
                 session.rollback()
-                self._log.error(f"Error when deleting Skill: {skill}")
+                self._log.error(f"Error when deleting Skill: {e}")
                 raise e
 
-            return True
+        return True

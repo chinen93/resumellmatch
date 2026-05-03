@@ -1,8 +1,7 @@
-from datetime import datetime
+from datetime import date, datetime
 
 from sqlalchemy import TIMESTAMP, Date, ForeignKey
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
-from sqlalchemy.schema import Column
 from sqlalchemy.types import Integer, String, Text
 
 
@@ -13,8 +12,8 @@ class Base(DeclarativeBase):
 class Skill(Base):
     __tablename__ = "skills"
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
-    name = Column(String, nullable=False)
-    created_at = Column(TIMESTAMP, default=datetime.now)
+    name: Mapped[str] = mapped_column(String, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(TIMESTAMP, default=datetime.now)
     star_entries = relationship(
         "StarEntry",
         secondary="star_entries_skills_assoc",
@@ -39,12 +38,14 @@ class StarEntry(Base):
     __tablename__ = "star_entries"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
-    metadata_id: Mapped[int] = mapped_column(Integer, ForeignKey("star_metadatas.id"))
-    title = Column(String, nullable=False)
-    situation = Column(String, nullable=False)
-    task = Column(String, nullable=False)
-    action = Column(String, nullable=False)
-    result = Column(String, nullable=False)
+    metadata_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("star_metadatas.id"), primary_key=True
+    )
+    title: Mapped[str] = mapped_column(String, nullable=False)
+    situation: Mapped[str] = mapped_column(String, nullable=False)
+    task: Mapped[str] = mapped_column(String, nullable=False)
+    action: Mapped[str] = mapped_column(String, nullable=False)
+    result: Mapped[str] = mapped_column(String, nullable=False)
     # skills = relationship(
     #    StarEntrySkillAssociation, cascade="all, delete-orphan", lazy=False
     # )
@@ -56,8 +57,8 @@ class StarEntry(Base):
         lazy=False,
     )
 
-    updated_at = Column(TIMESTAMP, default=datetime.now)
-    created_at = Column(TIMESTAMP, default=datetime.now)
+    updated_at: Mapped[datetime] = mapped_column(TIMESTAMP, default=datetime.now)
+    created_at: Mapped[datetime] = mapped_column(TIMESTAMP, default=datetime.now)
 
     def __repr__(self):
         return (
@@ -79,14 +80,24 @@ class StarMetadata(Base):
     __tablename__ = "star_metadatas"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
-    user_id: Mapped[int] = mapped_column(Integer, ForeignKey("users.id"))
-    type = Column(String, nullable=False)  # education, project, work
-    title = Column(String, nullable=False)  # job title, degree, project name
-    subtitle = Column(String, nullable=False)  # company, school, etc.
-    location = Column(String, nullable=False)
-    start_date = Column(Date, nullable=False)
-    end_date = Column(Date, nullable=True)  # if null, still working on it
-    created_at = Column(TIMESTAMP, default=datetime.now)
+    user_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("users.id"), primary_key=True
+    )
+    type: Mapped[str] = mapped_column(
+        String, nullable=False
+    )  # education, project, work
+    title: Mapped[str] = mapped_column(
+        String, nullable=False
+    )  # job title, degree, project name
+    subtitle: Mapped[str] = mapped_column(
+        String, nullable=False
+    )  # company, school, etc.
+    location: Mapped[str] = mapped_column(String, nullable=False)
+    start_date: Mapped[date] = mapped_column(Date, nullable=False)
+    end_date: Mapped[date] = mapped_column(
+        Date, nullable=True
+    )  # if null, still working on it
+    created_at: Mapped[datetime] = mapped_column(TIMESTAMP, default=datetime.now)
 
     entries = relationship(
         StarEntry, backref="star_entries.id", cascade="all, delete-orphan", lazy=False
@@ -107,9 +118,11 @@ class Resume(Base):
 
     __tablename__ = "resumes"
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
-    user_id: Mapped[int] = mapped_column(Integer, ForeignKey("users.id"))
-    raw_text = Column(String, nullable=False)
-    created_at = Column(TIMESTAMP, default=datetime.now)
+    user_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("users.id"), primary_key=True
+    )
+    raw_text: Mapped[str] = mapped_column(String, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(TIMESTAMP, default=datetime.now)
 
     def __repr__(self):
         return (
@@ -125,8 +138,8 @@ class User(Base):
 
     __tablename__ = "users"
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
-    name = Column(String, nullable=False)
-    email = Column(String, nullable=False, unique=True)
+    name: Mapped[str] = mapped_column(String, nullable=False)
+    email: Mapped[str] = mapped_column(String, nullable=False, unique=True)
     star_metadatas = relationship(
         StarMetadata, backref="users.id", cascade="all, delete-orphan", lazy=False
     )
@@ -146,10 +159,10 @@ class JobDescription(Base):
 
     __tablename__ = "job_descriptions"
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
-    url = Column(String, nullable=False)
-    title = Column(String, nullable=False)
-    raw_text = Column(String, nullable=False)
-    created_at = Column(TIMESTAMP, default=datetime.now)
+    url: Mapped[str] = mapped_column(String, nullable=False)
+    title: Mapped[str] = mapped_column(String, nullable=False)
+    raw_text: Mapped[str] = mapped_column(String, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(TIMESTAMP, default=datetime.now)
 
     def __repr__(self):
         return (
@@ -166,14 +179,20 @@ class JobDescriptionParsed(Base):
     __tablename__ = "job_descriptions_parsed"
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     job_description_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey("job_descriptions.id")
+        Integer, ForeignKey("job_descriptions.id"), primary_key=True
     )
-    input_hash = Column(String, nullable=True, index=True)
-    full_response = Column(Text, nullable=True)
-    summary = Column(String, nullable=False)
-    required_skills = Column(String, nullable=False)  # CSV separated skills from JD
-    prefered_skills = Column(String, nullable=False)  # CSV separated skills from JD
-    keywords = Column(String, nullable=False)  # CSV separated keywords from JD
+    input_hash: Mapped[str] = mapped_column(String, nullable=True, index=True)
+    full_response: Mapped[str] = mapped_column(Text, nullable=True)
+    summary: Mapped[str] = mapped_column(String, nullable=False)
+    required_skills: Mapped[str] = mapped_column(
+        String, nullable=False
+    )  # CSV separated skills from JD
+    prefered_skills: Mapped[str] = mapped_column(
+        String, nullable=False
+    )  # CSV separated skills from JD
+    keywords: Mapped[str] = mapped_column(
+        String, nullable=False
+    )  # CSV separated keywords from JD
 
     def __repr__(self):
         return (
@@ -196,8 +215,8 @@ class Matches(Base):
         Integer, ForeignKey("job_descriptions_parsed.id"), primary_key=True
     )
 
-    score = Column(Integer, nullable=False)
-    llm_analysis = Column(String, nullable=False)
+    score: Mapped[int] = mapped_column(Integer, nullable=False)
+    llm_analysis: Mapped[str] = mapped_column(String, nullable=False)
 
     def __repr__(self):
         return (
@@ -213,13 +232,13 @@ class Matches(Base):
 class LLMCache(Base):
     __tablename__ = "llm_cache"
 
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    prompt_hash = Column(String, nullable=False, index=True)
-    prompt_text = Column(Text, nullable=False)
-    response_hash = Column(String, nullable=False, index=True)
-    response_json = Column(Text, nullable=False)
-    llm_name = Column(String, nullable=True)
-    created_at = Column(TIMESTAMP, default=datetime.now)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    prompt_hash: Mapped[str] = mapped_column(String, nullable=False, index=True)
+    prompt_text: Mapped[str] = mapped_column(Text, nullable=False)
+    response_hash: Mapped[str] = mapped_column(String, nullable=False, index=True)
+    response_json: Mapped[str] = mapped_column(Text, nullable=False)
+    llm_name: Mapped[str] = mapped_column(String, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(TIMESTAMP, default=datetime.now)
 
     def __repr__(self):
         return f"LLMCache(id={self.id}, prompt_hash={self.prompt_hash}, response_hash={self.response_hash})"

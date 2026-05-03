@@ -115,7 +115,7 @@ class OllamaLocalClient:
         # Persist cache entry (best-effort)
         try:
             response_hash = compute_hash(response_json)
-            cache_repo.create(
+            cache_repo.create_from_fields(
                 prompt_hash=compute_hash(message),
                 prompt_text=message,
                 response_hash=response_hash,

@@ -1,7 +1,7 @@
 from datetime import date, datetime
 from typing import List, Optional
 
-from src.core.models import StarEntry, StarMetadata
+from src.core.models import StarEntry
 from src.storage.repositories.star_repo import StarEntryRepo, StarMetadataRepo
 
 # from src.storage.models import StarEntry, StarMetadata
@@ -13,9 +13,9 @@ class StarMetadataProcessor:
     def __init__(self, isTest: bool = True):
         self.repo = StarMetadataRepo(isTest)
 
-    def _parse_date(self, value: Optional[str]) -> Optional[date]:
+    def _parse_date(self, value: Optional[str]) -> date:
         if value is None or str(value).strip() == "":
-            return None
+            return date.today()
 
         s = str(value).strip()
         # Accept year-only like '2015' or full ISO date 'YYYY-MM-DD'
@@ -24,13 +24,13 @@ class StarMetadataProcessor:
                 return date(int(s), 1, 1)
             return datetime.strptime(s, "%Y-%m-%d").date()
         except Exception:
-            return None
+            return date.today()
 
     def new_item(
         self, id, user_id, type, title, subtitle, location, start_date, end_date
     ) -> None:
-        model = StarMetadata(
-            id=id,
+        self.repo.create_from_fields(
+            # id=id,
             user_id=user_id,
             type=type,
             title=title,
@@ -39,8 +39,6 @@ class StarMetadataProcessor:
             start_date=self._parse_date(start_date),
             end_date=self._parse_date(end_date),
         )
-
-        self.repo.create(model=model)
 
 
 class StarEntryProcessor:
@@ -82,12 +80,11 @@ class StarEntryProcessor:
         if m_id is None:
             raise ValueError("metadata_id is required and must be an integer")
 
-        self.repo.create(
+        self.repo.create_from_fields(
             metadata_id=m_id,
             title=title,
             situation=situation,
             task=task,
             action=action,
             result=result,
-            skills=skills,
         )

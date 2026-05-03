@@ -3,6 +3,7 @@ from typing import List, Optional
 from src.core.models import Resume as ResumeModel
 from src.logging_config import get_logger
 from src.storage.connection import DatabaseConnection
+from src.storage.mappers.resume_mapper import ResumeMapper
 from src.storage.models import Resume
 
 
@@ -11,112 +12,120 @@ class ResumeRepo:
         self._log = get_logger("ResumeRepo")
         self.db = DatabaseConnection(isTest)
 
-    def create(
-        self,
-        model: Optional[ResumeModel] = None,
-        user_id: Optional[int] = None,
-        raw_text: Optional[str] = None,
-    ) -> int:
+    def create_or_update(self, core_model: ResumeModel) -> int:
+        """Create or update a Resume from a model (checks by user_id)."""
+        if core_model.id is None:
+            return -1
+
+        storage_model = self._retrieve(core_model.id)
+        if storage_model is None and core_model.user_id:
+            storage_model = self._retrieve_by_user_id(core_model.user_id)
+
+        if storage_model is not None:
+            return self._update(storage_model, core_model)
+        else:
+            storage_model = ResumeMapper.to_storage_model(core_model)
+            return self._create(storage_model)
+
+    def create_from_fields(self, user_id: int, raw_text: str) -> int:
+        """Create using individual fields (builds model internally)."""
+        model = ResumeMapper.from_raw_fields(user_id, raw_text)
+        return self.create_or_update(model)
+
+    def get_by_id(self, resume_id: int) -> Optional[ResumeModel]:
+        """Fetches a record and converts it immediately to the Core Model."""
+        storage_model = self._retrieve(resume_id)
+
+        if not storage_model:
+            return None
+
+        return ResumeMapper.to_core_model(storage_model)
+
+    def get_by_user_id(self, user_id: int) -> Optional[ResumeModel]:
+        """Fetches by user_id and converts to Core Model."""
+        storage_model = self._retrieve_by_user_id(user_id)
+
+        if not storage_model:
+            return None
+
+        return ResumeMapper.to_core_model(storage_model)
+
+    def get_all(self) -> List[ResumeModel]:
+        """Fetches all records and converts them to the Core Model list."""
+        with self.db.get_session() as session:
+            storage_models = session.query(Resume).all()
+
+            return [ResumeMapper.to_core_model(model) for model in storage_models]
+
+    def delete(self, resume_id: int) -> bool:
+        storage_model = self._retrieve(resume_id)
+
+        if not storage_model:
+            self._log.debug(f"Resume with id {resume_id} not found")
+            return False
+
+        try:
+            self._delete(storage_model)
+            return True
+        except Exception:
+            return False
+
+    def _create(self, storage_model: Resume) -> int:
+        """Create a Resume from a storage model."""
         with self.db.get_session() as session:
             session.begin()
             session.expire_on_commit = False
 
             try:
-                if model is None:
-                    model = ResumeModel(user_id=user_id, raw_text=raw_text or "")
-
-                resume = Resume(user_id=model.user_id, raw_text=model.raw_text)
-                session.add(resume)
+                session.add(storage_model)
                 session.commit()
+                return int(storage_model.id)
 
-                result = int(resume.id)
-                session.commit()
             except Exception as e:
                 session.rollback()
                 self._log.error(f"Error when creating Resume: {e}")
                 raise e
 
-        return result
-
-    def create_from_model(self, model: ResumeModel) -> int:
-        """Create using a `core.models.Resume` instance."""
-        return self.create(model=model)
-
-    def create_from_fields(self, user_id: int, raw_text: str) -> int:
-        """Create using individual fields (legacy style)."""
-        return self.create(user_id=user_id, raw_text=raw_text)
-
-    def get_by_id(self, resume_id: int) -> Optional[Resume]:
+    def _retrieve(self, resume_id: int) -> Optional[Resume]:
         with self.db.get_session() as session:
-            session.begin()
-            session.expire_on_commit = False
-
             return session.query(Resume).filter(Resume.id == resume_id).first()
 
-    def get_all(self) -> List[Resume]:
+    def _retrieve_by_user_id(self, user_id: int) -> Optional[Resume]:
         with self.db.get_session() as session:
-            session.begin()
-            session.expire_on_commit = False
+            return session.query(Resume).filter(Resume.user_id == user_id).first()
 
-            return session.query(Resume).all()
+    def _update(self, storage_model: Resume, core_model: ResumeModel) -> int:
+        storage_model.user_id = (
+            core_model.user_id if core_model.user_id is not None else -1
+        )
+        storage_model.raw_text = core_model.raw_text
 
-    def get_all_by_user_id(self, user_id: int) -> List[Resume]:
-        with self.db.get_session() as session:
-            session.begin()
-            session.expire_on_commit = False
-
-            return session.query(Resume).filter(Resume.user_id == user_id).all()
-
-    def update(
-        self,
-        resume_id: int,
-        model: Optional[ResumeModel] = None,
-        user_id: Optional[int] = None,
-        raw_text: Optional[str] = None,
-    ) -> Resume:
         with self.db.get_session() as session:
             session.begin()
             session.expire_on_commit = False
 
             try:
-                resume = session.query(Resume).filter(Resume.id == resume_id).first()
-                if not resume:
-                    raise ValueError(f"Resume with id {resume_id} not found")
-                if model is not None:
-                    if model.user_id is not None:
-                        resume.user_id = model.user_id  # type: ignore
-                    if model.raw_text is not None:
-                        resume.raw_text = model.raw_text  # type: ignore
-                else:
-                    if user_id is not None:
-                        resume.user_id = user_id  # type: ignore
-                    if raw_text is not None:
-                        resume.raw_text = raw_text  # type: ignore
-
-                session.add(resume)
+                session.add(storage_model)
                 session.commit()
 
-                return resume
+                return int(storage_model.id)
 
             except Exception as e:
                 session.rollback()
                 self._log.error(f"Error when updating Resume: {e}")
                 raise e
 
-    def delete(self, resume_id: int) -> bool:
+    def _delete(self, storage_model: Resume) -> bool:
         with self.db.get_session() as session:
             session.begin()
             session.expire_on_commit = False
 
             try:
-                resume = session.query(Resume).filter(Resume.id == resume_id).first()
-                if not resume:
-                    raise ValueError(f"Resume with id {resume_id} not found")
-                session.delete(resume)
+                session.delete(storage_model)
                 session.commit()
             except Exception as e:
                 session.rollback()
                 self._log.error(f"Error when deleting Resume: {e}")
                 raise e
 
-            return True
+        return True
