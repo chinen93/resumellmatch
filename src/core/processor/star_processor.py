@@ -1,7 +1,6 @@
 from datetime import date, datetime
-from typing import List, Optional
+from typing import Optional
 
-from src.core.models import StarEntry
 from src.storage.repositories import StarEntryRepo, StarMetadataRepo
 
 # from src.storage.models import StarEntry, StarMetadata
@@ -56,34 +55,11 @@ class StarEntryProcessor:
         task,
         action,
         result,
-        skills: List[int] = [],
     ) -> None:
-        # create model instance (keeps parity with tests that might patch StarEntry)
-        _ = StarEntry(
-            metadata_id=metadata_id,
-            title=title,
-            situation=situation,
-            task=task,
-            action=action,
-            result=result,
-        )
-
-        # persist using repository
-        try:
-            m_id = (
-                int(metadata_id)
-                if metadata_id is not None and str(metadata_id).strip() != ""
-                else None
-            )
-        except Exception:
-            m_id = None
-
-        if m_id is None:
-            raise ValueError("metadata_id is required and must be an integer")
 
         self.repo.create_from_fields(
             id=id,
-            metadata_id=m_id,
+            metadata_id=metadata_id,
             title=title,
             situation=situation,
             task=task,

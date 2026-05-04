@@ -62,6 +62,7 @@ class StarMetadataImporter:
         except ValueError as e:
             self._log.error(e)
 
+        self._log.info("Read Star Metadata successfully")
         return ret
 
 
@@ -77,7 +78,7 @@ class StarEntryImporter:
     def importer_function(self, values: dict[str, str]) -> None:
         self.processor.new_item(
             id=values[EXPECTED_STAR_ENTRY_HEADER[0]],
-            metadata_id=values[EXPECTED_STAR_ENTRY_HEADER[2]],
+            metadata_id=values[EXPECTED_STAR_ENTRY_HEADER[1]],
             title=values[EXPECTED_STAR_ENTRY_HEADER[2]],
             situation=values[EXPECTED_STAR_ENTRY_HEADER[3]],
             task=values[EXPECTED_STAR_ENTRY_HEADER[4]],
@@ -98,4 +99,5 @@ class StarEntryImporter:
         except ValueError as e:
             self._log.error(e)
 
+        self._log.info("Read Star Entries successfully")
         return ret
