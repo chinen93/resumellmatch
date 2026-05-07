@@ -1,2 +1,4 @@
 id,user_id,type,title,subtitle,location,start_date,end_date
 1,1,work,Software Engineer,Company A,University A,2015,2020
+2,1,project,Resume Helper with LLM,,Personal Project,2023,
+3,1,education,Final Project University B,,University B,2010,2015

@@ -1,0 +1,21 @@
+John Doe Dallas, Texas, USA | (213) 555-0123 | john.doe@email.com NOSPONSORSHIPREQUIREDAUTHORIZEDTOWORKINTHEUSA
+
+PROFESSIONAL SUMMARY Results-driven Senior Software and Data Engineer with 7+ years of progressive experience designing, developing, and scaling complex distributed systems. Expertise covers the full technology stack—from robust backend microservices (Java, Python) and advanced DevOps practices (Kubernetes, CI/CD) to cutting-edge AI applications (NLP, LLM Prompting). Proven ability to solve critical business bottlenecks by architecting scalable, efficient, and highly available platforms in fast-paced, large-scale environments.
+
+SKILLS Programming Languages: Python, Java, JavaScript, SQL, Shell Script Backend & Frameworks: Django, SpringBoot, REST API Design, Microservices, FastAPI Frontend: React.js, HTML5, CSS3, JavaScript AI/ML & Data: NLP, Natural Language Processing, PyTorch, LLM Prompt Engineering, Data Modeling, Sentiment Analysis DevOps & Cloud: Git, Docker, Kubernetes, CI/CD Pipelines, Kafka, AWS/Azure Fundamentals Practices: Agile/Scrum, System Design, Load Testing, Observability, Code Review
+
+PROFESSIONAL EXPERIENCE Senior Software Engineer | GlobalTech Solutions | Dallas, TX, USA | 2020 – Present
+
+Microservices Architecture: Led the technical migration of a critical legacy monolith into a highly decoupled microservices architecture using Docker and Kubernetes. Implemented an API Gateway pattern to maintain service cohesion and improve overall system resilience.
+Performance Optimization: Identified and remediated performance bottlenecks in a core REST API used by millions of users. Redesigned inefficient data access layers, introduced advanced query indexing, and implemented server-side caching mechanisms, resulting in a 65% improvement in API response time.
+Backend Development: Developed and maintained high-throughput backend services using SpringBoot (Java) and Python, ensuring reliable data processing and seamless integration across multiple cloud-based services.
+AI & ML Software Developer | Digital Analytics Corp | Dallas, TX, USA | 2016 – 2020
+
+Natural Language Processing (NLP): Developed and deployed an advanced sentiment analysis model (BERT-based) capable of classifying public sentiment from high-volume, unstructured social media data, achieving 88% classification accuracy.
+Automation Pipeline: Architected and built an AI-powered chatbot that integrated with the company’s knowledge base, successfully automating the resolution of approximately 40% of common customer support inquiries and significantly reducing average response times.
+Data Productization: Built a sophisticated web application using React.js and Django that analyzed raw user data, using LLM prompting to optimize resume content for maximum Applicant Tracking System (ATS) compatibility, improving user outcomes for diverse job roles.
+Junior Software Developer | WebCrafters Agency | Dallas, TX, USA | 2015 – 2016
+
+Developed functional web modules and data dashboards using JavaScript and Django, providing critical visibility into customer data flow and overall system health.
+Assisted in building internal tooling for data ingestion and validation, ensuring high quality and consistency for client projects.
+EDUCATION The University of Texas at Austin Bachelor of Science in Computer Science | 2015
