@@ -98,10 +98,11 @@ class OllamaLocalClient:
         if not self.ready:
             return None
 
+        cache_repo = LLMCacheRepo()
+        prompt_hash = compute_hash(message)
+
         # Check cache for prompt
         try:
-            cache_repo = LLMCacheRepo()
-            prompt_hash = compute_hash(message)
             cached = cache_repo.get_by_prompt_hash(prompt_hash)
             if cached:
                 self._log.info("LLM cache hit for prompt")
@@ -111,10 +112,10 @@ class OllamaLocalClient:
             pass
 
         response_json = self._generate(message=message, format=format)
+        response_hash = compute_hash(response_json)
 
         # Persist cache entry (best-effort)
         try:
-            response_hash = compute_hash(response_json)
             cache_repo.create_from_fields(
                 prompt_hash=compute_hash(message),
                 prompt_text=message,
