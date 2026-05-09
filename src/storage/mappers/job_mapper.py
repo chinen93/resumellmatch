@@ -1,3 +1,5 @@
+from typing import Optional
+
 from src.core.models import JobDescription as JobDescriptionModel
 from src.core.models import JobDescriptionParsed as JobDescriptionParsedModel
 from src.storage.models import JobDescription, JobDescriptionParsed
@@ -36,7 +38,7 @@ class JobDescriptionMapper:
 
     @staticmethod
     def from_raw_fields(
-        id: int, url: str, title: str, raw_text: str
+        id: Optional[int], url: str, title: str, raw_text: str
     ) -> JobDescriptionModel:
         """Builds the core model directly from raw input fields."""
         return JobDescriptionModel(id=id, url=url, title=title, raw_text=raw_text)
@@ -71,7 +73,7 @@ class JobDescriptionParsedMapper:
 
     @staticmethod
     def from_raw_fields(
-        id: int,
+        id: Optional[int],
         job_description_id: int,
         summary: str,
         required_skills: str,

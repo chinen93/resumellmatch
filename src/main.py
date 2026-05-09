@@ -47,7 +47,9 @@ def handle_job():
         if job_parsed:
             # persist job description and parsed response
             try:
-                job_id = job_repo.create(url="", title="", raw_text=job_description)
+                job_id = job_repo.create_from_fields(
+                    id=None, url="", title="", raw_text=job_description
+                )
 
                 # attempt to extract fields from the LLM response JSON
                 parsed_obj = json.loads(job_parsed)
@@ -56,7 +58,8 @@ def handle_job():
                 prefered_skills = json.dumps(parsed_obj.get("soft_skills", []))
                 keywords = json.dumps(parsed_obj.get("keywords", []))
 
-                parsed_repo.create(
+                parsed_repo.create_from_fields(
+                    id=None,
                     job_description_id=job_id,
                     summary=summary,
                     required_skills=required_skills,

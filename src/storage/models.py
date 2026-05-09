@@ -1,6 +1,6 @@
 from datetime import date, datetime
 
-from sqlalchemy import TIMESTAMP, Date, ForeignKey
+from sqlalchemy import TIMESTAMP, Date, ForeignKey, UniqueConstraint
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 from sqlalchemy.types import Integer, String, Text
 
@@ -37,9 +37,11 @@ class StarEntrySkillAssociation(Base):
 class StarEntry(Base):
     __tablename__ = "star_entries"
 
-    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    id: Mapped[int | None] = mapped_column(
+        Integer, primary_key=True, autoincrement=True
+    )
     metadata_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey("star_metadatas.id"), primary_key=True
+        Integer, ForeignKey("star_metadatas.id"), nullable=False
     )
     title: Mapped[str] = mapped_column(String, nullable=False)
     situation: Mapped[str] = mapped_column(String, nullable=False)
@@ -56,9 +58,10 @@ class StarEntry(Base):
         cascade="all",
         lazy=False,
     )
-
     updated_at: Mapped[datetime] = mapped_column(TIMESTAMP, default=datetime.now)
     created_at: Mapped[datetime] = mapped_column(TIMESTAMP, default=datetime.now)
+
+    __table_args__ = (UniqueConstraint("id", "metadata_id", name="uix_id_metadata_id"),)
 
     def __repr__(self):
         return (
@@ -79,9 +82,11 @@ class StarMetadata(Base):
 
     __tablename__ = "star_metadatas"
 
-    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    id: Mapped[int | None] = mapped_column(
+        Integer, primary_key=True, autoincrement=True
+    )
     user_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey("users.id"), primary_key=True
+        Integer, ForeignKey("users.id"), nullable=False
     )
     type: Mapped[str] = mapped_column(
         String, nullable=False
@@ -103,6 +108,8 @@ class StarMetadata(Base):
         StarEntry, backref="star_entries.id", cascade="all, delete-orphan", lazy=False
     )
 
+    __table_args__ = (UniqueConstraint("id", "user_id", name="uix_id_user_id"),)
+
     def __repr__(self):
         return (
             f"StarMetadata("
@@ -117,12 +124,15 @@ class StarMetadata(Base):
 class Resume(Base):
 
     __tablename__ = "resumes"
-    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    id: Mapped[int | None] = mapped_column(
+        Integer, primary_key=True, autoincrement=True
+    )
     user_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey("users.id"), primary_key=True
+        Integer, ForeignKey("users.id"), nullable=False
     )
     raw_text: Mapped[str] = mapped_column(String, nullable=False)
     created_at: Mapped[datetime] = mapped_column(TIMESTAMP, default=datetime.now)
+    __table_args__ = (UniqueConstraint("id", "user_id", name="uix_id_user_id"),)
 
     def __repr__(self):
         return (
@@ -137,7 +147,9 @@ class Resume(Base):
 class User(Base):
 
     __tablename__ = "users"
-    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    id: Mapped[int | None] = mapped_column(
+        Integer, primary_key=True, autoincrement=True
+    )
     name: Mapped[str] = mapped_column(String, nullable=False)
     email: Mapped[str] = mapped_column(String, nullable=False, unique=True)
     star_metadatas = relationship(
@@ -158,7 +170,9 @@ class User(Base):
 class JobDescription(Base):
 
     __tablename__ = "job_descriptions"
-    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    id: Mapped[int | None] = mapped_column(
+        Integer, primary_key=True, autoincrement=True
+    )
     url: Mapped[str] = mapped_column(String, nullable=False)
     title: Mapped[str] = mapped_column(String, nullable=False)
     raw_text: Mapped[str] = mapped_column(String, nullable=False)
@@ -177,9 +191,11 @@ class JobDescription(Base):
 class JobDescriptionParsed(Base):
 
     __tablename__ = "job_descriptions_parsed"
-    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    id: Mapped[int | None] = mapped_column(
+        Integer, primary_key=True, autoincrement=True
+    )
     job_description_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey("job_descriptions.id"), primary_key=True
+        Integer, ForeignKey("job_descriptions.id"), nullable=False
     )
     input_hash: Mapped[str] = mapped_column(String, nullable=True, index=True)
     full_response: Mapped[str] = mapped_column(Text, nullable=True)
@@ -193,6 +209,9 @@ class JobDescriptionParsed(Base):
     keywords: Mapped[str] = mapped_column(
         String, nullable=False
     )  # CSV separated keywords from JD
+    __table_args__ = (
+        UniqueConstraint("id", "job_description_id", name="uix_id_job_desc_id"),
+    )
 
     def __repr__(self):
         return (
@@ -232,7 +251,9 @@ class Matches(Base):
 class LLMCache(Base):
     __tablename__ = "llm_cache"
 
-    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    id: Mapped[int | None] = mapped_column(
+        Integer, primary_key=True, autoincrement=True
+    )
     prompt_hash: Mapped[str] = mapped_column(String, nullable=False, index=True)
     prompt_text: Mapped[str] = mapped_column(Text, nullable=False)
     response_hash: Mapped[str] = mapped_column(String, nullable=False, index=True)

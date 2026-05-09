@@ -14,12 +14,10 @@ class ResumeRepo:
 
     def create_or_update(self, core_model: ResumeModel) -> int:
         """Create or update a Resume from a model (checks by user_id)."""
-        if core_model.id is None:
-            return -1
 
-        storage_model = self._retrieve(core_model.id)
+        storage_model = self._get_storage_model(core_model)
 
-        if storage_model is not None:
+        if storage_model.id is not None:
             return self._update(storage_model, core_model)
         else:
             storage_model = ResumeMapper.to_storage_model(core_model)
@@ -68,6 +66,18 @@ class ResumeRepo:
         except Exception:
             return False
 
+    def _get_storage_model(self, core_model: ResumeModel) -> Resume:
+
+        storage_model = ResumeMapper.to_storage_model(core_model)
+        storage_model.id = None
+
+        if core_model.id is not None:
+            retrieved_storage_model = self._retrieve(core_model.id)
+            if retrieved_storage_model is not None:
+                storage_model = retrieved_storage_model
+
+        return storage_model
+
     def _create(self, storage_model: Resume) -> int:
         """Create a Resume from a storage model."""
         with self.db.get_session() as session:
@@ -77,12 +87,14 @@ class ResumeRepo:
             try:
                 session.add(storage_model)
                 session.commit()
-                return int(storage_model.id)
 
             except Exception as e:
                 session.rollback()
                 self._log.error(f"Error when creating Resume: {e}")
                 raise e
+
+        assert storage_model.id is not None
+        return int(storage_model.id)
 
     def _retrieve(self, resume_id: int) -> Optional[Resume]:
         with self.db.get_session() as session:
@@ -106,12 +118,13 @@ class ResumeRepo:
                 session.add(storage_model)
                 session.commit()
 
-                return int(storage_model.id)
-
             except Exception as e:
                 session.rollback()
                 self._log.error(f"Error when updating Resume: {e}")
                 raise e
+
+        assert storage_model.id is not None
+        return int(storage_model.id)
 
     def _delete(self, storage_model: Resume) -> bool:
         with self.db.get_session() as session:

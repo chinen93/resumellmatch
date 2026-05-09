@@ -1,8 +1,8 @@
-"""Job Description Tables
+"""Create all
 
-Revision ID: 7efea4601644
-Revises: ed5e7ea47bd0
-Create Date: 2026-03-19 21:29:21.796088
+Revision ID: f9c231e5e71e
+Revises: 42269c240064
+Create Date: 2026-05-09 00:09:58.899736
 
 """
 
@@ -13,8 +13,8 @@ import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision: str = "7efea4601644"
-down_revision: Union[str, Sequence[str], None] = "ed5e7ea47bd0"
+revision: str = "f9c231e5e71e"
+down_revision: Union[str, Sequence[str], None] = "42269c240064"
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
@@ -28,31 +28,39 @@ def upgrade() -> None:
         sa.Column("url", sa.String(), nullable=False),
         sa.Column("title", sa.String(), nullable=False),
         sa.Column("raw_text", sa.String(), nullable=False),
-        sa.Column("created_at", sa.TIMESTAMP(), nullable=True),
+        sa.Column("created_at", sa.TIMESTAMP(), nullable=False),
         sa.PrimaryKeyConstraint("id"),
-        if_not_exists=True,
+    )
+    op.create_table(
+        "llm_cache",
+        sa.Column("id", sa.Integer(), autoincrement=True, nullable=False),
+        sa.Column("prompt_hash", sa.String(), nullable=False),
+        sa.Column("prompt_text", sa.Text(), nullable=False),
+        sa.Column("response_hash", sa.String(), nullable=False),
+        sa.Column("response_json", sa.Text(), nullable=False),
+        sa.Column("llm_name", sa.String(), nullable=True),
+        sa.Column("created_at", sa.TIMESTAMP(), nullable=False),
+        sa.PrimaryKeyConstraint("id"),
+    )
+    op.create_index(
+        op.f("ix_llm_cache_prompt_hash"), "llm_cache", ["prompt_hash"], unique=False
+    )
+    op.create_index(
+        op.f("ix_llm_cache_response_hash"), "llm_cache", ["response_hash"], unique=False
     )
     op.create_table(
         "skills",
         sa.Column("id", sa.Integer(), autoincrement=True, nullable=False),
         sa.Column("name", sa.String(), nullable=False),
-        sa.Column("created_at", sa.TIMESTAMP(), nullable=True),
+        sa.Column("created_at", sa.TIMESTAMP(), nullable=False),
         sa.PrimaryKeyConstraint("id"),
-        if_not_exists=True,
-    )
-    op.create_table(
-        "users",
-        sa.Column("id", sa.Integer(), autoincrement=True, nullable=False),
-        sa.Column("name", sa.String(), nullable=False),
-        sa.Column("email", sa.String(), nullable=False),
-        sa.PrimaryKeyConstraint("id"),
-        sa.UniqueConstraint("email"),
-        if_not_exists=True,
     )
     op.create_table(
         "job_descriptions_parsed",
         sa.Column("id", sa.Integer(), autoincrement=True, nullable=False),
-        sa.Column("job_description_id", sa.Integer(), nullable=True),
+        sa.Column("job_description_id", sa.Integer(), nullable=False),
+        sa.Column("input_hash", sa.String(), nullable=True),
+        sa.Column("full_response", sa.Text(), nullable=True),
         sa.Column("summary", sa.String(), nullable=False),
         sa.Column("required_skills", sa.String(), nullable=False),
         sa.Column("prefered_skills", sa.String(), nullable=False),
@@ -62,43 +70,78 @@ def upgrade() -> None:
             ["job_descriptions.id"],
         ),
         sa.PrimaryKeyConstraint("id"),
-        if_not_exists=True,
+        sa.UniqueConstraint("id", "job_description_id", name="uix_id_job_desc_id"),
+    )
+    op.create_index(
+        op.f("ix_job_descriptions_parsed_input_hash"),
+        "job_descriptions_parsed",
+        ["input_hash"],
+        unique=False,
+    )
+    op.create_table(
+        "resumes",
+        sa.Column("id", sa.Integer(), autoincrement=True, nullable=False),
+        sa.Column("user_id", sa.Integer(), nullable=False),
+        sa.Column("raw_text", sa.String(), nullable=False),
+        sa.Column("created_at", sa.TIMESTAMP(), nullable=False),
+        sa.ForeignKeyConstraint(
+            ["user_id"],
+            ["users.id"],
+        ),
+        sa.PrimaryKeyConstraint("id"),
+        sa.UniqueConstraint("id", "user_id", name="uix_id_user_id"),
     )
     op.create_table(
         "star_metadatas",
         sa.Column("id", sa.Integer(), autoincrement=True, nullable=False),
-        sa.Column("user_id", sa.Integer(), nullable=True),
+        sa.Column("user_id", sa.Integer(), nullable=False),
         sa.Column("type", sa.String(), nullable=False),
         sa.Column("title", sa.String(), nullable=False),
         sa.Column("subtitle", sa.String(), nullable=False),
         sa.Column("location", sa.String(), nullable=False),
         sa.Column("start_date", sa.Date(), nullable=False),
         sa.Column("end_date", sa.Date(), nullable=True),
-        sa.Column("created_at", sa.TIMESTAMP(), nullable=True),
+        sa.Column("created_at", sa.TIMESTAMP(), nullable=False),
         sa.ForeignKeyConstraint(
             ["user_id"],
             ["users.id"],
         ),
         sa.PrimaryKeyConstraint("id"),
-        if_not_exists=True,
+        sa.UniqueConstraint("id", "user_id", name="uix_id_user_id"),
+    )
+    op.create_table(
+        "matches",
+        sa.Column("resume_id", sa.Integer(), nullable=False),
+        sa.Column("job_description_parsed_id", sa.Integer(), nullable=False),
+        sa.Column("score", sa.Integer(), nullable=False),
+        sa.Column("llm_analysis", sa.String(), nullable=False),
+        sa.ForeignKeyConstraint(
+            ["job_description_parsed_id"],
+            ["job_descriptions_parsed.id"],
+        ),
+        sa.ForeignKeyConstraint(
+            ["resume_id"],
+            ["resumes.id"],
+        ),
+        sa.PrimaryKeyConstraint("resume_id", "job_description_parsed_id"),
     )
     op.create_table(
         "star_entries",
         sa.Column("id", sa.Integer(), autoincrement=True, nullable=False),
-        sa.Column("metadata_id", sa.Integer(), nullable=True),
+        sa.Column("metadata_id", sa.Integer(), nullable=False),
         sa.Column("title", sa.String(), nullable=False),
         sa.Column("situation", sa.String(), nullable=False),
         sa.Column("task", sa.String(), nullable=False),
         sa.Column("action", sa.String(), nullable=False),
         sa.Column("result", sa.String(), nullable=False),
-        sa.Column("updated_at", sa.TIMESTAMP(), nullable=True),
-        sa.Column("created_at", sa.TIMESTAMP(), nullable=True),
+        sa.Column("updated_at", sa.TIMESTAMP(), nullable=False),
+        sa.Column("created_at", sa.TIMESTAMP(), nullable=False),
         sa.ForeignKeyConstraint(
             ["metadata_id"],
             ["star_metadatas.id"],
         ),
         sa.PrimaryKeyConstraint("id"),
-        if_not_exists=True,
+        sa.UniqueConstraint("id", "metadata_id", name="uix_id_metadata_id"),
     )
     op.create_table(
         "star_entries_skills_assoc",
@@ -113,7 +156,9 @@ def upgrade() -> None:
             ["star_entries.id"],
         ),
         sa.PrimaryKeyConstraint("star_entry_id", "skill_id"),
-        if_not_exists=True,
+    )
+    op.alter_column(
+        "users", "id", existing_type=sa.INTEGER(), nullable=True, autoincrement=True
     )
     # ### end Alembic commands ###
 
@@ -121,11 +166,22 @@ def upgrade() -> None:
 def downgrade() -> None:
     """Downgrade schema."""
     # ### commands auto generated by Alembic - please adjust! ###
+    op.alter_column(
+        "users", "id", existing_type=sa.INTEGER(), nullable=False, autoincrement=True
+    )
     op.drop_table("star_entries_skills_assoc")
     op.drop_table("star_entries")
+    op.drop_table("matches")
     op.drop_table("star_metadatas")
+    op.drop_table("resumes")
+    op.drop_index(
+        op.f("ix_job_descriptions_parsed_input_hash"),
+        table_name="job_descriptions_parsed",
+    )
     op.drop_table("job_descriptions_parsed")
-    op.drop_table("users")
     op.drop_table("skills")
+    op.drop_index(op.f("ix_llm_cache_response_hash"), table_name="llm_cache")
+    op.drop_index(op.f("ix_llm_cache_prompt_hash"), table_name="llm_cache")
+    op.drop_table("llm_cache")
     op.drop_table("job_descriptions")
     # ### end Alembic commands ###

@@ -19,18 +19,17 @@ class JobDescriptionRepo:
     def create_or_update(self, core_model: JobDescriptionModel) -> int:
         """Create or update a JobDescription from a model"""
 
-        if core_model.id is None:
-            return -1
+        storage_model = self._get_storage_model(core_model)
 
-        storage_model = self._retrieve(core_model.id)
-
-        if storage_model is not None:
+        if storage_model.id is not None:
             return self._update(storage_model, core_model)
         else:
             storage_model = JobDescriptionMapper.to_storage_model(core_model)
             return self._create(storage_model)
 
-    def create_from_fields(self, id: int, url: str, title: str, raw_text: str) -> int:
+    def create_from_fields(
+        self, id: Optional[int], url: str, title: str, raw_text: str
+    ) -> int:
         """Create using individual fields (builds model internally)."""
         model = JobDescriptionMapper.from_raw_fields(id, url, title, raw_text)
         return self.create_or_update(model)
@@ -68,6 +67,18 @@ class JobDescriptionRepo:
         except Exception:
             return False
 
+    def _get_storage_model(self, core_model: JobDescriptionModel) -> JobDescription:
+
+        storage_model = JobDescriptionMapper.to_storage_model(core_model)
+        storage_model.id = None
+
+        if core_model.id is not None:
+            retrieved_storage_model = self._retrieve(core_model.id)
+            if retrieved_storage_model is not None:
+                storage_model = retrieved_storage_model
+
+        return storage_model
+
     def _create(self, storage_model: JobDescription) -> int:
         """Create a JobDescription from a model"""
 
@@ -78,12 +89,14 @@ class JobDescriptionRepo:
             try:
                 session.add(storage_model)
                 session.commit()
-                return int(storage_model.id)
 
             except Exception as e:
                 session.rollback()
                 self._log.error(f"Error when creating JobDescription: {e}")
                 raise e
+
+        assert storage_model.id is not None
+        return int(storage_model.id)
 
     def _retrieve(self, job_id: int) -> Optional[JobDescription]:
         with self.db.get_session() as session:
@@ -108,12 +121,13 @@ class JobDescriptionRepo:
                 session.add(storage_model)
                 session.commit()
 
-                return storage_model.id
-
             except Exception as e:
                 session.rollback()
                 self._log.error(f"Error when updating JobDescription: {e}")
                 raise e
+
+        assert storage_model.id is not None
+        return int(storage_model.id)
 
     def _delete(self, storage_model: JobDescription) -> bool:
         with self.db.get_session() as session:
@@ -141,17 +155,10 @@ class JobDescriptionParsedRepo:
 
         Checks by job_description_id first, then by input_hash if available.
         """
-        if core_model.id is None:
-            return -1
 
-        # Try to find existing by job_description_id or input_hash
-        storage_model = self._retrieve_by_id(core_model.id)
-        if storage_model is None and core_model.job_description_id:
-            storage_model = self._retrieve_by_job_id(core_model.job_description_id)
-        if storage_model is None and core_model.input_hash:
-            storage_model = self._retrieve_by_input_hash(core_model.input_hash)
+        storage_model = self._get_storage_model(core_model)
 
-        if storage_model is not None:
+        if storage_model.id is not None:
             return self._update(storage_model, core_model)
         else:
             storage_model = JobDescriptionParsedMapper.to_storage_model(core_model)
@@ -159,7 +166,7 @@ class JobDescriptionParsedRepo:
 
     def create_from_fields(
         self,
-        id: int,
+        id: Optional[int],
         job_description_id: int,
         summary: str,
         required_skills: str,
@@ -231,6 +238,20 @@ class JobDescriptionParsedRepo:
         except Exception:
             return False
 
+    def _get_storage_model(
+        self, core_model: JobDescriptionParsedModel
+    ) -> JobDescriptionParsed:
+
+        storage_model = JobDescriptionParsedMapper.to_storage_model(core_model)
+        storage_model.id = None
+
+        if core_model.id is not None:
+            retrieved_storage_model = self._retrieve_by_id(core_model.id)
+            if retrieved_storage_model is not None:
+                storage_model = retrieved_storage_model
+
+        return storage_model
+
     def _create(self, storage_model: JobDescriptionParsed) -> int:
         """Create a JobDescriptionParsed from a storage model."""
         with self.db.get_session() as session:
@@ -240,12 +261,14 @@ class JobDescriptionParsedRepo:
             try:
                 session.add(storage_model)
                 session.commit()
-                return int(storage_model.id)
 
             except Exception as e:
                 session.rollback()
                 self._log.error(f"Error when creating JobDescriptionParsed: {e}")
                 raise e
+
+        assert storage_model.id is not None
+        return int(storage_model.id)
 
     def _retrieve_by_id(self, parsed_id: int) -> Optional[JobDescriptionParsed]:
         with self.db.get_session() as session:
@@ -295,12 +318,13 @@ class JobDescriptionParsedRepo:
                 session.add(storage_model)
                 session.commit()
 
-                return int(storage_model.id)
-
             except Exception as e:
                 session.rollback()
                 self._log.error(f"Error when updating JobDescriptionParsed: {e}")
                 raise e
+
+        assert storage_model.id is not None
+        return int(storage_model.id)
 
     def _delete(self, storage_model: JobDescriptionParsed) -> bool:
         with self.db.get_session() as session:

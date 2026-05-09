@@ -20,19 +20,9 @@ class StarMetadataRepo:
 
         Checks by unique composite key: (user_id + type + title + subtitle).
         """
-        if core_model.id is None or core_model.user_id is None:
-            return -1
+        storage_model = self._get_storage_model(core_model)
 
-        storage_model = self._retrieve(core_model.id)
-        if storage_model is None:
-            storage_model = self._retrieve_by_composite_key(
-                core_model.user_id,
-                core_model.type,
-                core_model.title,
-                core_model.subtitle,
-            )
-
-        if storage_model is not None:
+        if storage_model.id is not None:
             return self._update(storage_model, core_model)
         else:
             storage_model = StarMetadataMapper.to_storage_model(core_model)
@@ -95,6 +85,18 @@ class StarMetadataRepo:
         except Exception:
             return False
 
+    def _get_storage_model(self, core_model: StarMetadataModel) -> StarMetadata:
+
+        storage_model = StarMetadataMapper.to_storage_model(core_model)
+        storage_model.id = None
+
+        if core_model.id is not None:
+            retrieved_storage_model = self._retrieve(core_model.id)
+            if retrieved_storage_model is not None:
+                storage_model = retrieved_storage_model
+
+        return storage_model
+
     def _create(self, storage_model: StarMetadata) -> int:
         """Create a StarMetadata from a storage model."""
         with self.db.get_session() as session:
@@ -104,12 +106,14 @@ class StarMetadataRepo:
             try:
                 session.add(storage_model)
                 session.commit()
-                return int(storage_model.id)
 
             except Exception as e:
                 session.rollback()
                 self._log.error(f"Error when creating StarMetadata: {e}")
                 raise e
+
+        assert storage_model.id is not None
+        return int(storage_model.id)
 
     def _retrieve(self, star_metadata_id: int) -> Optional[StarMetadata]:
         with self.db.get_session() as session:
@@ -154,12 +158,13 @@ class StarMetadataRepo:
                 session.add(storage_model)
                 session.commit()
 
-                return int(storage_model.id)
-
             except Exception as e:
                 session.rollback()
                 self._log.error(f"Error when updating StarMetadata: {e}")
                 raise e
+
+        assert storage_model.id is not None
+        return int(storage_model.id)
 
     def _delete(self, storage_model: StarMetadata) -> bool:
         with self.db.get_session() as session:
@@ -187,21 +192,9 @@ class StarEntryRepo:
 
         Checks by unique composite key: (metadata_id + title + situation + task + action + result).
         """
-        if core_model.id is None:
-            return -1
+        storage_model = self._get_storage_model(core_model)
 
-        storage_model = self._retrieve(core_model.id)
-        if storage_model is None:
-            storage_model = self._retrieve_by_composite_key(
-                core_model.metadata_id if core_model.metadata_id is not None else -1,
-                core_model.title,
-                core_model.situation,
-                core_model.task,
-                core_model.action,
-                core_model.result,
-            )
-
-        if storage_model is not None:
+        if storage_model.id is not None:
             return self._update(storage_model, core_model)
         else:
             storage_model = StarEntryMapper.to_storage_model(core_model)
@@ -262,6 +255,18 @@ class StarEntryRepo:
         except Exception:
             return False
 
+    def _get_storage_model(self, core_model: StarEntryModel) -> StarEntry:
+
+        storage_model = StarEntryMapper.to_storage_model(core_model)
+        storage_model.id = None
+
+        if core_model.id is not None:
+            retrieved_storage_model = self._retrieve(core_model.id)
+            if retrieved_storage_model is not None:
+                storage_model = retrieved_storage_model
+
+        return storage_model
+
     def _create(self, storage_model: StarEntry) -> int:
         """Create a StarEntry from a storage model."""
         with self.db.get_session() as session:
@@ -271,12 +276,14 @@ class StarEntryRepo:
             try:
                 session.add(storage_model)
                 session.commit()
-                return int(storage_model.id)
 
             except Exception as e:
                 session.rollback()
                 self._log.error(f"Error when creating StarEntry: {e}")
                 raise e
+
+        assert storage_model.id is not None
+        return int(storage_model.id)
 
     def _retrieve(self, star_entry_id: int) -> Optional[StarEntry]:
         with self.db.get_session() as session:
@@ -325,12 +332,13 @@ class StarEntryRepo:
                 session.add(storage_model)
                 session.commit()
 
-                return int(storage_model.id)
-
             except Exception as e:
                 session.rollback()
                 self._log.error(f"Error when updating StarEntry: {e}")
                 raise e
+
+        assert storage_model.id is not None
+        return int(storage_model.id)
 
     def _delete(self, storage_model: StarEntry) -> bool:
         with self.db.get_session() as session:

@@ -14,14 +14,10 @@ class UserRepo:
 
     def create_or_update(self, core_model: UserModel) -> int:
         """Create or update a User from a model (checks by email)."""
-        if core_model.id is None:
-            return -1
 
-        storage_model = self._retrieve(core_model.id)
-        if storage_model is None:
-            storage_model = self._retrieve_by_email(core_model.email)
+        storage_model = self._get_storage_model(core_model)
 
-        if storage_model is not None:
+        if storage_model.id is not None:
             return self._update(storage_model, core_model)
         else:
             storage_model = UserMapper.to_storage_model(core_model)
@@ -61,6 +57,18 @@ class UserRepo:
         except Exception:
             return False
 
+    def _get_storage_model(self, core_model: UserModel) -> User:
+
+        storage_model = UserMapper.to_storage_model(core_model)
+        storage_model.id = None
+
+        if core_model.id is not None:
+            retrieved_storage_model = self._retrieve(core_model.id)
+            if retrieved_storage_model is not None:
+                storage_model = retrieved_storage_model
+
+        return storage_model
+
     def _create(self, storage_model: User) -> int:
         """Create a User from a storage model."""
         with self.db.get_session() as session:
@@ -70,12 +78,14 @@ class UserRepo:
             try:
                 session.add(storage_model)
                 session.commit()
-                return int(storage_model.id)
 
             except Exception as e:
                 session.rollback()
                 self._log.error(f"Error when creating User: {e}")
                 raise e
+
+        assert storage_model.id is not None
+        return int(storage_model.id)
 
     def _retrieve(self, user_id: int) -> Optional[User]:
         with self.db.get_session() as session:
@@ -97,12 +107,13 @@ class UserRepo:
                 session.add(storage_model)
                 session.commit()
 
-                return int(storage_model.id)
-
             except Exception as e:
                 session.rollback()
                 self._log.error(f"Error when updating User: {e}")
                 raise e
+
+        assert storage_model.id is not None
+        return int(storage_model.id)
 
     def _delete(self, storage_model: User) -> bool:
         with self.db.get_session() as session:

@@ -14,12 +14,10 @@ class LLMCacheRepo:
 
     def create_or_update(self, core_model: LLMCacheModel) -> int:
         """Create or update an LLMCache from a model (checks by prompt_hash)."""
-        if core_model.id is None:
-            return -1
 
-        storage_model = self._retrieve_by_prompt_hash(core_model.prompt_hash)
+        storage_model = self._get_storage_model(core_model)
 
-        if storage_model is not None:
+        if storage_model.id is not None:
             return self._update(storage_model, core_model)
         else:
             storage_model = LLMCacheMapper.to_storage_model(core_model)
@@ -81,6 +79,20 @@ class LLMCacheRepo:
         except Exception:
             return False
 
+    def _get_storage_model(self, core_model: LLMCacheModel) -> LLMCache:
+
+        storage_model = LLMCacheMapper.to_storage_model(core_model)
+        storage_model.id = None
+
+        if core_model.id is not None:
+            retrieved_storage_model = self._retrieve_by_prompt_hash(
+                core_model.prompt_hash
+            )
+            if retrieved_storage_model is not None:
+                storage_model = retrieved_storage_model
+
+        return storage_model
+
     def _create(self, storage_model: LLMCache) -> int:
         """Create an LLMCache from a storage model."""
         with self.db.get_session() as session:
@@ -90,12 +102,14 @@ class LLMCacheRepo:
             try:
                 session.add(storage_model)
                 session.commit()
-                return int(storage_model.id)
 
             except Exception as e:
                 session.rollback()
                 self._log.error(f"Error when creating LLMCache: {e}")
                 raise e
+
+        assert storage_model.id is not None
+        return int(storage_model.id)
 
     def _retrieve(self, cache_id: int) -> Optional[LLMCache]:
         with self.db.get_session() as session:
@@ -126,12 +140,13 @@ class LLMCacheRepo:
                 session.add(storage_model)
                 session.commit()
 
-                return int(storage_model.id)
-
             except Exception as e:
                 session.rollback()
                 self._log.error(f"Error when updating LLMCache: {e}")
                 raise e
+
+        assert storage_model.id is not None
+        return int(storage_model.id)
 
     def _delete(self, storage_model: LLMCache) -> bool:
         with self.db.get_session() as session:
