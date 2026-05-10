@@ -1,9 +1,10 @@
-from pathlib import Path
 from typing import Optional
 
 from ollama import generate
 
 from config.settings import get_settings
+from src.llm.client.cache_manager import LLMCacheManager
+from src.llm.client.prompt_loader import PromptLoader
 from src.llm.client.response import (
     BaseResponse,
     ExtractKeywordResponse,
@@ -13,7 +14,6 @@ from src.llm.client.response import (
     SimpleResponse,
 )
 from src.logging_config import get_logger
-from src.storage.repositories import LLMCacheRepo
 from src.utils.hash import compute_hash
 
 PROMPT_HELLO_WORLD = "hello_world.md"
@@ -25,11 +25,11 @@ PROMPT_REWRITE_STAR_BULLET_POINT = "rewrite_star_bullet_point.md"
 
 class OllamaLocalClient:
 
-    ready: bool
-
-    def __init__(self):
+    def __init__(self, cache_manager: LLMCacheManager):
 
         self._log = get_logger("llm")
+        self.prompt_loader = PromptLoader()
+        self.cache_manager = cache_manager
 
         settings = get_settings()
         assert (
@@ -38,23 +38,24 @@ class OllamaLocalClient:
 
         self.agent_model = settings.AGENT_MODEL
 
-        try:
-            self._hello_world()
-            self.ready = True
-        except ConnectionError:
-            self.ready = False
+        # Check if ready (optional, for backward compatibility)
+        self.ready = self._check_readiness()
 
     def _generate(self, message: str, format: type[BaseResponse]) -> str:
 
         self._log.debug(message)
 
-        output = generate(
-            model=self.agent_model,
-            prompt=message,
-            format=format.model_json_schema(),
-            stream=False,
-            options={"temperature": 0},
-        )
+        try:
+            output = generate(
+                model=self.agent_model,
+                prompt=message,
+                format=format.model_json_schema(),
+                stream=False,
+                options={"temperature": 0},
+            )
+        except Exception as e:
+            self._log.error(f"Failed to generate response: {e}")
+            raise RuntimeError(f"LLM generation failed: {e}") from e
 
         total_duration = int(output["total_duration"]) / 1_000_000_000
         load_duration = int(output["load_duration"]) / 1_000_000_000
@@ -84,86 +85,60 @@ class OllamaLocalClient:
         try:
             validate_response = format.model_validate_json(response)
         except Exception as e:
-            validate_response = BaseResponse()
             self._log.error(f"Failed to format generated response: {e}")
+            raise ValueError(f"Invalid response format: {e}") from e
 
         response_json = validate_response.model_dump_json()
 
         return response_json
 
-    def _generate_when_ready_with_cache(
+    def generate_with_cache(
         self, message: str, format: type[BaseResponse]
     ) -> Optional[str]:
 
         if not self.ready:
+            self._log.warning("LLM client not ready")
             return None
 
-        cache_repo = LLMCacheRepo()
         prompt_hash = compute_hash(message)
 
-        # Check cache for prompt
-        try:
-            cached = cache_repo.get_by_prompt_hash(prompt_hash)
-            if cached:
-                self._log.info("LLM cache hit for prompt")
-                return str(cached.response_json)
-        except Exception:
-            # Cache failures should not block LLM calls
-            pass
+        # Check cache
+        cached = self.cache_manager.get_cached(prompt_hash)
+        if cached:
+            return cached
 
-        response_json = self._generate(message=message, format=format)
-        response_hash = compute_hash(response_json)
-
-        # Persist cache entry (best-effort)
+        # Generate new response
         try:
-            cache_repo.create_from_fields(
-                prompt_hash=compute_hash(message),
-                prompt_text=message,
-                response_hash=response_hash,
-                response_json=response_json,
-                llm_name="ollama",
-            )
-        except Exception:
-            # Do not fail on cache write errors
-            pass
+            response_json = self._generate(message=message, format=format)
+        except (RuntimeError, ValueError) as e:
+            self._log.error(f"Generation failed: {e}")
+            return None
+
+        # Save to cache
+        self.cache_manager.save_cache(prompt_hash, message, response_json)
 
         return response_json
 
-    def _get_filepath(self, filename: str) -> Path:
-        filepath = Path(__file__).parent.parent / "prompt" / filename
-        return filepath
-
-    def _get_prompt(self, filename: str) -> Optional[str]:
-        filepath = self._get_filepath(filename)
-
+    def _check_readiness(self) -> bool:
+        """Check if the LLM is ready by attempting a simple generation."""
         try:
-            with open(filepath, "r") as file:
-                content = file.read()
-            return content
-        except FileNotFoundError:
-            self._log.error(f"Error: File not found at {filepath}")
-            return None
-        except Exception as e:
-            self._log.error(f"An error occurred: {e}")
-            return None
-
-    def _hello_world(self) -> None:
-        message = self._get_prompt(PROMPT_HELLO_WORLD)
-
-        if message is not None:
-            content = self._generate(message, SimpleResponse)
-            self._log.info(content)
+            # Simple test prompt
+            test_message = "Hello"
+            self._generate(test_message, SimpleResponse)
+            return True
+        except Exception:
+            return False
 
     # ===============================================================
     # LLM Commands
     # ===============================================================
 
     def extract_resume_keywords(self, resume_text: str) -> Optional[str]:
-        message = self._get_prompt(PROMPT_EXTRACT_RESUME_KEYWORDS)
+        message_template = self.prompt_loader.load(PROMPT_EXTRACT_RESUME_KEYWORDS)
 
-        if message is not None:
-            content = self._generate_when_ready_with_cache(
-                message.format(resume_text=resume_text), ExtractKeywordResponse
+        if message_template is not None:
+            content = self.generate_with_cache(
+                message_template.format(resume_text=resume_text), ExtractKeywordResponse
             )
 
             if content is not None:
@@ -173,11 +148,13 @@ class OllamaLocalClient:
         return None
 
     def extract_job_description_keywords(self, job_description: str) -> Optional[str]:
-        message = self._get_prompt(PROMPT_EXTRACT_JOB_DESCRIPTION_KEYWORDS)
+        message_template = self.prompt_loader.load(
+            PROMPT_EXTRACT_JOB_DESCRIPTION_KEYWORDS
+        )
 
-        if message is not None:
-            content = self._generate_when_ready_with_cache(
-                message.format(job_description=job_description),
+        if message_template is not None:
+            content = self.generate_with_cache(
+                message_template.format(job_description=job_description),
                 JobDescriptioKeywordsResponse,
             )
 
@@ -188,11 +165,11 @@ class OllamaLocalClient:
         return None
 
     def match_job_with_star(self, job_parsed: str, star_text: str) -> Optional[str]:
-        message = self._get_prompt(PROMPT_MATCH_JOB_WITH_STAR)
+        message_template = self.prompt_loader.load(PROMPT_MATCH_JOB_WITH_STAR)
 
-        if message is not None:
-            content = self._generate_when_ready_with_cache(
-                message.format(job_parsed=job_parsed, star_text=star_text),
+        if message_template is not None:
+            content = self.generate_with_cache(
+                message_template.format(job_parsed=job_parsed, star_text=star_text),
                 MatchJobWithStarResponse,
             )
 
@@ -205,11 +182,11 @@ class OllamaLocalClient:
     def rewrite_star_to_bullet_point(
         self, star_text: str, job_parsed: str, match_score: str
     ) -> Optional[str]:
-        message = self._get_prompt(PROMPT_REWRITE_STAR_BULLET_POINT)
+        message_template = self.prompt_loader.load(PROMPT_REWRITE_STAR_BULLET_POINT)
 
-        if message is not None:
-            content = self._generate_when_ready_with_cache(
-                message.format(
+        if message_template is not None:
+            content = self.generate_with_cache(
+                message_template.format(
                     star_text=star_text, job_parsed=job_parsed, match_score=match_score
                 ),
                 RewriteStarResponse,
