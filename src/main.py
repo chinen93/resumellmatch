@@ -11,7 +11,7 @@ from src.core.processor import (
     StarMetadataProcessor,
 )
 from src.data_ingestion import CSVLoader, FileReader
-from src.llm.client import LLMCacheManager, OllamaLocalClient
+from src.llm.client import LLMCacheManager, LLMPromptService, OllamaLocalClient
 from src.logging_config import get_logger
 from src.storage.repositories import LLMCacheRepo
 
@@ -22,6 +22,7 @@ class Handler:
         cache_repo = LLMCacheRepo(isTest)
         cache_manager = LLMCacheManager(cache_repo)
         self.llm_client = OllamaLocalClient(cache_manager)
+        self.prompt_service = LLMPromptService(self.llm_client)
 
 
 def handle_job():
@@ -38,7 +39,7 @@ def handle_job():
     handler = Handler(isTest=False)
     handler._log.info("Handle Job Description")
 
-    job_processor = JobDescriptionProcessor(handler.llm_client, isTest=False)
+    job_processor = JobDescriptionProcessor(handler.prompt_service, isTest=False)
     job_importer = JobDescriptionImporter(job_processor)
 
     job_parsed = job_importer.run("job_description.txt")
@@ -47,10 +48,10 @@ def handle_job():
         # Load STAR info
         star = FileReader.read_json_file("star/star_2.json")
 
-        match_job_star = handler.llm_client.match_job_with_star(job_parsed, star)
+        match_job_star = handler.prompt_service.match_job_with_star(job_parsed, star)
 
         if match_job_star:
-            handler.llm_client.rewrite_star_to_bullet_point(
+            handler.prompt_service.rewrite_star_to_bullet_point(
                 star, job_parsed, match_job_star
             )
 
@@ -82,7 +83,7 @@ def handle_resume():
     handler = Handler(isTest=False)
     handler._log.info("Handle Resume")
 
-    resume_processor = ResumeProcessor(handler.llm_client, isTest=False)
+    resume_processor = ResumeProcessor(handler.prompt_service, isTest=False)
     resume_importer = ResumeImporter(resume_processor)
 
     resume_importer.run("resume.pdf")

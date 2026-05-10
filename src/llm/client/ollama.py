@@ -4,23 +4,9 @@ from ollama import generate
 
 from config.settings import get_settings
 from src.llm.client.cache_manager import LLMCacheManager
-from src.llm.client.prompt_loader import PromptLoader
-from src.llm.client.response import (
-    BaseResponse,
-    ExtractKeywordResponse,
-    JobDescriptioKeywordsResponse,
-    MatchJobWithStarResponse,
-    RewriteStarResponse,
-    SimpleResponse,
-)
+from src.llm.client.response import BaseResponse, SimpleResponse
 from src.logging_config import get_logger
 from src.utils.hash import compute_hash
-
-PROMPT_HELLO_WORLD = "hello_world.md"
-PROMPT_EXTRACT_RESUME_KEYWORDS = "extract_resume_keywords.md"
-PROMPT_EXTRACT_JOB_DESCRIPTION_KEYWORDS = "extract_job_description_keywords.md"
-PROMPT_MATCH_JOB_WITH_STAR = "match_job_with_star.md"
-PROMPT_REWRITE_STAR_BULLET_POINT = "rewrite_star_bullet_point.md"
 
 
 class OllamaLocalClient:
@@ -28,7 +14,6 @@ class OllamaLocalClient:
     def __init__(self, cache_manager: LLMCacheManager):
 
         self._log = get_logger("llm")
-        self.prompt_loader = PromptLoader()
         self.cache_manager = cache_manager
 
         settings = get_settings()
@@ -130,70 +115,5 @@ class OllamaLocalClient:
             return False
 
     # ===============================================================
-    # LLM Commands
+    # Core LLM wrapper methods
     # ===============================================================
-
-    def extract_resume_keywords(self, resume_text: str) -> Optional[str]:
-        message_template = self.prompt_loader.load(PROMPT_EXTRACT_RESUME_KEYWORDS)
-
-        if message_template is not None:
-            content = self.generate_with_cache(
-                message_template.format(resume_text=resume_text), ExtractKeywordResponse
-            )
-
-            if content is not None:
-                self._log.info(content)
-                return content
-
-        return None
-
-    def extract_job_description_keywords(self, job_description: str) -> Optional[str]:
-        message_template = self.prompt_loader.load(
-            PROMPT_EXTRACT_JOB_DESCRIPTION_KEYWORDS
-        )
-
-        if message_template is not None:
-            content = self.generate_with_cache(
-                message_template.format(job_description=job_description),
-                JobDescriptioKeywordsResponse,
-            )
-
-            if content is not None:
-                self._log.info(content)
-                return content
-
-        return None
-
-    def match_job_with_star(self, job_parsed: str, star_text: str) -> Optional[str]:
-        message_template = self.prompt_loader.load(PROMPT_MATCH_JOB_WITH_STAR)
-
-        if message_template is not None:
-            content = self.generate_with_cache(
-                message_template.format(job_parsed=job_parsed, star_text=star_text),
-                MatchJobWithStarResponse,
-            )
-
-            if content is not None:
-                self._log.info(content)
-                return content
-
-        return None
-
-    def rewrite_star_to_bullet_point(
-        self, star_text: str, job_parsed: str, match_score: str
-    ) -> Optional[str]:
-        message_template = self.prompt_loader.load(PROMPT_REWRITE_STAR_BULLET_POINT)
-
-        if message_template is not None:
-            content = self.generate_with_cache(
-                message_template.format(
-                    star_text=star_text, job_parsed=job_parsed, match_score=match_score
-                ),
-                RewriteStarResponse,
-            )
-
-            if content is not None:
-                self._log.info(content)
-                return content
-
-        return None

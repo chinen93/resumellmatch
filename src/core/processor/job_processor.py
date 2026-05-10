@@ -1,20 +1,22 @@
 import json
 from typing import Optional
 
-from src.llm.client.ollama import OllamaLocalClient
+from src.llm.client.prompt_service import LLMPromptService
 from src.storage.repositories import JobDescriptionParsedRepo, JobDescriptionRepo
 
 
 class JobDescriptionProcessor:
     """Handle creating JobDescription objects and persisting them via repo."""
 
-    def __init__(self, llm_client: OllamaLocalClient, isTest: bool = True):
-        self.llm_client = llm_client
+    def __init__(self, prompt_service: LLMPromptService, isTest: bool = True):
+        self.prompt_service = prompt_service
         self.job_repo = JobDescriptionRepo(isTest)
         self.parsed_repo = JobDescriptionParsedRepo(isTest)
 
     def new_item(self, job_description: str, input_hash: str) -> Optional[str]:
-        job_parsed = self.llm_client.extract_job_description_keywords(job_description)
+        job_parsed = self.prompt_service.extract_job_description_keywords(
+            job_description
+        )
 
         if job_parsed is not None:
             self._persist_job(job_description, input_hash, job_parsed)

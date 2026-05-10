@@ -1,18 +1,18 @@
 from typing import Optional
 
-from src.llm.client import OllamaLocalClient
+from src.llm.client.prompt_service import LLMPromptService
 from src.storage.repositories import ResumeRepo
 
 
 class ResumeProcessor:
     """Handle creating Resume objects and persisting them via repo."""
 
-    def __init__(self, llm_client: OllamaLocalClient, isTest: bool = True):
-        self.llm_client = llm_client
+    def __init__(self, prompt_service: LLMPromptService, isTest: bool = True):
+        self.prompt_service = prompt_service
         self.resume_repo = ResumeRepo(isTest)
 
     def new_item(self, resume: str, input_hash: str) -> Optional[str]:
-        resume_parsed = self.llm_client.extract_resume_keywords(resume)
+        resume_parsed = self.prompt_service.extract_resume_keywords(resume)
 
         if resume_parsed is not None:
             self._persist_resume(resume, input_hash, resume_parsed)
