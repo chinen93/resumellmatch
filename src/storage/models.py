@@ -131,6 +131,8 @@ class Resume(Base):
         Integer, ForeignKey("users.id"), nullable=False
     )
     raw_text: Mapped[str] = mapped_column(String, nullable=False)
+    input_hash: Mapped[str] = mapped_column(String, nullable=True, index=True)
+    full_response: Mapped[str] = mapped_column(Text, nullable=True)
     created_at: Mapped[datetime] = mapped_column(TIMESTAMP, default=datetime.now)
     __table_args__ = (UniqueConstraint("id", "user_id", name="uix_id_user_id"),)
 

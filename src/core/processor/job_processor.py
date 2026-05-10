@@ -6,7 +6,7 @@ from src.storage.repositories import JobDescriptionParsedRepo, JobDescriptionRep
 
 
 class JobDescriptionProcessor:
-    """Handle creating StarMetadata objects and persisting them via repo."""
+    """Handle creating JobDescription objects and persisting them via repo."""
 
     def __init__(self, llm_client: OllamaLocalClient, isTest: bool = True):
         self.llm_client = llm_client
@@ -24,7 +24,6 @@ class JobDescriptionProcessor:
     def exist_job_description(self, input_hash: str) -> Optional[str]:
         existing = self.parsed_repo.get_by_input_hash(input_hash)
         if existing:
-            # handler._log.info("Using cached parsed job description from DB")
             return str(existing.full_response)
 
         return None
@@ -55,4 +54,3 @@ class JobDescriptionProcessor:
             )
         except Exception:
             pass
-            # handler._log.exception("Failed to persist parsed job description")

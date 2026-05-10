@@ -23,9 +23,18 @@ class ResumeRepo:
             storage_model = ResumeMapper.to_storage_model(core_model)
             return self._create(storage_model)
 
-    def create_from_fields(self, id: int, user_id: int, raw_text: str) -> int:
+    def create_from_fields(
+        self,
+        id: Optional[int],
+        user_id: int,
+        raw_text: str,
+        input_hash: Optional[str],
+        full_text: Optional[str],
+    ) -> int:
         """Create using individual fields (builds model internally)."""
-        model = ResumeMapper.from_raw_fields(id, user_id, raw_text)
+        model = ResumeMapper.from_raw_fields(
+            id, user_id, raw_text, input_hash, full_text
+        )
         return self.create_or_update(model)
 
     def get_by_id(self, resume_id: int) -> Optional[ResumeModel]:
@@ -40,6 +49,15 @@ class ResumeRepo:
     def get_by_user_id(self, user_id: int) -> Optional[ResumeModel]:
         """Fetches by user_id and converts to Core Model."""
         storage_model = self._retrieve_by_user_id(user_id)
+
+        if not storage_model:
+            return None
+
+        return ResumeMapper.to_core_model(storage_model)
+
+    def get_by_input_hash(self, input_hash: str) -> Optional[ResumeModel]:
+        """Fetches by input_hash and converts to Core Model."""
+        storage_model = self._retrieve_by_input_hash(input_hash)
 
         if not storage_model:
             return None
@@ -103,6 +121,10 @@ class ResumeRepo:
     def _retrieve_by_user_id(self, user_id: int) -> Optional[Resume]:
         with self.db.get_session() as session:
             return session.query(Resume).filter(Resume.user_id == user_id).first()
+
+    def _retrieve_by_input_hash(self, input_hash: str) -> Optional[Resume]:
+        with self.db.get_session() as session:
+            return session.query(Resume).filter(Resume.input_hash == input_hash).first()
 
     def _update(self, storage_model: Resume, core_model: ResumeModel) -> int:
         storage_model.user_id = (

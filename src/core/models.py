@@ -45,6 +45,8 @@ class Resume:
     id: Optional[int] = None
     user_id: Optional[int] = None
     raw_text: str = ""
+    input_hash: Optional[str] = None
+    full_text: Optional[str] = None
     created_at: Optional[datetime] = None
 
 

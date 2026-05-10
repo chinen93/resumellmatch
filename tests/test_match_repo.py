@@ -62,7 +62,7 @@ class TestMatchRepo(BaseTestCase):
             1, "Test User", "test@example.com"
         )
         self.resume_id = self.resume_repo.create_from_fields(
-            1, self.user_id, "Resume text"
+            1, self.user_id, "Resume text", None, None
         )
         self.job_id = self.job_desc_repo.create_from_fields(
             1, "http://example.com", "Engineer", "Job text"

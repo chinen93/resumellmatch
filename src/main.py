@@ -2,11 +2,13 @@ from src.core.importer import (
     JobDescriptionImporter,
     StarEntryImporter,
     StarMetadataImporter,
+    ResumeImporter,
 )
 from src.core.processor import (
     JobDescriptionProcessor,
     StarEntryProcessor,
     StarMetadataProcessor,
+    ResumeProcessor,
 )
 from src.data_ingestion import CSVLoader, FileReader
 from src.llm.client import OllamaLocalClient
@@ -40,6 +42,7 @@ def handle_job():
                 star, job_parsed, match_job_star
             )
 
+    handler._log.info("Finished handling Job Description")
 
 def handle_star():
     handler = Handler()
@@ -66,8 +69,9 @@ def handle_resume():
     handler = Handler()
     handler._log.info("Handle Resume")
 
-    # resume = PDFReader.read("resume.pdf")
-    # print(resume)
+    resume_processor = ResumeProcessor(handler.llm_client, isTest=False)
+    resume_importer = ResumeImporter(resume_processor)
 
-    # client = OllamaLocalClient()
-    # client.extract_resume_keywords(resume)
+    resume_importer.run("resume.pdf")
+
+    handler._log.info("Finished handling Resume")

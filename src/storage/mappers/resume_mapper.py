@@ -1,3 +1,5 @@
+from typing import Optional
+
 from src.core.models import Resume as ResumeModel
 from src.storage.models import Resume
 
@@ -22,6 +24,18 @@ class ResumeMapper:
         )
 
     @staticmethod
-    def from_raw_fields(id: int, user_id: int, raw_text: str) -> ResumeModel:
+    def from_raw_fields(
+        id: Optional[int],
+        user_id: int,
+        raw_text: str,
+        input_hash: Optional[str],
+        full_text: Optional[str],
+    ) -> ResumeModel:
         """Builds the core model directly from raw input fields."""
-        return ResumeModel(id=id, user_id=user_id, raw_text=raw_text)
+        return ResumeModel(
+            id=id,
+            user_id=user_id,
+            raw_text=raw_text,
+            input_hash=input_hash,
+            full_text=full_text,
+        )
