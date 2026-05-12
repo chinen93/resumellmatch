@@ -5,7 +5,7 @@ from ollama import generate
 from config.settings import get_settings
 from src.llm.client.cache_manager import LLMCacheManager
 from src.llm.client.response import BaseResponse, SimpleResponse
-from src.logging_config import get_logger
+from config.logging import get_logger
 from src.utils.hash import compute_hash
 
 

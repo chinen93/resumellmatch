@@ -1,6 +1,6 @@
 from typing import Optional
 
-from src.logging_config import get_logger
+from config.logging import get_logger
 from src.storage.repositories import LLMCacheRepo
 from src.utils.hash import compute_hash
 

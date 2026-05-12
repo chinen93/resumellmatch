@@ -8,7 +8,7 @@ from src.llm.client.response import (
     MatchJobWithStarResponse,
     RewriteStarResponse,
 )
-from src.logging_config import get_logger
+from config.logging import get_logger
 
 PROMPT_EXTRACT_RESUME_KEYWORDS = "extract_resume_keywords.md"
 PROMPT_EXTRACT_JOB_DESCRIPTION_KEYWORDS = "extract_job_description_keywords.md"

@@ -1,6 +1,6 @@
 import click
 
-from src.logging_config import setup_logging
+from config.logging import setup_logging
 from src.main import handle_job, handle_resume, handle_star
 
 

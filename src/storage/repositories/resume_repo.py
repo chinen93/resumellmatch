@@ -1,7 +1,7 @@
 from typing import List, Optional
 
 from src.core.models import Resume as ResumeModel
-from src.logging_config import get_logger
+from config.logging import get_logger
 from src.storage.connection import DatabaseConnection
 from src.storage.mappers.resume_mapper import ResumeMapper
 from src.storage.models import Resume

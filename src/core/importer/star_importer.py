@@ -2,7 +2,7 @@ from typing import List
 
 from src.core.processor.star_processor import StarEntryProcessor, StarMetadataProcessor
 from src.data_ingestion.csv_loader import CSVLoader
-from src.logging_config import get_logger
+from config.logging import get_logger
 
 EXPECTED_STAR_METADATA_HEADER: List[str] = [
     "id",

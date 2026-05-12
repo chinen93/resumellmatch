@@ -1,7 +1,7 @@
 from pathlib import Path
 from typing import Optional
 
-from src.logging_config import get_logger
+from config.logging import get_logger
 
 
 class PromptLoader:

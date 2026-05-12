@@ -1,7 +1,7 @@
 from typing import List, Optional
 
 from src.core.models import Skill as SkillModel
-from src.logging_config import get_logger
+from config.logging import get_logger
 from src.storage.connection import DatabaseConnection
 from src.storage.mappers.skill_mapper import SkillMapper
 from src.storage.models import Skill

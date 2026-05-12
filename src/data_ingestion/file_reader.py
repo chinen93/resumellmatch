@@ -1,7 +1,7 @@
 import json
 
 from src.data_ingestion.utils import get_filepath
-from src.logging_config import get_logger
+from config.logging import get_logger
 
 
 class FileReader:

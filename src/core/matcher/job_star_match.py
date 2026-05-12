@@ -2,7 +2,7 @@ from typing import List
 
 from src.data_ingestion import FileReader
 from src.llm.client import LLMPromptService
-from src.logging_config import get_logger
+from config.logging import get_logger
 from src.storage.repositories import StarEntryRepo, StarMetadataRepo
 
 

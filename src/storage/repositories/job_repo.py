@@ -2,7 +2,7 @@ from typing import List, Optional
 
 from src.core.models import JobDescription as JobDescriptionModel
 from src.core.models import JobDescriptionParsed as JobDescriptionParsedModel
-from src.logging_config import get_logger
+from config.logging import get_logger
 from src.storage.connection import DatabaseConnection
 from src.storage.mappers.job_mapper import (
     JobDescriptionMapper,

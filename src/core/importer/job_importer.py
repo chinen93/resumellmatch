@@ -2,7 +2,7 @@ from typing import Optional
 
 from src.core.processor.job_processor import JobDescriptionProcessor
 from src.data_ingestion.file_reader import FileReader
-from src.logging_config import get_logger
+from config.logging import get_logger
 from src.utils.hash import compute_hash
 
 

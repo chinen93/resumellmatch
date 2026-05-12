@@ -1,7 +1,7 @@
 from typing import List, Optional
 
 from src.core.models import LLMCache as LLMCacheModel
-from src.logging_config import get_logger
+from config.logging import get_logger
 from src.storage.connection import DatabaseConnection
 from src.storage.mappers.llm_cache_mapper import LLMCacheMapper
 from src.storage.models import LLMCache

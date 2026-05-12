@@ -13,7 +13,7 @@ from src.core.processor import (
 )
 from src.data_ingestion import CSVLoader
 from src.llm.client import LLMCacheManager, LLMPromptService, OllamaLocalClient
-from src.logging_config import get_logger
+from config.logging import get_logger
 from src.storage.repositories import LLMCacheRepo
 
 

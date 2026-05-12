@@ -2,7 +2,7 @@ from typing import Optional
 
 from src.core.processor import ResumeProcessor
 from src.data_ingestion import PDFReader
-from src.logging_config import get_logger
+from config.logging import get_logger
 from src.utils.hash import compute_hash
 
 

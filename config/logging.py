@@ -21,29 +21,6 @@ from pathlib import Path
 from config.settings import dependent_load_dotenv, get_settings
 
 
-def get_config_path(testing: bool = False) -> str:
-    """
-    Get the path to the appropriate logging configuration file.
-
-    Args:
-        testing: If True, return path to test config; otherwise production config
-
-    Returns:
-        Absolute path to the logging configuration file
-    """
-    config_dir = Path(__file__).parent.parent / "config"
-
-    if testing:
-        config_file = config_dir / "logging_test.conf"
-    else:
-        config_file = config_dir / "logging.conf"
-
-    if not config_file.exists():
-        raise FileNotFoundError(f"Logging configuration file not found: {config_file}")
-
-    return str(config_file)
-
-
 def ensure_logs_directory() -> None:
     """Create logs directory if it doesn't exist."""
     logs_dir = Path(__file__).parent.parent / "logs"
@@ -64,18 +41,6 @@ def setup_logging(testing: bool = False) -> None:
 
     dependent_load_dotenv(isTest=False)
 
-    # Get the appropriate config file
-    # config_file = get_config_path(testing=testing)
-
-    # Load logging configuration
-    # logging.config.fileConfig(config_file, disable_existing_loggers=False)
-
-    # mode = "TESTING" if testing else "PRODUCTION"
-
-    # logger = logging.getLogger(__name__)
-    # logger.info("=" * 30)
-    # logger.debug(f"Logging configured for {mode} mode using {config_file}")
-
 
 def configure_root_logger() -> None:
 
@@ -92,7 +57,7 @@ def configure_root_logger() -> None:
 
     if settings.LOG_TO_CONSOLE:
         ch = logging.StreamHandler()
-        ch.setLevel(level)
+        ch.setLevel(logging.INFO)
         ch.setFormatter(formatter)
         root.addHandler(ch)
 
