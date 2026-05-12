@@ -4,13 +4,14 @@ from src.core.importer import (
     StarEntryImporter,
     StarMetadataImporter,
 )
+from src.core.matcher import JobStarMatch
 from src.core.processor import (
     JobDescriptionProcessor,
     ResumeProcessor,
     StarEntryProcessor,
     StarMetadataProcessor,
 )
-from src.data_ingestion import CSVLoader, FileReader
+from src.data_ingestion import CSVLoader
 from src.llm.client import LLMCacheManager, LLMPromptService, OllamaLocalClient
 from src.logging_config import get_logger
 from src.storage.repositories import LLMCacheRepo
@@ -19,6 +20,7 @@ from src.storage.repositories import LLMCacheRepo
 class Handler:
     def __init__(self, isTest: bool = False):
         self._log = get_logger("Handler")
+
         cache_repo = LLMCacheRepo(isTest)
         cache_manager = LLMCacheManager(cache_repo)
         self.llm_client = OllamaLocalClient(cache_manager)
@@ -45,15 +47,10 @@ def handle_job():
     job_parsed = job_importer.run("job_description.txt")
 
     if job_parsed:
-        # Load STAR info
-        star = FileReader.read_json_file("star/star_2.json")
+        job_star_match = JobStarMatch(handler.prompt_service, isTest=False)
 
-        match_job_star = handler.prompt_service.match_job_with_star(job_parsed, star)
-
-        if match_job_star:
-            handler.prompt_service.rewrite_star_to_bullet_point(
-                star, job_parsed, match_job_star
-            )
+        # TODO:
+        _ = job_star_match.get_matching_star(job_parsed)
 
     handler._log.info("Finished handling Job Description")
 

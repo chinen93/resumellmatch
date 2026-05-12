@@ -13,7 +13,7 @@ class OllamaLocalClient:
 
     def __init__(self, cache_manager: LLMCacheManager):
 
-        self._log = get_logger("llm")
+        self._log = get_logger("OllamaLocalClient")
         self.cache_manager = cache_manager
 
         settings = get_settings()

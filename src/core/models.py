@@ -25,6 +25,15 @@ class StarEntry:
     updated_at: Optional[datetime] = None
     created_at: Optional[datetime] = None
 
+    def __repr__(self):
+        return (
+            f"{self.title}: "
+            f"{self.situation}. "
+            f"{self.task}. "
+            f"{self.action}. "
+            f"{self.result}."
+        )
+
 
 @dataclass
 class StarMetadata:
