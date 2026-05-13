@@ -1,3 +1,9 @@
+"""Storage repository package exports.
+
+This package exports repository classes used for persistent data storage and
+retrieval across the application.
+"""
+
 from .job_repo import JobDescriptionParsedRepo, JobDescriptionRepo
 from .llm_cache_repo import LLMCacheRepo
 from .match_repo import MatchRepo

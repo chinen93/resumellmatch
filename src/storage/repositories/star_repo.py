@@ -1,3 +1,9 @@
+"""Repositories for STAR data persistence.
+
+This module contains repositories for storing and retrieving STAR metadata and
+STAR entries from the database.
+"""
+
 from datetime import date
 from typing import List, Optional
 
@@ -11,6 +17,8 @@ from src.storage.models import StarEntry, StarMetadata
 
 
 class StarMetadataRepo:
+    """Repository for CRUD operations on StarMetadata entities."""
+
     def __init__(self, isTest):
         self._log = get_logger("StarMetadataRepo")
         self.db = DatabaseConnection(isTest)
@@ -183,6 +191,8 @@ class StarMetadataRepo:
 
 
 class StarEntryRepo:
+    """Repository for CRUD operations on StarEntry entities."""
+
     def __init__(self, isTest):
         self._log = get_logger("StarEntryRepo")
         self.db = DatabaseConnection(isTest)

@@ -1,3 +1,8 @@
+"""Mapper for resume storage and core models.
+
+This module converts resume storage entities into domain models and vice versa.
+"""
+
 from typing import Optional
 
 from src.core.models import Resume as ResumeModel
@@ -5,6 +10,8 @@ from src.storage.models import Resume
 
 
 class ResumeMapper:
+    """Mapper between storage Resume and core Resume models."""
+
     @staticmethod
     def to_core_model(storage_model: Resume) -> ResumeModel:
         return ResumeModel(

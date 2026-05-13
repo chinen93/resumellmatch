@@ -1,3 +1,10 @@
+"""SQLAlchemy ORM models for persistent storage.
+
+This module defines the database schema and ORM mappings used by the
+storage layer for resumes, STAR entries, users, job descriptions, matches,
+and LLM cache entries.
+"""
+
 from datetime import date, datetime
 
 from sqlalchemy import TIMESTAMP, Date, ForeignKey, UniqueConstraint
@@ -6,10 +13,12 @@ from sqlalchemy.types import Integer, String, Text
 
 
 class Base(DeclarativeBase):
-    pass
+    """Base class for SQLAlchemy declarative ORM models."""
 
 
 class Skill(Base):
+    """Represents a skill entity stored in the database."""
+
     __tablename__ = "skills"
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     name: Mapped[str] = mapped_column(String, nullable=False)
@@ -25,6 +34,8 @@ class Skill(Base):
 
 
 class StarEntrySkillAssociation(Base):
+    """Association table linking STAR entries to skills."""
+
     __tablename__ = "star_entries_skills_assoc"
     star_entry_id: Mapped[int] = mapped_column(
         Integer, ForeignKey("star_entries.id"), primary_key=True
@@ -35,6 +46,8 @@ class StarEntrySkillAssociation(Base):
 
 
 class StarEntry(Base):
+    """Represents a STAR (Situation, Task, Action, Result) entry."""
+
     __tablename__ = "star_entries"
 
     id: Mapped[int | None] = mapped_column(
@@ -79,6 +92,7 @@ class StarEntry(Base):
 
 
 class StarMetadata(Base):
+    """Represents metadata for a STAR experience collection."""
 
     __tablename__ = "star_metadatas"
 
@@ -122,6 +136,7 @@ class StarMetadata(Base):
 
 
 class Resume(Base):
+    """Represents a resume record stored in the database."""
 
     __tablename__ = "resumes"
     id: Mapped[int | None] = mapped_column(
@@ -147,6 +162,7 @@ class Resume(Base):
 
 
 class User(Base):
+    """Represents a system user with associated STAR metadata."""
 
     __tablename__ = "users"
     id: Mapped[int | None] = mapped_column(
@@ -170,6 +186,7 @@ class User(Base):
 
 
 class JobDescription(Base):
+    """Represents a job description record stored in the database."""
 
     __tablename__ = "job_descriptions"
     id: Mapped[int | None] = mapped_column(
@@ -191,6 +208,7 @@ class JobDescription(Base):
 
 
 class JobDescriptionParsed(Base):
+    """Represents parsed job description data derived from a job description."""
 
     __tablename__ = "job_descriptions_parsed"
     id: Mapped[int | None] = mapped_column(
@@ -226,6 +244,7 @@ class JobDescriptionParsed(Base):
 
 
 class Matches(Base):
+    """Represents the scored match linking resumes to parsed job descriptions."""
 
     __tablename__ = "matches"
 
@@ -251,6 +270,8 @@ class Matches(Base):
 
 
 class LLMCache(Base):
+    """Represents cached LLM prompt and response pairs."""
+
     __tablename__ = "llm_cache"
 
     id: Mapped[int | None] = mapped_column(

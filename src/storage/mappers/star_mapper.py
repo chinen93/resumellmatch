@@ -1,3 +1,9 @@
+"""Mapper for STAR storage and core models.
+
+This module converts STAR metadata and STAR entry records between storage ORM
+models and domain-level models used by the application.
+"""
+
 from datetime import date
 from typing import Optional
 
@@ -8,6 +14,8 @@ from src.storage.models import StarEntry, StarMetadata
 
 
 class StarMetadataMapper:
+    """Mapper between storage StarMetadata and core StarMetadata models."""
+
     @staticmethod
     def to_core_model(storage_model: StarMetadata) -> StarMetadataModel:
         return StarMetadataModel(
@@ -67,6 +75,8 @@ class StarMetadataMapper:
 
 
 class StarEntryMapper:
+    """Mapper between storage StarEntry and core StarEntry models."""
+
     @staticmethod
     def to_core_model(storage_model: StarEntry) -> StarEntryModel:
         return StarEntryModel(

@@ -1,3 +1,9 @@
+"""Repository for skill persistence.
+
+This module provides operations for creating, updating, retrieving, and deleting
+skill records in the database.
+"""
+
 from typing import List, Optional
 
 from config.logging import get_logger
@@ -8,6 +14,8 @@ from src.storage.models import Skill
 
 
 class SkillRepo:
+    """Repository for CRUD operations on Skill entities."""
+
     def __init__(self, isTest):
         self._log = get_logger("SkillRepo")
         self.db = DatabaseConnection(isTest)

@@ -1,3 +1,9 @@
+"""Repository for resume persistence.
+
+This module provides creation, lookup, update, and deletion operations for
+resume data stored in the database.
+"""
+
 from typing import List, Optional
 
 from config.logging import get_logger
@@ -8,6 +14,8 @@ from src.storage.models import Resume
 
 
 class ResumeRepo:
+    """Repository for CRUD operations on Resume entities."""
+
     def __init__(self, isTest):
         self._log = get_logger("ResumeRepo")
         self.db = DatabaseConnection(isTest)

@@ -1,8 +1,16 @@
+"""Mapper for match storage and core models.
+
+This module handles conversion between stored match records and the application's
+core Match model representation.
+"""
+
 from src.core.models import Match as MatchModel
 from src.storage.models import Matches as MatchStorage
 
 
 class MatchMapper:
+    """Mapper between storage Matches and core Match models."""
+
     @staticmethod
     def to_core_model(storage_model: MatchStorage) -> MatchModel:
         return MatchModel(

@@ -1,3 +1,9 @@
+"""Storage mapper package exports.
+
+This package provides convenient access to all mapper classes responsible for
+converting between storage ORM models and application core models.
+"""
+
 from .job_mapper import JobDescriptionMapper, JobDescriptionParsedMapper
 from .llm_cache_mapper import LLMCacheMapper
 from .match_mapper import MatchMapper

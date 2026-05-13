@@ -1,3 +1,9 @@
+"""Mappers for job description storage and core models.
+
+This module provides utilities for converting job description and parsed job
+entities between ORM storage models and core domain models.
+"""
+
 from typing import Optional
 
 from src.core.models import JobDescription as JobDescriptionModel
@@ -6,12 +12,10 @@ from src.storage.models import JobDescription, JobDescriptionParsed
 
 
 class JobDescriptionMapper:
-    """
-    Handles all conversion logic between different representations
-    of a JobDescription:
-    1. Storage Model (DB ORM object)
-    2. Core Model (Application's Domain Object)
-    3. Raw Fields (Primitives)
+    """Mapper between storage JobDescription and core JobDescription models.
+
+    Handles conversion between storage ORM objects, application core models,
+    and raw field primitives for job descriptions.
     """
 
     @staticmethod
@@ -45,6 +49,8 @@ class JobDescriptionMapper:
 
 
 class JobDescriptionParsedMapper:
+    """Mapper between storage JobDescriptionParsed and core models."""
+
     @staticmethod
     def to_core_model(storage_model: JobDescriptionParsed) -> JobDescriptionParsedModel:
         return JobDescriptionParsedModel(

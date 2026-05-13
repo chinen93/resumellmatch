@@ -1,3 +1,9 @@
+"""Repository for user persistence.
+
+This module provides operations for storing and retrieving user records and their
+associated STAR metadata from the database.
+"""
+
 from typing import List, Optional
 
 from config.logging import get_logger
@@ -8,6 +14,8 @@ from src.storage.models import User
 
 
 class UserRepo:
+    """Repository for CRUD operations on User entities."""
+
     def __init__(self, isTest):
         self._log = get_logger("UserRepo")
         self.db = DatabaseConnection(isTest)

@@ -1,3 +1,9 @@
+"""Repository for LLM cache persistence.
+
+This module provides operations for caching and retrieving LLM responses in the
+database.
+"""
+
 from typing import List, Optional
 
 from config.logging import get_logger
@@ -8,6 +14,8 @@ from src.storage.models import LLMCache
 
 
 class LLMCacheRepo:
+    """Repository for CRUD operations on LLMCache entities."""
+
     def __init__(self, isTest=False):
         self._log = get_logger("LLMCacheRepo")
         self.db = DatabaseConnection(isTest)

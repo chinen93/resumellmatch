@@ -1,3 +1,9 @@
+"""Repositories for job description persistence.
+
+This module contains repositories for storing and retrieving job descriptions
+and parsed job metadata from the database.
+"""
+
 from typing import List, Optional
 
 from config.logging import get_logger
@@ -12,6 +18,8 @@ from src.storage.models import JobDescription, JobDescriptionParsed
 
 
 class JobDescriptionRepo:
+    """Repository for CRUD operations on JobDescription entities."""
+
     def __init__(self, isTest):
         self._log = get_logger("JobDescRepo")
         self.db = DatabaseConnection(isTest)
@@ -146,6 +154,8 @@ class JobDescriptionRepo:
 
 
 class JobDescriptionParsedRepo:
+    """Repository for CRUD operations on JobDescriptionParsed entities."""
+
     def __init__(self, isTest):
         self._log = get_logger("JobDescParsedRepo")
         self.db = DatabaseConnection(isTest)

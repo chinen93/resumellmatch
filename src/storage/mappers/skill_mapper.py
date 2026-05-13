@@ -1,8 +1,16 @@
+"""Mapper for skill storage and core models.
+
+This module handles conversion between skill ORM storage models and the
+application's core Skill domain model.
+"""
+
 from src.core.models import Skill as SkillModel
 from src.storage.models import Skill
 
 
 class SkillMapper:
+    """Mapper between storage Skill and core Skill models."""
+
     @staticmethod
     def to_core_model(storage_model: Skill) -> SkillModel:
         return SkillModel(

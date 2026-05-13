@@ -1,3 +1,9 @@
+"""Repository for match persistence.
+
+This module provides operations to store and retrieve resume-job match records
+from the database.
+"""
+
 from typing import List, Optional
 
 from config.logging import get_logger
@@ -8,6 +14,8 @@ from src.storage.models import Matches
 
 
 class MatchRepo:
+    """Repository for CRUD operations on Match entities."""
+
     def __init__(self, isTest):
         self._log = get_logger("MatchRepo")
         self.db = DatabaseConnection(isTest)

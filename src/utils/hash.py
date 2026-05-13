@@ -1,3 +1,9 @@
+"""Hash utility functions.
+
+Provides hash generation utilities used across the application for caching
+and deduplication.
+"""
+
 import hashlib
 
 

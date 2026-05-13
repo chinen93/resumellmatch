@@ -1,9 +1,17 @@
+"""Mapper for user storage and core models.
+
+This module provides conversion utilities between user ORM storage models and
+core domain-level User models.
+"""
+
 from src.core.models import User as UserModel
 from src.storage.mappers.star_mapper import StarMetadataMapper
 from src.storage.models import User
 
 
 class UserMapper:
+    """Mapper between storage User and core User models."""
+
     @staticmethod
     def to_core_model(storage_model: User) -> UserModel:
         return UserModel(

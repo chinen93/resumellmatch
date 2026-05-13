@@ -1,8 +1,16 @@
+"""Mapper for LLMCache storage and core models.
+
+This module converts cached LLM response data between storage ORM models and
+application domain models.
+"""
+
 from src.core.models import LLMCache as LLMCacheModel
 from src.storage.models import LLMCache
 
 
 class LLMCacheMapper:
+    """Mapper between storage LLMCache and core LLMCache models."""
+
     @staticmethod
     def to_core_model(storage_model: LLMCache) -> LLMCacheModel:
         return LLMCacheModel(

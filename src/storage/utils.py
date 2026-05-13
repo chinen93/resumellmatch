@@ -1,7 +1,19 @@
+"""Storage transaction utilities.
+
+This module provides helper decorators for managing database transaction
+lifecycles, including commit and rollback behavior.
+"""
+
+
 # =========================================================
 # Helper Decorator (This handles the boilerplate)
 # =========================================================
 def db_transaction(func):
+    """Decorator that manages SQLAlchemy session transaction lifecycle.
+
+    This decorator wraps repository methods to open a session, begin a
+    transaction, commit on success, and rollback on exception.
+    """
     """Handles session setup, commit, rollback, and logging for write operations."""
 
     def wrapper(self, *args, **kwargs):

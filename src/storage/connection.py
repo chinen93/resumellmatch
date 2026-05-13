@@ -1,3 +1,9 @@
+"""Database connection utilities for storage layer.
+
+This module defines the application database connection manager and provides
+singleton access to SQLAlchemy sessions for production and test environments.
+"""
+
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 
@@ -6,6 +12,12 @@ PROD_ENGINE = "sqlite:///./example/output/storage.db"
 
 
 class DatabaseConnection:
+    """Singleton managing SQLAlchemy engine and sessions.
+
+    Attributes:
+        engine: SQLAlchemy engine instance for the configured database.
+    """
+
     """
     Singleton class to manage SQLAlchemy database connections and sessions.
     Provides an execute method to handle session lifecycle, transactions, and error handling,
