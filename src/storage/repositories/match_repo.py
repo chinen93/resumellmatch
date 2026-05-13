@@ -1,7 +1,7 @@
 from typing import List, Optional
 
-from src.core.models import Match as MatchModel
 from config.logging import get_logger
+from src.core.models import Match as MatchModel
 from src.storage.connection import DatabaseConnection
 from src.storage.mappers.match_mapper import MatchMapper
 from src.storage.models import Matches

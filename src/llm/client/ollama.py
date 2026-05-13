@@ -1,15 +1,32 @@
+"""Ollama local LLM client with caching support.
+
+Provides an interface to interact with locally-running Ollama LLM models
+with built-in response caching and performance metrics logging.
+"""
+
 from typing import Optional
 
 from ollama import generate
 
+from config.logging import get_logger
 from config.settings import get_settings
 from src.llm.client.cache_manager import LLMCacheManager
 from src.llm.client.response import BaseResponse, SimpleResponse
-from config.logging import get_logger
 from src.utils.hash import compute_hash
 
 
 class OllamaLocalClient:
+    """Client for interacting with local Ollama LLM.
+
+    Manages LLM text generation with optional response caching,
+    performance monitoring, and response validation.
+
+    Attributes:
+        cache_manager: LLMCacheManager for caching responses.
+        agent_model: Name/identifier of the Ollama model to use.
+        ready: Whether the client is ready for generation.
+        _log: Logger instance.
+    """
 
     def __init__(self, cache_manager: LLMCacheManager):
 
@@ -27,6 +44,23 @@ class OllamaLocalClient:
         self.ready = self._check_readiness()
 
     def _generate(self, message: str, format: type[BaseResponse]) -> str:
+        """Generate a response from the LLM with performance metrics.
+
+        Sends a prompt to the Ollama LLM with specified response format,
+        validates the response, logs performance metrics, and returns the
+        validated response as JSON.
+
+        Args:
+            message: The prompt text to send to the LLM.
+            format: The Pydantic response format class for validation.
+
+        Returns:
+            The LLM response as a JSON string matching the format.
+
+        Raises:
+            RuntimeError: If LLM generation fails.
+            ValueError: If the response doesn't match the expected format.
+        """
 
         self._log.debug(message)
 
@@ -80,6 +114,19 @@ class OllamaLocalClient:
     def generate_with_cache(
         self, message: str, format: type[BaseResponse]
     ) -> Optional[str]:
+        """Generate LLM response with caching support.
+
+        Checks cache first before making a LLM request. If cached,
+        returns the cached response. Otherwise generates a new response,
+        caches it, and returns it.
+
+        Args:
+            message: The prompt text to send to the LLM.
+            format: The Pydantic response format class for validation.
+
+        Returns:
+            The LLM response as JSON, or None if generation fails.
+        """
 
         if not self.ready:
             self._log.warning("LLM client not ready")
@@ -105,7 +152,11 @@ class OllamaLocalClient:
         return response_json
 
     def _check_readiness(self) -> bool:
-        """Check if the LLM is ready by attempting a simple generation."""
+        """Check if the LLM is ready by attempting a simple generation.
+
+        Returns:
+            True if the LLM is ready and responding; False otherwise.
+        """
         try:
             # Simple test prompt
             test_message = "Hello"
@@ -113,7 +164,3 @@ class OllamaLocalClient:
             return True
         except Exception:
             return False
-
-    # ===============================================================
-    # Core LLM wrapper methods
-    # ===============================================================

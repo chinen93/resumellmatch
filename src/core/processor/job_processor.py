@@ -1,3 +1,9 @@
+"""Job description processing module.
+
+Handles LLM-based extraction of keywords and requirements from job descriptions,
+and persists both the original description and parsed results to the database.
+"""
+
 import json
 from typing import Optional
 
@@ -6,7 +12,16 @@ from src.storage.repositories import JobDescriptionParsedRepo, JobDescriptionRep
 
 
 class JobDescriptionProcessor:
-    """Handle creating JobDescription objects and persisting them via repo."""
+    """Process job descriptions through LLM and persist results.
+
+    Orchestrates the extraction of skills, keywords, and requirements from
+    job descriptions using LLM prompts, then stores both raw and parsed data.
+
+    Attributes:
+        prompt_service: LLMPromptService for running LLM prompts.
+        job_repo: Repository for JobDescription entities.
+        parsed_repo: Repository for JobDescriptionParsed entities.
+    """
 
     def __init__(self, prompt_service: LLMPromptService, isTest: bool = True):
         self.prompt_service = prompt_service
@@ -14,6 +29,18 @@ class JobDescriptionProcessor:
         self.parsed_repo = JobDescriptionParsedRepo(isTest)
 
     def new_item(self, job_description: str, input_hash: str) -> Optional[str]:
+        """Process a new job description and persist it.
+
+        Runs the job description through LLM keyword extraction, then stores
+        both the original description and the parsed results in the database.
+
+        Args:
+            job_description: The raw job description text.
+            input_hash: SHA256 hash of the job description for caching.
+
+        Returns:
+            The LLM response with extracted keywords or None if processing failed.
+        """
         job_parsed = self.prompt_service.extract_job_description_keywords(
             job_description
         )
@@ -24,6 +51,17 @@ class JobDescriptionProcessor:
         return job_parsed
 
     def exist_job_description(self, input_hash: str) -> Optional[str]:
+        """Check if job description has been previously processed.
+
+        Looks up whether this job description (by hash) has been previously
+        processed and returns the cached LLM response if available.
+
+        Args:
+            input_hash: SHA256 hash of the job description.
+
+        Returns:
+            The previously processed result or None if not found.
+        """
         existing = self.parsed_repo.get_by_input_hash(input_hash)
         if existing:
             return str(existing.full_response)
@@ -31,6 +69,16 @@ class JobDescriptionProcessor:
         return None
 
     def _persist_job(self, job_description: str, input_hash: str, job_parsed: str):
+        """Persist job description and parsed data to the database.
+
+        Stores both the original job description and the LLM-extracted data
+        (skills, keywords, etc.) to the database.
+
+        Args:
+            job_description: The raw job description text.
+            input_hash: SHA256 hash for caching.
+            job_parsed: The LLM response as a JSON string.
+        """
         # persist job description and parsed response
         try:
             job_id = self.job_repo.create_from_fields(

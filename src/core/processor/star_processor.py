@@ -1,18 +1,40 @@
+"""STAR entry processing module.
+
+Handles validation and persistence of STAR (Situation, Task, Action, Result)
+metadata and individual entry records from CSV imports.
+"""
+
 from datetime import date, datetime
 from typing import Optional
 
 from src.storage.repositories import StarEntryRepo, StarMetadataRepo
 
-# from src.storage.models import StarEntry, StarMetadata
-
 
 class StarMetadataProcessor:
-    """Handle creating StarMetadata objects and persisting them via repo."""
+    """Process and persist STAR metadata.
+
+    Validates and persists STAR metadata (experience context) records
+    from CSV imports into the database.
+
+    Attributes:
+        repo: Repository for StarMetadata entities.
+    """
 
     def __init__(self, isTest: bool = True):
         self.repo = StarMetadataRepo(isTest)
 
     def _parse_date(self, value: Optional[str]) -> date:
+        """Parse date from various formats.
+
+        Accepts year-only format (YYYY) or full ISO date format (YYYY-MM-DD).
+        Returns today's date if parsing fails or value is empty.
+
+        Args:
+            value: Date string in YYYY or YYYY-MM-DD format.
+
+        Returns:
+            Parsed date or today's date if parsing fails.
+        """
         if value is None or str(value).strip() == "":
             return date.today()
 
@@ -28,6 +50,18 @@ class StarMetadataProcessor:
     def new_item(
         self, id, user_id, type, title, subtitle, location, start_date, end_date
     ) -> None:
+        """Create and persist a new STAR metadata record.
+
+        Args:
+            id: Unique identifier.
+            user_id: Associated user ID.
+            type: Experience type (e.g., 'work', 'education', 'project').
+            title: Title of the position/program/project.
+            subtitle: Additional context (e.g., company name).
+            location: Geographic location.
+            start_date: Start date (year or full date).
+            end_date: End date (year or full date).
+        """
         self.repo.create_from_fields(
             id=id,
             user_id=user_id,
@@ -41,7 +75,14 @@ class StarMetadataProcessor:
 
 
 class StarEntryProcessor:
-    """Handle creating StarEntry objects and persisting them via repo."""
+    """Process and persist individual STAR entries.
+
+    Validates and persists individual STAR story entries
+    from CSV imports into the database.
+
+    Attributes:
+        repo: Repository for StarEntry entities.
+    """
 
     def __init__(self, isTest: bool = True):
         self.repo = StarEntryRepo(isTest)
@@ -56,6 +97,17 @@ class StarEntryProcessor:
         action,
         result,
     ) -> None:
+        """Create and persist a new STAR entry record.
+
+        Args:
+            id: Unique identifier.
+            metadata_id: Foreign key to parent STAR metadata.
+            title: Title of the STAR story.
+            situation: The situation or context.
+            task: The task or responsibility.
+            action: The action taken.
+            result: The result or outcome.
+        """
 
         self.repo.create_from_fields(
             id=id,

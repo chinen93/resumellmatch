@@ -1,6 +1,4 @@
 import unittest
-from pathlib import Path
-from unittest.mock import patch
 
 from config.logging import get_logger
 from tests.conf_log_test import BaseTestCase

@@ -1,3 +1,10 @@
+"""Resume-LLM Match CLI entry point.
+
+This module provides the command-line interface for the resume-LLM matching system,
+allowing users to initiate various workflows including job description processing,
+resume analysis, and STAR entry importation.
+"""
+
 import click
 
 from config.logging import setup_logging

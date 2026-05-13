@@ -1,3 +1,10 @@
+"""Prompt template loader for the LLM workflow.
+
+This module defines a loader that reads prompt template files from the
+`src/llm/prompt` directory and returns their contents for use in prompt
+execution services.
+"""
+
 from pathlib import Path
 from typing import Optional
 
@@ -5,14 +12,30 @@ from config.logging import get_logger
 
 
 class PromptLoader:
-    """Handles loading of prompt files from the prompt directory."""
+    """A utility class responsible for loading prompt templates.
+
+    It manages the loading of prompt files from the filesystem and provides
+    them as strings for the LLM prompt service.
+    """
 
     def __init__(self):
+        """Initialize the prompt loader.
+
+        Sets the prompt directory path and prepares a logger for error handling.
+        """
         self.prompt_dir = Path(__file__).parent.parent / "prompt"
         self._log = get_logger("PromptLoader")
 
     def load(self, filename: str) -> Optional[str]:
-        """Load the content of a prompt file."""
+        """Load the content of a prompt file.
+
+        Args:
+            filename: Name of the prompt file to load.
+
+        Returns:
+            The prompt file contents as a string, or None if the file could not
+            be found or an error occurred while reading it.
+        """
         filepath = self.prompt_dir / filename
 
         try:

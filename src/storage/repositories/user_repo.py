@@ -1,7 +1,7 @@
 from typing import List, Optional
 
-from src.core.models import User as UserModel
 from config.logging import get_logger
+from src.core.models import User as UserModel
 from src.storage.connection import DatabaseConnection
 from src.storage.mappers.user_mapper import UserMapper
 from src.storage.models import User

@@ -1,10 +1,16 @@
+"""Text and JSON file reading utilities.
+
+Provides convenient methods to read text and JSON files from the input directory.
+"""
+
 import json
 
-from src.data_ingestion.utils import get_filepath
 from config.logging import get_logger
+from src.data_ingestion.utils import get_filepath
 
 
 class FileReader:
+    """Static utility class for reading text and JSON files from the input directory."""
 
     @classmethod
     def read_txt_file(cls, filename):

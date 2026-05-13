@@ -1,14 +1,24 @@
+"""CSV file loading and parsing utilities.
+
+Provides functionality to load and validate CSV files with optional callbacks
+for processing each row.
+"""
+
 import csv
 from typing import Callable, List, Optional, Sequence
 
-from src.data_ingestion.utils import get_filepath
 from config.logging import get_logger
+from src.data_ingestion.utils import get_filepath
 
 
 class CSVLoader:
-    """
-    Loads and parses CSV files into structured data.
-    Handles file reading, parsing, and header validation.
+    """Loads and parses CSV files with header validation and row callbacks.
+
+    Handles file reading, header validation, and optional per-row processing
+    through callback functions.
+
+    Attributes:
+        linesRead: Count of data rows processed in the most recent load_csv call.
     """
 
     linesRead: int = 0
@@ -22,18 +32,19 @@ class CSVLoader:
         expected_header: List[str],
         callback: Optional[Callable[[dict[str, str]], None]] = None,
     ) -> None:
-        """
-        Load and parse CSV file into a list of dictionaries.
-        validate that the csv has the expected format using the header as reference
+        """Load and parse CSV file with optional row-by-row callback processing.
 
-        for each line call callback function if it exists
+        Loads the CSV file, validates headers against expected format, and
+        optionally calls a callback function for each data row.
 
         Args:
-            filepath: Path to the CSV file
+            filename: Name of the CSV file to load.
+            expected_header: List of expected column names to validate against.
+            callback: Optional function to call for each row with row data as dict.
 
         Raises:
-            FileNotFoundError: If the CSV file doesn't exist
-            ValueError: If the CSV file is empty
+            FileNotFoundError: If the CSV file doesn't exist.
+            ValueError: If the CSV file is empty or has no data rows.
         """
         self.linesRead = 0
         filepath = get_filepath(filename)
@@ -67,15 +78,17 @@ class CSVLoader:
     def validateHeader(
         self, filepath: str, headers: Sequence[str], expected_headers: List[str]
     ) -> None:
-        """
-        Validate the CSV headers with the expected header.
-        Uses self.lines after load_csv to validate its accuracy.
+        """Validate CSV headers match expected headers.
+
+        Checks that the CSV file contains the expected column headers.
 
         Args:
-            expected_header: List of expected column names
+            filepath: Path to the CSV file being validated.
+            headers: The actual headers found in the CSV file.
+            expected_headers: List of expected column names.
 
-        Returns:
-            True if headers match, False otherwise
+        Raises:
+            ValueError: If headers don't match expected headers.
         """
         # TODO: raise exception with the list of missing headers so it is easier to fix after seeing the logs
         missed = []

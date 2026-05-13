@@ -1,8 +1,15 @@
+"""STAR entry import module.
+
+Handles importing STAR (Situation, Task, Action, Result) interview response data
+from CSV files. Supports both STAR metadata (experience context) and individual
+STAR entries (stories).
+"""
+
 from typing import List
 
+from config.logging import get_logger
 from src.core.processor.star_processor import StarEntryProcessor, StarMetadataProcessor
 from src.data_ingestion.csv_loader import CSVLoader
-from config.logging import get_logger
 
 EXPECTED_STAR_METADATA_HEADER: List[str] = [
     "id",
@@ -27,6 +34,16 @@ EXPECTED_STAR_ENTRY_HEADER: List[str] = [
 
 
 class StarMetadataImporter:
+    """Imports STAR metadata from CSV files.
+
+    Loads STAR metadata (work/education/project experience context) from CSV files
+    and processes each row through the StarMetadataProcessor.
+
+    Attributes:
+        loader: CSVLoader instance for CSV file operations.
+        processor: StarMetadataProcessor instance for processing metadata.
+        _log: Logger instance.
+    """
 
     loader: CSVLoader
     processor: StarMetadataProcessor
@@ -37,6 +54,14 @@ class StarMetadataImporter:
         self._log = get_logger("StarMetadataImporter")
 
     def importer_function(self, values: dict[str, str]) -> None:
+        """Process a single STAR metadata row from CSV.
+
+        Called as a callback for each row in the CSV file.
+        Passes the parsed values to the processor for validation and storage.
+
+        Args:
+            values: Dictionary mapping column headers to values from a CSV row.
+        """
         # Validate that the fields are not empty
         self.processor.new_item(
             id=values[EXPECTED_STAR_METADATA_HEADER[0]],
@@ -50,6 +75,17 @@ class StarMetadataImporter:
         )
 
     def run(self, filename: str) -> List[str]:
+        """Import STAR metadata from a CSV file.
+
+        Loads and processes all STAR metadata records from the specified CSV file.
+        Handles file not found and validation errors gracefully with logging.
+
+        Args:
+            filename: Name of the CSV file containing STAR metadata.
+
+        Returns:
+            List of error messages (empty list if successful).
+        """
         self._log.info("Reading Star Metadata")
 
         ret: List[str] = []
@@ -67,6 +103,17 @@ class StarMetadataImporter:
 
 
 class StarEntryImporter:
+    """Imports STAR entries from CSV files.
+
+    Loads individual STAR (Situation, Task, Action, Result) stories from
+    CSV files and processes each row through the StarEntryProcessor.
+
+    Attributes:
+        loader: CSVLoader instance for CSV file operations.
+        processor: StarEntryProcessor instance for processing entries.
+        _log: Logger instance.
+    """
+
     loader: CSVLoader
     processor: StarEntryProcessor
 
@@ -76,6 +123,14 @@ class StarEntryImporter:
         self._log = get_logger("StarEntryImporter")
 
     def importer_function(self, values: dict[str, str]) -> None:
+        """Process a single STAR entry row from CSV.
+
+        Called as a callback for each row in the CSV file.
+        Passes the parsed values to the processor for validation and storage.
+
+        Args:
+            values: Dictionary mapping column headers to values from a CSV row.
+        """
         self.processor.new_item(
             id=values[EXPECTED_STAR_ENTRY_HEADER[0]],
             metadata_id=values[EXPECTED_STAR_ENTRY_HEADER[1]],
@@ -87,6 +142,17 @@ class StarEntryImporter:
         )
 
     def run(self, filename: str) -> List[str]:
+        """Import STAR entries from a CSV file.
+
+        Loads and processes all STAR entry records from the specified CSV file.
+        Handles file not found and validation errors gracefully with logging.
+
+        Args:
+            filename: Name of the CSV file containing STAR entries.
+
+        Returns:
+            List of error messages (empty list if successful).
+        """
         self._log.info("Reading Star Entries")
         ret: List[str] = []
 

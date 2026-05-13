@@ -1,9 +1,9 @@
 from datetime import date
 from typing import List, Optional
 
+from config.logging import get_logger
 from src.core.models import StarEntry as StarEntryModel
 from src.core.models import StarMetadata as StarMetadataModel
-from config.logging import get_logger
 from src.storage.connection import DatabaseConnection
 from src.storage.mappers.skill_mapper import SkillMapper
 from src.storage.mappers.star_mapper import StarEntryMapper, StarMetadataMapper

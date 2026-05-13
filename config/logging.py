@@ -22,7 +22,10 @@ from config.settings import dependent_load_dotenv, get_settings
 
 
 def ensure_logs_directory() -> None:
-    """Create logs directory if it doesn't exist."""
+    """Create logs directory in project root if it doesn't exist.
+
+    The logs directory is used to store log files during production execution.
+    """
     logs_dir = Path(__file__).parent.parent / "logs"
     logs_dir.mkdir(exist_ok=True)
 
@@ -43,6 +46,12 @@ def setup_logging(testing: bool = False) -> None:
 
 
 def configure_root_logger() -> None:
+    """Configure the root logger with handlers and formatters.
+
+    Sets up the root logger with appropriate handlers (console and/or file)
+    based on settings from the environment configuration. Only configures once;
+    subsequent calls are no-ops if handlers are already present.
+    """
 
     root = logging.getLogger()
     if root.handlers:
@@ -72,9 +81,16 @@ def configure_root_logger() -> None:
 
 
 def get_logger(name: str) -> logging.Logger:
-    """
-    Get a logger instance with the given name.
+    """Get a logger instance with the specified name.
 
+    Returns a named logger configured with the application's logging setup.
+    Ensures root logger is configured before returning the named logger.
+
+    Args:
+        name: The logger name, typically the module name (__name__).
+
+    Returns:
+        logging.Logger: A configured logger instance.
     """
     configure_root_logger()
     return logging.getLogger(name)
