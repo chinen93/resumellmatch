@@ -124,5 +124,3 @@ class JobDescriptionProcessor:
         except Exception as e:
             self._log.error(f"Failed to persist job description: {e}")
             raise
-        except Exception:
-            pass
