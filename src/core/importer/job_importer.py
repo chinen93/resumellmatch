@@ -42,13 +42,26 @@ class JobDescriptionImporter:
         Returns:
             The processed job description or cached result. None if an error occurs.
         """
+        self._log.info(f"Starting job description import from file: {filename}")
 
         job_desc = FileReader.read_txt_file(filename)
+        if not job_desc:
+            self._log.error(f"Failed to read job description file: {filename}")
+            return None
+
         input_hash = compute_hash(job_desc)
+        self._log.debug(f"Computed content hash: {input_hash[:8]}...")
 
         existing = self.processor.exist_job_description(input_hash)
         if existing is not None:
             self._log.info("Using cached parsed job description from DB")
             return existing
 
-        return self.processor.new_item(job_desc, input_hash)
+        self._log.info("Processing new job description")
+        result = self.processor.new_item(job_desc, input_hash)
+        if result:
+            self._log.info("Job description import completed successfully")
+        else:
+            self._log.warning("Job description import failed")
+
+        return result

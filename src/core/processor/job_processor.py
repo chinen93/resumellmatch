@@ -7,6 +7,7 @@ and persists both the original description and parsed results to the database.
 import json
 from typing import Optional
 
+from config.logging import get_logger
 from src.llm.client.prompt_service import LLMPromptService
 from src.storage.repositories import JobDescriptionParsedRepo, JobDescriptionRepo
 
@@ -27,6 +28,7 @@ class JobDescriptionProcessor:
         self.prompt_service = prompt_service
         self.job_repo = JobDescriptionRepo(isTest)
         self.parsed_repo = JobDescriptionParsedRepo(isTest)
+        self._log = get_logger("JobDescriptionProcessor")
 
     def new_item(self, job_description: str, input_hash: str) -> Optional[str]:
         """Process a new job description and persist it.
@@ -41,12 +43,21 @@ class JobDescriptionProcessor:
         Returns:
             The LLM response with extracted keywords or None if processing failed.
         """
+        self._log.info("Processing new job description")
+        self._log.debug(f"Input hash: {input_hash[:8]}...")
+
         job_parsed = self.prompt_service.extract_job_description_keywords(
             job_description
         )
 
         if job_parsed is not None:
+            self._log.debug("LLM keyword extraction successful")
             self._persist_job(job_description, input_hash, job_parsed)
+            self._log.info("Job description processing completed")
+            return job_parsed
+        else:
+            self._log.warning("LLM keyword extraction failed")
+            return None
 
         return job_parsed
 
@@ -62,9 +73,15 @@ class JobDescriptionProcessor:
         Returns:
             The previously processed result or None if not found.
         """
+        self._log.debug(
+            f"Checking for existing job description with hash: {input_hash[:8]}..."
+        )
         existing = self.parsed_repo.get_by_input_hash(input_hash)
         if existing:
+            self._log.debug("Found cached job description processing result")
             return str(existing.full_response)
+        else:
+            self._log.debug("No cached result found for job description")
 
         return None
 
@@ -79,11 +96,12 @@ class JobDescriptionProcessor:
             input_hash: SHA256 hash for caching.
             job_parsed: The LLM response as a JSON string.
         """
-        # persist job description and parsed response
+        self._log.debug("Persisting job description to database")
         try:
             job_id = self.job_repo.create_from_fields(
                 id=None, url="", title="", raw_text=job_description
             )
+            self._log.debug(f"Created job description record with ID: {job_id}")
 
             # attempt to extract fields from the LLM response JSON
             parsed_obj = json.loads(job_parsed)
@@ -102,5 +120,9 @@ class JobDescriptionProcessor:
                 input_hash=input_hash,
                 full_response=job_parsed,
             )
+            self._log.debug("Created parsed job description record")
+        except Exception as e:
+            self._log.error(f"Failed to persist job description: {e}")
+            raise
         except Exception:
             pass

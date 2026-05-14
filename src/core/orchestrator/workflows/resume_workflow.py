@@ -23,16 +23,20 @@ def run_resume_workflow():
         3. Process with LLM for keyword extraction and enhancement
         4. Store processed resume in database
     """
-    handler = Handler(isTest=False)
-
     log = get_logger("ResumeWorkflow")
     log.info("Starting resume workflow")
 
+    handler = Handler(isTest=False)
+    log.debug("Handler initialized for resume workflow")
+
     orchestrator = WorkflowOrchestrator(handler)
+    log.debug("Workflow orchestrator created")
 
     # Process resume
+    log.info("Processing resume from PDF file")
     orchestrator.run_simple_workflow(
         ResumeImporter, ResumeProcessor, "resume.pdf", isTest=False
     )
+    log.debug("Resume processing completed")
 
-    log.info("Finished resume workflow")
+    log.info("Resume workflow completed")

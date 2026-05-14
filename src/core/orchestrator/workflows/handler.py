@@ -5,6 +5,7 @@ and coordinating LLM-related services including caching, client connections,
 and prompt management.
 """
 
+from config.logging import get_logger
 from src.llm.client import LLMCacheManager, LLMPromptService, OllamaLocalClient
 from src.storage.repositories import LLMCacheRepo
 
@@ -25,8 +26,17 @@ class Handler:
     """
 
     def __init__(self, isTest: bool = False):
+        self._log = get_logger("Handler")
+        self._log.debug(f"Initializing Handler (test_mode={isTest})")
+
         cache_repo = LLMCacheRepo(isTest)
         cache_manager = LLMCacheManager(cache_repo)
+        self._log.debug("Initialized LLM cache manager")
 
         self.llm_client = OllamaLocalClient(cache_manager)
+        self._log.debug("Initialized Ollama LLM client")
+
         self.prompt_service = LLMPromptService(self.llm_client)
+        self._log.debug("Initialized LLM prompt service")
+
+        self._log.info("Handler initialization complete")

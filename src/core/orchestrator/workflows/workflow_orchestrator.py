@@ -6,6 +6,7 @@ workflows, reducing duplication in importer-processor-repository patterns.
 
 from typing import Type
 
+from config.logging import get_logger
 from src.core.orchestrator.workflows.handler import Handler
 
 
@@ -21,6 +22,7 @@ class WorkflowOrchestrator:
 
     def __init__(self, handler: Handler):
         self.handler = handler
+        self._log = get_logger("WorkflowOrchestrator")
 
     def run_simple_workflow(
         self,
@@ -28,7 +30,7 @@ class WorkflowOrchestrator:
         processor_class: Type,
         filename: str,
         *args,
-        **kwargs
+        **kwargs,
     ):
         """Run a simple workflow with importer and processor.
 
@@ -45,6 +47,17 @@ class WorkflowOrchestrator:
         Returns:
             Result of the importer's run method.
         """
+        self._log.debug(
+            f"Starting workflow: {importer_class.__name__} -> {processor_class.__name__} for file '{filename}'"
+        )
+
         processor = processor_class(self.handler.prompt_service, *args, **kwargs)
+        self._log.debug(f"Created processor: {processor_class.__name__}")
+
         importer = importer_class(processor)
-        return importer.run(filename)
+        self._log.debug(f"Created importer: {importer_class.__name__}")
+
+        result = importer.run(filename)
+        self._log.debug(f"Workflow completed for '{filename}'")
+
+        return result

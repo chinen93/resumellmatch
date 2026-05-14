@@ -42,14 +42,26 @@ class ResumeImporter:
         Returns:
             The processed resume or cached result. None if an error occurs.
         """
+        self._log.info(f"Starting resume import from PDF file: {filename}")
 
         resume = PDFReader.read(filename)
+        if not resume:
+            self._log.error(f"Failed to read resume PDF file: {filename}")
+            return None
 
         input_hash = compute_hash(resume)
+        self._log.debug(f"Computed content hash: {input_hash[:8]}...")
 
         existing = self.processor.exist_resume(input_hash)
         if existing is not None:
             self._log.info("Using cached resume from DB")
             return existing
 
-        return self.processor.new_item(resume, input_hash)
+        self._log.info("Processing new resume")
+        result = self.processor.new_item(resume, input_hash)
+        if result:
+            self._log.info("Resume import completed successfully")
+        else:
+            self._log.warning("Resume import failed")
+
+        return result

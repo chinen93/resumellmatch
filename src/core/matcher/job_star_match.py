@@ -29,9 +29,11 @@ class JobStarMatch:
     def __init__(self, prompt_service: LLMPromptService, isTest: bool):
         self.prompt_service = prompt_service
         self._log = get_logger("JobStarMatch")
+        self._log.debug("Initializing JobStarMatch")
 
         self.star_metadata_repo = StarMetadataRepo(isTest)
         self.star_entry_repo = StarEntryRepo(isTest)
+        self._log.debug("JobStarMatch initialized with repositories")
 
     def _process_star_match(self, job_parsed: str, star_file_path: str) -> None:
         """Load STAR data, match with job, and rewrite matching bullets.
@@ -44,6 +46,8 @@ class JobStarMatch:
             job_parsed: The parsed job description with keywords and requirements.
             star_file_path: Path to JSON file containing STAR entry data.
         """
+        self._log.debug(f"Processing STAR match for file: {star_file_path}")
+
         # Load STAR info
         star = FileReader.read_json_file(star_file_path)
 
@@ -51,9 +55,11 @@ class JobStarMatch:
             self._log.warning(f"Failed to load STAR data from {star_file_path}")
             return
 
+        self._log.debug("STAR data loaded, performing LLM matching")
         match_job_star = self.prompt_service.match_job_with_star(job_parsed, star)
 
         if match_job_star:
+            self._log.info("STAR-job match found, rewriting bullet points")
             self.prompt_service.rewrite_star_to_bullet_point(
                 star, job_parsed, match_job_star
             )
@@ -75,24 +81,37 @@ class JobStarMatch:
         Returns:
             List of matching STAR entries or descriptions.
         """
-
+        self._log.info("Starting STAR matching process for job description")
         matching: List[str] = []
 
         star_metadatas = self.star_metadata_repo.get_all_by_user(user_id=1)
+        self._log.debug(f"Retrieved {len(star_metadatas)} STAR metadata records")
+
         for metadata in star_metadatas:
+            self._log.debug(f"Processing STAR metadata: {metadata.title}")
 
             metadata_id = metadata.id
             if metadata_id is not None:
                 star_entries = self.star_entry_repo.get_all_by_metadata(metadata_id)
+                self._log.debug(
+                    f"Found {len(star_entries)} STAR entries for metadata {metadata_id}"
+                )
 
                 for entry in star_entries:
-                    self._log.debug(str(entry))
+                    self._log.debug(f"Matching STAR entry: {entry.title}")
                     match_job_star = self.prompt_service.match_job_with_star(
                         job_parsed, str(entry)
                     )
 
                     if match_job_star:
-                        self._log.debug(match_job_star)
+                        self._log.debug("STAR entry matched with job description")
+                        matching.append(str(entry))
+                    else:
+                        self._log.debug("STAR entry did not match job description")
+
+        self._log.info(
+            f"STAR matching completed. Found {len(matching)} matching entries"
+        )
 
         # TODO:
         # Match entry with job parsed

@@ -21,14 +21,17 @@ def run_job_workflow():
         3) IF score is less than X improve resume with rewritten star responses
         4) Rewrite resume to have keywords from job description
     """
-    handler = Handler(isTest=False)
-
     log = get_logger("JobWorkflow")
     log.info("Starting job description workflow")
 
+    handler = Handler(isTest=False)
+    log.debug("Handler initialized for job workflow")
+
     orchestrator = WorkflowOrchestrator(handler)
+    log.debug("Workflow orchestrator created")
 
     # Process job description
+    log.info("Processing job description from file")
     job_parsed = orchestrator.run_simple_workflow(
         JobDescriptionImporter,
         JobDescriptionProcessor,
@@ -37,9 +40,18 @@ def run_job_workflow():
     )
 
     if job_parsed:
+        log.info(
+            "Job description processed successfully, proceeding with STAR matching"
+        )
         # Match against STAR entries
         job_star_match = JobStarMatch(handler.prompt_service, isTest=False)
-        # TODO: Implement matching logic
-        _ = job_star_match.get_matching_star(job_parsed)
+        log.debug("Created job-STAR matcher")
 
-    log.info("Finished job description workflow")
+        # TODO: Implement matching logic
+        log.info("Starting job-STAR matching process")
+        _ = job_star_match.get_matching_star(job_parsed)
+        log.info("Job-STAR matching completed")
+    else:
+        log.warning("Job description processing failed or returned no results")
+
+    log.info("Job description workflow completed")

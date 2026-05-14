@@ -6,6 +6,7 @@ and persists both the original resume and extracted content to the database.
 
 from typing import Optional
 
+from config.logging import get_logger
 from src.llm.client.prompt_service import LLMPromptService
 from src.storage.repositories import ResumeRepo
 
@@ -24,6 +25,7 @@ class ResumeProcessor:
     def __init__(self, prompt_service: LLMPromptService, isTest: bool = True):
         self.prompt_service = prompt_service
         self.resume_repo = ResumeRepo(isTest)
+        self._log = get_logger("ResumeProcessor")
 
     def new_item(self, resume: str, input_hash: str) -> Optional[str]:
         """Process a new resume and persist it.
@@ -38,12 +40,19 @@ class ResumeProcessor:
         Returns:
             The LLM response with extracted keywords or None if processing failed.
         """
+        self._log.info("Processing new resume")
+        self._log.debug(f"Input hash: {input_hash[:8]}...")
+
         resume_parsed = self.prompt_service.extract_resume_keywords(resume)
 
         if resume_parsed is not None:
+            self._log.debug("LLM keyword extraction successful")
             self._persist_resume(resume, input_hash, resume_parsed)
-
-        return resume_parsed
+            self._log.info("Resume processing completed")
+            return resume_parsed
+        else:
+            self._log.warning("LLM keyword extraction failed")
+            return None
 
     def exist_resume(self, input_hash: str) -> Optional[str]:
         """Check if resume has been previously processed.
@@ -57,9 +66,13 @@ class ResumeProcessor:
         Returns:
             The previously processed resume or None if not found.
         """
+        self._log.debug(f"Checking for existing resume with hash: {input_hash[:8]}...")
         existing = self.resume_repo.get_by_input_hash(input_hash)
         if existing:
+            self._log.debug("Found cached resume processing result")
             return str(existing.raw_text)
+        else:
+            self._log.debug("No cached result found for resume")
 
         return None
 
@@ -73,6 +86,7 @@ class ResumeProcessor:
             input_hash: SHA256 hash for caching.
             resume_parsed: The LLM response with extracted content.
         """
+        self._log.debug("Persisting resume to database")
         try:
             self.resume_repo.create_from_fields(
                 id=None,
@@ -81,5 +95,7 @@ class ResumeProcessor:
                 input_hash=input_hash,
                 full_text=resume_parsed,
             )
-        except Exception:
-            pass
+            self._log.debug("Resume persisted successfully")
+        except Exception as e:
+            self._log.error(f"Failed to persist resume: {e}")
+            raise

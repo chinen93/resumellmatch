@@ -22,24 +22,28 @@ def run_star_workflow():
         3. Load STAR entries from CSV (star_entries.csv)
         4. Process and validate individual stories
     """
-
     log = get_logger("StarWorkflow")
     log.info("Starting STAR responses workflow")
 
     csv_loader = CSVLoader()
+    log.debug("CSV loader initialized")
 
     # Process STAR metadata
+    log.info("Processing STAR metadata from CSV")
     star_metadata_processor = StarMetadataProcessor(isTest=False)
     star_metadata_importer = StarMetadataImporter(
         loader=csv_loader, processor=star_metadata_processor
     )
     star_metadata_importer.run(filename="star/star_metadata.csv")
+    log.debug("STAR metadata processing completed")
 
     # Process STAR entries
+    log.info("Processing STAR entries from CSV")
     star_entry_processor = StarEntryProcessor(isTest=False)
     star_entry_importer = StarEntryImporter(
         loader=csv_loader, processor=star_entry_processor
     )
     star_entry_importer.run(filename="star/star_entries.csv")
+    log.debug("STAR entries processing completed")
 
-    log.info("Finished STAR responses workflow")
+    log.info("STAR responses workflow completed")

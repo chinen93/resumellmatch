@@ -7,6 +7,7 @@ metadata and individual entry records from CSV imports.
 from datetime import date, datetime
 from typing import Optional
 
+from config.logging import get_logger
 from src.storage.repositories import StarEntryRepo, StarMetadataRepo
 
 
@@ -22,6 +23,7 @@ class StarMetadataProcessor:
 
     def __init__(self, isTest: bool = True):
         self.repo = StarMetadataRepo(isTest)
+        self._log = get_logger("StarMetadataProcessor")
 
     def _parse_date(self, value: Optional[str]) -> date:
         """Parse date from various formats.
@@ -62,16 +64,24 @@ class StarMetadataProcessor:
             start_date: Start date (year or full date).
             end_date: End date (year or full date).
         """
-        self.repo.create_from_fields(
-            id=id,
-            user_id=user_id,
-            type=type,
-            title=title,
-            subtitle=subtitle,
-            location=location,
-            start_date=self._parse_date(start_date),
-            end_date=self._parse_date(end_date),
+        self._log.debug(
+            f"Processing STAR metadata: id={id}, title='{title}', type='{type}'"
         )
+        try:
+            self.repo.create_from_fields(
+                id=id,
+                user_id=user_id,
+                type=type,
+                title=title,
+                subtitle=subtitle,
+                location=location,
+                start_date=self._parse_date(start_date),
+                end_date=self._parse_date(end_date),
+            )
+            self._log.debug(f"Successfully created STAR metadata record: {id}")
+        except Exception as e:
+            self._log.error(f"Failed to create STAR metadata record {id}: {e}")
+            raise
 
 
 class StarEntryProcessor:
@@ -86,6 +96,7 @@ class StarEntryProcessor:
 
     def __init__(self, isTest: bool = True):
         self.repo = StarEntryRepo(isTest)
+        self._log = get_logger("StarEntryProcessor")
 
     def new_item(
         self,
@@ -108,13 +119,20 @@ class StarEntryProcessor:
             action: The action taken.
             result: The result or outcome.
         """
-
-        self.repo.create_from_fields(
-            id=id,
-            metadata_id=metadata_id,
-            title=title,
-            situation=situation,
-            task=task,
-            action=action,
-            result=result,
+        self._log.debug(
+            f"Processing STAR entry: id={id}, metadata_id={metadata_id}, title='{title}'"
         )
+        try:
+            self.repo.create_from_fields(
+                id=id,
+                metadata_id=metadata_id,
+                title=title,
+                situation=situation,
+                task=task,
+                action=action,
+                result=result,
+            )
+            self._log.debug(f"Successfully created STAR entry record: {id}")
+        except Exception as e:
+            self._log.error(f"Failed to create STAR entry record {id}: {e}")
+            raise

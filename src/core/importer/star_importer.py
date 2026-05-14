@@ -86,19 +86,26 @@ class StarMetadataImporter:
         Returns:
             List of error messages (empty list if successful).
         """
-        self._log.info("Reading Star Metadata")
+        self._log.info(f"Starting STAR metadata import from file: {filename}")
 
         ret: List[str] = []
         try:
             self.loader.load_csv(
                 filename, EXPECTED_STAR_METADATA_HEADER, self.importer_function
             )
+            self._log.info("STAR metadata import completed successfully")
         except FileNotFoundError as e:
-            self._log.error(e)
+            self._log.error(f"STAR metadata file not found: {e}")
         except ValueError as e:
-            self._log.error(e)
+            self._log.error(f"STAR metadata validation error: {e}")
+        except Exception as e:
+            self._log.error(f"Unexpected error during STAR metadata import: {e}")
 
-        self._log.info("Read Star Metadata successfully")
+        if ret:
+            self._log.warning(f"STAR metadata import completed with {len(ret)} errors")
+        else:
+            self._log.info("STAR metadata import c  gompleted without errors")
+
         return ret
 
 
@@ -153,17 +160,24 @@ class StarEntryImporter:
         Returns:
             List of error messages (empty list if successful).
         """
-        self._log.info("Reading Star Entries")
-        ret: List[str] = []
+        self._log.info(f"Starting STAR entries import from file: {filename}")
 
+        ret: List[str] = []
         try:
             self.loader.load_csv(
                 filename, EXPECTED_STAR_ENTRY_HEADER, self.importer_function
             )
+            self._log.info("STAR entries import completed successfully")
         except FileNotFoundError as e:
-            self._log.error(e)
+            self._log.error(f"STAR entries file not found: {e}")
         except ValueError as e:
-            self._log.error(e)
+            self._log.error(f"STAR entries validation error: {e}")
+        except Exception as e:
+            self._log.error(f"Unexpected error during STAR entries import: {e}")
 
-        self._log.info("Read Star Entries successfully")
+        if ret:
+            self._log.warning(f"STAR entries import completed with {len(ret)} errors")
+        else:
+            self._log.info("STAR entries import completed without errors")
+
         return ret

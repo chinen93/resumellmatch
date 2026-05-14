@@ -6,6 +6,7 @@ dynamic selection and execution of different workflow types via an enum.
 
 from enum import Enum
 
+from config.logging import get_logger
 from src.core.orchestrator.workflows import job_workflow, resume_workflow, star_workflow
 
 
@@ -45,14 +46,26 @@ class WorkflowFactory:
         Raises:
             ValueError: If the workflow type is not recognized.
         """
+        log = get_logger("WorkflowFactory")
+
         # Support both enum and string input for backward compatibility
         if isinstance(workflow_type, str):
             try:
                 workflow_type = WorkflowType(workflow_type)
+                log.debug(f"Converted string '{workflow_type}' to enum")
             except ValueError:
+                log.error(f"Unknown workflow type: {workflow_type}")
                 raise ValueError(f"Unknown workflow type: {workflow_type}")
 
         workflow_func = cls._WORKFLOW_MAP.get(workflow_type)
         if workflow_func is None:
+            log.error(f"No workflow function found for type: {workflow_type}")
             raise ValueError(f"Unknown workflow type: {workflow_type}")
-        workflow_func()
+
+        log.info(f"Executing workflow: {workflow_type.value}")
+        try:
+            workflow_func()
+            log.info(f"Workflow {workflow_type.value} completed successfully")
+        except Exception as e:
+            log.error(f"Workflow {workflow_type.value} failed: {e}")
+            raise
