@@ -38,7 +38,7 @@ class LLMCacheManager:
         try:
             cached = self.cache_repo.get_by_prompt_hash(prompt_hash)
             if cached:
-                self._log.info("LLM cache hit for prompt")
+                self._log.debug("LLM cache hit for prompt")
                 return str(cached.response_json)
         except Exception as e:
             self._log.warning(f"Cache retrieval failed: {e}")
