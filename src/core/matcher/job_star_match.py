@@ -5,6 +5,7 @@ Action, Result) entries and automatically rewrite STAR bullet points to better
 align with job requirements.
 """
 
+import json
 from typing import List
 
 from config.logging import get_logger
@@ -67,13 +68,12 @@ class JobStarMatch:
         else:
             self._log.info("No STAR match found for job description")
 
+    # TODO: Function is too large, break it into smaller parts
     def get_matching_star(self, job_parsed: str) -> List[str]:
         """Find STAR entries that match the job description.
 
         Retrieves all STAR entries for the user, matches each against the job
         description using LLM analysis, and returns entries that meet the match criteria.
-
-        Note: This method currently has incomplete threshold logic (TODO).
 
         Args:
             job_parsed: The parsed job description with requirements and keywords.
@@ -88,7 +88,9 @@ class JobStarMatch:
         self._log.debug(f"Retrieved {len(star_metadatas)} STAR metadata records")
 
         for metadata in star_metadatas:
-            self._log.debug(f"Processing STAR metadata: {metadata.title}")
+            self._log.info(
+                f"Processing STAR metadata: {metadata.title} - {metadata.subtitle}"
+            )
 
             metadata_id = metadata.id
             if metadata_id is not None:
@@ -103,18 +105,37 @@ class JobStarMatch:
                         job_parsed, str(entry)
                     )
 
-                    if match_job_star:
-                        self._log.debug("STAR entry matched with job description")
+                    if match_job_star is None:
+                        self._log.debug(
+                            "STAR entry match call failed or returned no response"
+                        )
+                        continue
+
+                    try:
+                        match_response = json.loads(match_job_star)
+                    except json.JSONDecodeError:
+                        self._log.warning("Unable to parse STAR match response as JSON")
+                        continue
+
+                    score = match_response.get("score")
+                    explanation = match_response.get("explanation")
+                    threshold = 5
+
+                    if isinstance(score, int) and score >= threshold:
+                        self._log.info(
+                            f"STAR entry matched with job description: {entry.title}"
+                        )
+                        self._log.debug(
+                            f"Match score={score}, explanation={explanation}"
+                        )
                         matching.append(str(entry))
                     else:
-                        self._log.debug("STAR entry did not match job description")
+                        self._log.debug(
+                            f"STAR entry did not meet threshold: score={score}, {explanation}"
+                        )
 
         self._log.info(
             f"STAR matching completed. Found {len(matching)} matching entries"
         )
-
-        # TODO:
-        # Match entry with job parsed
-        # if matching score > threshold add it to matching return list
 
         return matching

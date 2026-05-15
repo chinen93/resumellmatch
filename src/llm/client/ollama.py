@@ -4,6 +4,7 @@ Provides an interface to interact with locally-running Ollama LLM models
 with built-in response caching and performance metrics logging.
 """
 
+import logging
 from typing import Optional
 
 from ollama import generate
@@ -62,6 +63,7 @@ class OllamaLocalClient:
             ValueError: If the response doesn't match the expected format.
         """
 
+        logging.getLogger("httpx").setLevel(logging.WARNING)
         self._log.debug(message)
 
         try:
@@ -142,7 +144,7 @@ class OllamaLocalClient:
         # Generate new response
         try:
             response_json = self._generate(message=message, format=format)
-        except (RuntimeError, ValueError) as e:
+        except (RuntimeError, ValueError, Exception) as e:
             self._log.error(f"Generation failed: {e}")
             return None
 
