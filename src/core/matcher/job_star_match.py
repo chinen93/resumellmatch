@@ -68,7 +68,69 @@ class JobStarMatch:
         else:
             self._log.info("No STAR match found for job description")
 
-    # TODO: Function is too large, break it into smaller parts
+    # TODO: Match should not be only with LLM but with some regex and string matches
+    MATCH_THRESHOLD = 5
+
+    def _parse_match_response(self, match_job_star: str) -> dict:
+        """Parse the JSON response returned by the LLM match prompt.
+
+        Args:
+            match_job_star: JSON string returned from `match_job_with_star`.
+
+        Returns:
+            A dictionary containing parsed response fields, or an empty dict
+            if parsing fails.
+        """
+        try:
+            return json.loads(match_job_star)
+        except json.JSONDecodeError:
+            self._log.warning("Unable to parse STAR match response as JSON")
+            return {}
+
+    def _is_above_threshold(self, score: object) -> bool:
+        """Check whether the parsed score exceeds the configured threshold.
+
+        Args:
+            score: Raw score value extracted from the LLM response.
+
+        Returns:
+            True if the score is an integer greater than the match threshold.
+        """
+        return isinstance(score, int) and score > self.MATCH_THRESHOLD
+
+    def _star_entry_matches(self, job_parsed: str, entry_text: str) -> bool:
+        """Evaluate whether a STAR entry matches the job description.
+
+        This method delegates matching to the LLM prompt service, parses the
+        returned response, and applies the configured score threshold.
+
+        Args:
+            job_parsed: Parsed job description text.
+            entry_text: STAR entry text to compare.
+
+        Returns:
+            True if the STAR entry match score exceeds the threshold.
+        """
+        match_job_star = self.prompt_service.match_job_with_star(job_parsed, entry_text)
+
+        if match_job_star is None:
+            self._log.debug("STAR entry match call failed or returned no response")
+            return False
+
+        match_response = self._parse_match_response(match_job_star)
+        score = match_response.get("score")
+        explanation = match_response.get("explanation")
+
+        if self._is_above_threshold(score):
+            self._log.info("STAR entry matched with job description")
+            self._log.debug(f"Match score={score}, explanation={explanation}")
+            return True
+
+        self._log.debug(
+            f"STAR entry did not meet threshold: score={score}, {explanation}"
+        )
+        return False
+
     def get_matching_star(self, job_parsed: str) -> List[str]:
         """Find STAR entries that match the job description.
 
@@ -101,38 +163,8 @@ class JobStarMatch:
 
                 for entry in star_entries:
                     self._log.debug(f"Matching STAR entry: {entry.title}")
-                    match_job_star = self.prompt_service.match_job_with_star(
-                        job_parsed, str(entry)
-                    )
-
-                    if match_job_star is None:
-                        self._log.debug(
-                            "STAR entry match call failed or returned no response"
-                        )
-                        continue
-
-                    try:
-                        match_response = json.loads(match_job_star)
-                    except json.JSONDecodeError:
-                        self._log.warning("Unable to parse STAR match response as JSON")
-                        continue
-
-                    score = match_response.get("score")
-                    explanation = match_response.get("explanation")
-                    threshold = 5
-
-                    if isinstance(score, int) and score >= threshold:
-                        self._log.info(
-                            f"STAR entry matched with job description: {entry.title}"
-                        )
-                        self._log.debug(
-                            f"Match score={score}, explanation={explanation}"
-                        )
+                    if self._star_entry_matches(job_parsed, str(entry)):
                         matching.append(str(entry))
-                    else:
-                        self._log.debug(
-                            f"STAR entry did not meet threshold: score={score}, {explanation}"
-                        )
 
         self._log.info(
             f"STAR matching completed. Found {len(matching)} matching entries"
