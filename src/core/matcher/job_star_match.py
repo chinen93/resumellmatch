@@ -9,6 +9,7 @@ import json
 from typing import List
 
 from config.logging import get_logger
+from config.settings import get_settings
 from src.data_ingestion import FileReader
 from src.llm.client import LLMPromptService
 from src.storage.repositories import StarEntryRepo, StarMetadataRepo
@@ -32,6 +33,7 @@ class JobStarMatch:
         self._log = get_logger("JobStarMatch")
         self._log.debug("Initializing JobStarMatch")
 
+        self._settings = get_settings()
         self.star_metadata_repo = StarMetadataRepo(isTest)
         self.star_entry_repo = StarEntryRepo(isTest)
         self._log.debug("JobStarMatch initialized with repositories")
@@ -69,7 +71,6 @@ class JobStarMatch:
             self._log.info("No STAR match found for job description")
 
     # TODO: Match should not be only with LLM but with some regex and string matches
-    MATCH_THRESHOLD = 5
 
     def _parse_match_response(self, match_job_star: str) -> dict:
         """Parse the JSON response returned by the LLM match prompt.
@@ -96,7 +97,7 @@ class JobStarMatch:
         Returns:
             True if the score is an integer greater than the match threshold.
         """
-        return isinstance(score, int) and score > self.MATCH_THRESHOLD
+        return isinstance(score, int) and score > self._settings.MATCH_THRESHOLD
 
     def _star_entry_matches(self, job_parsed: str, entry_text: str) -> bool:
         """Evaluate whether a STAR entry matches the job description.

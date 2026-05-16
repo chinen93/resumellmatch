@@ -94,6 +94,7 @@ def get_settings():  # type: ignore
             DATABASE_URL: SQLAlchemy database connection URL.
             DATA_DIR: Directory for data files.
             AGENT_MODEL: LLM model identifier for Ollama.
+            MATCH_THRESHOLD: Minimum score threshold for job/STAR matching.
         """
 
         ENV_FILEPATH: str = ENV_FILEPATH  # type: ignore
@@ -108,6 +109,7 @@ def get_settings():  # type: ignore
         DATABASE_URL: Optional[str] = os.getenv("DATABASE_URL")  # type: ignore
         DATA_DIR: Optional[str] = os.getenv("DATA_DIR")  # type: ignore
         AGENT_MODEL: Optional[str] = os.getenv("AGENT_MODEL")  # type: ignore
+        MATCH_THRESHOLD: int = int(os.getenv("MATCH_THRESHOLD", "8"))  # type: ignore
 
         def __post_init__(self):
             missing = [
@@ -121,6 +123,7 @@ def get_settings():  # type: ignore
                     "DATABASE_URL": self.DATABASE_URL,
                     "DATA_DIR": self.DATA_DIR,
                     "AGENT_MODEL": self.AGENT_MODEL,
+                    "MATCH_THRESHOLD": self.MATCH_THRESHOLD,
                 }.items()
                 if value is None or (isinstance(value, str) and not value.strip())
             ]
