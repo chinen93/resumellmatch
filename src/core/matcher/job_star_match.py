@@ -5,12 +5,10 @@ Action, Result) entries and automatically rewrite STAR bullet points to better
 align with job requirements.
 """
 
-import json
 from typing import List
 
 from config.logging import get_logger
-from config.settings import get_settings
-from src.data_ingestion import FileReader
+from src.core.matcher.strategies import MatchScoreCombiner
 from src.llm.client import LLMPromptService
 from src.storage.repositories import StarEntryRepo, StarMetadataRepo
 
@@ -29,107 +27,32 @@ class JobStarMatch:
     """
 
     def __init__(self, prompt_service: LLMPromptService, isTest: bool):
-        self.prompt_service = prompt_service
         self._log = get_logger("JobStarMatch")
         self._log.debug("Initializing JobStarMatch")
 
-        self._settings = get_settings()
         self.star_metadata_repo = StarMetadataRepo(isTest)
         self.star_entry_repo = StarEntryRepo(isTest)
-        self._log.debug("JobStarMatch initialized with repositories")
 
-    def _process_star_match(self, job_parsed: str, star_file_path: str) -> None:
-        """Load STAR data, match with job, and rewrite matching bullets.
+        self.score_strategy = MatchScoreCombiner(prompt_service)
 
-        Loads STAR entry from a JSON file, matches it against the job description,
-        and if a match is found, rewrites the STAR bullet point to align with
-        the job requirements.
-
-        Args:
-            job_parsed: The parsed job description with keywords and requirements.
-            star_file_path: Path to JSON file containing STAR entry data.
-        """
-        self._log.debug(f"Processing STAR match for file: {star_file_path}")
-
-        # Load STAR info
-        star = FileReader.read_json_file(star_file_path)
-
-        if not star:
-            self._log.warning(f"Failed to load STAR data from {star_file_path}")
-            return
-
-        self._log.debug("STAR data loaded, performing LLM matching")
-        match_job_star = self.prompt_service.match_job_with_star(job_parsed, star)
-
-        if match_job_star:
-            self._log.info("STAR-job match found, rewriting bullet points")
-            self.prompt_service.rewrite_star_to_bullet_point(
-                star, job_parsed, match_job_star
-            )
-            self._log.info("STAR bullets rewritten based on job match")
-        else:
-            self._log.info("No STAR match found for job description")
-
-    # TODO: Match should not be only with LLM but with some regex and string matches
-
-    def _parse_match_response(self, match_job_star: str) -> dict:
-        """Parse the JSON response returned by the LLM match prompt.
-
-        Args:
-            match_job_star: JSON string returned from `match_job_with_star`.
-
-        Returns:
-            A dictionary containing parsed response fields, or an empty dict
-            if parsing fails.
-        """
-        try:
-            return json.loads(match_job_star)
-        except json.JSONDecodeError:
-            self._log.warning("Unable to parse STAR match response as JSON")
-            return {}
-
-    def _is_above_threshold(self, score: object) -> bool:
-        """Check whether the parsed score exceeds the configured threshold.
-
-        Args:
-            score: Raw score value extracted from the LLM response.
-
-        Returns:
-            True if the score is an integer greater than the match threshold.
-        """
-        return isinstance(score, int) and score > self._settings.MATCH_THRESHOLD
+        self._log.debug("JobStarMatch initialized with repositories and matchers")
 
     def _star_entry_matches(self, job_parsed: str, entry_text: str) -> bool:
         """Evaluate whether a STAR entry matches the job description.
 
-        This method delegates matching to the LLM prompt service, parses the
-        returned response, and applies the configured score threshold.
+        Uses both the LLM matcher and string similarity matcher, then combines
+        the results into a unified score.
 
         Args:
             job_parsed: Parsed job description text.
             entry_text: STAR entry text to compare.
 
         Returns:
-            True if the STAR entry match score exceeds the threshold.
+            True if the combined match score exceeds the configured threshold.
         """
-        match_job_star = self.prompt_service.match_job_with_star(job_parsed, entry_text)
-
-        if match_job_star is None:
-            self._log.debug("STAR entry match call failed or returned no response")
-            return False
-
-        match_response = self._parse_match_response(match_job_star)
-        score = match_response.get("score")
-        explanation = match_response.get("explanation")
-
-        if self._is_above_threshold(score):
-            self._log.info("STAR entry matched with job description")
-            self._log.debug(f"Match score={score}, explanation={explanation}")
+        if self.score_strategy.above_threshold(job_parsed, entry_text):
             return True
 
-        self._log.debug(
-            f"STAR entry did not meet threshold: score={score}, {explanation}"
-        )
         return False
 
     def get_matching_star(self, job_parsed: str) -> List[str]:

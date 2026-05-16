@@ -95,6 +95,8 @@ def get_settings():  # type: ignore
             DATA_DIR: Directory for data files.
             AGENT_MODEL: LLM model identifier for Ollama.
             MATCH_THRESHOLD: Minimum score threshold for job/STAR matching.
+            LLM_WEIGHT: LLM weight on job/STAR matching
+            TEXT_WEIGHT: text weight on job/STAR matching
         """
 
         ENV_FILEPATH: str = ENV_FILEPATH  # type: ignore
@@ -110,6 +112,8 @@ def get_settings():  # type: ignore
         DATA_DIR: Optional[str] = os.getenv("DATA_DIR")  # type: ignore
         AGENT_MODEL: Optional[str] = os.getenv("AGENT_MODEL")  # type: ignore
         MATCH_THRESHOLD: int = int(os.getenv("MATCH_THRESHOLD", "8"))  # type: ignore
+        LLM_WEIGHT: float = float(os.getenv("LLM_WEIGHT", "0.7"))  # type: ignore
+        TEXT_WEIGHT: float = float(os.getenv("TEXT_WEIGHT", "0.3"))  # type: ignore
 
         def __post_init__(self):
             missing = [
@@ -124,6 +128,8 @@ def get_settings():  # type: ignore
                     "DATA_DIR": self.DATA_DIR,
                     "AGENT_MODEL": self.AGENT_MODEL,
                     "MATCH_THRESHOLD": self.MATCH_THRESHOLD,
+                    "LLM_WEIGHT": self.LLM_WEIGHT,
+                    "TEXT_WEIGHT": self.TEXT_WEIGHT,
                 }.items()
                 if value is None or (isinstance(value, str) and not value.strip())
             ]
