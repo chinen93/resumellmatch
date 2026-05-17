@@ -4,13 +4,13 @@ from typing import Optional
 
 from config.logging import get_logger
 from config.settings import get_settings
-from src.llm.client import LLMPromptService
+from src.llm.prompt.LLMMatchService import LLMMatchService
 
 
 class LLMJobStarMatcher:
     """LLM-based matcher for job descriptions and STAR entries."""
 
-    def __init__(self, prompt_service: LLMPromptService):
+    def __init__(self, prompt_service: LLMMatchService):
         self._log = get_logger("LLMJobStarMatcher")
         self.prompt_service = prompt_service
 
@@ -62,7 +62,7 @@ class StringJobStarMatcher:
 class MatchScoreCombiner:
     """Combine multiple match scores into a unified score."""
 
-    def __init__(self, prompt_service: LLMPromptService):
+    def __init__(self, prompt_service: LLMMatchService):
         self._log = get_logger("MatchScoreCombiner")
 
         self._settings = get_settings()

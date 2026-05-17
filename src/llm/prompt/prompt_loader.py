@@ -23,10 +23,10 @@ class PromptLoader:
 
         Sets the prompt directory path and prepares a logger for error handling.
         """
-        self.prompt_dir = Path(__file__).parent.parent / "prompt"
+        self.prompt_dir = Path(__file__).parent.parent / "prompt" / "text"
         self._log = get_logger("PromptLoader")
 
-    def load(self, filename: str) -> Optional[str]:
+    def load(self, folder: str, filename: str) -> Optional[str]:
         """Load the content of a prompt file.
 
         Args:
@@ -36,7 +36,10 @@ class PromptLoader:
             The prompt file contents as a string, or None if the file could not
             be found or an error occurred while reading it.
         """
-        filepath = self.prompt_dir / filename
+        if folder != "":
+            filepath = self.prompt_dir / folder / filename
+        else:
+            filepath = self.prompt_dir / filename
 
         try:
             with open(filepath, "r") as file:

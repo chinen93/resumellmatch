@@ -10,6 +10,8 @@ from src.core.matcher import JobStarMatch
 from src.core.orchestrator.workflows.handler import Handler
 from src.core.orchestrator.workflows.workflow_orchestrator import WorkflowOrchestrator
 from src.core.processor import JobDescriptionProcessor
+from src.llm.prompt.LLMJobService import LLMJobService
+from src.llm.prompt.LLMMatchService import LLMMatchService
 
 
 def run_job_workflow():
@@ -24,10 +26,10 @@ def run_job_workflow():
     log = get_logger("JobWorkflow")
     log.info("Starting job description workflow")
 
-    handler = Handler(isTest=False)
+    job_handler = Handler(prompt_service=LLMJobService, isTest=False)
     log.debug("Handler initialized for job workflow")
 
-    orchestrator = WorkflowOrchestrator(handler)
+    orchestrator = WorkflowOrchestrator(job_handler)
     log.debug("Workflow orchestrator created")
 
     # Process job description
@@ -44,7 +46,8 @@ def run_job_workflow():
             "Job description processed successfully, proceeding with STAR matching"
         )
         # Match against STAR entries
-        job_star_match = JobStarMatch(handler.prompt_service, isTest=False)
+        match_handler = Handler(prompt_service=LLMMatchService, isTest=False)
+        job_star_match = JobStarMatch(match_handler.prompt_service, isTest=False)
         log.debug("Created job-STAR matcher")
 
         # TODO: Implement matching logic

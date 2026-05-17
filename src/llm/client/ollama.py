@@ -11,8 +11,8 @@ from ollama import generate
 
 from config.logging import get_logger
 from config.settings import get_settings
-from src.llm.client.cache_manager import LLMCacheManager
-from src.llm.client.response import BaseResponse, SimpleResponse
+from src.llm.prompt.response import BaseResponse, SimpleResponse
+from src.llm.utils.cache_manager import LLMCacheManager
 from src.utils.hash import compute_hash
 
 
@@ -159,6 +159,7 @@ class OllamaLocalClient:
         Returns:
             True if the LLM is ready and responding; False otherwise.
         """
+        self._log.debug("Checking client readiness")
         try:
             # Simple test prompt
             test_message = "Hello"

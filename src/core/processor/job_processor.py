@@ -8,7 +8,7 @@ import json
 from typing import Optional
 
 from config.logging import get_logger
-from src.llm.client.prompt_service import LLMPromptService
+from src.llm.prompt.LLMJobService import LLMJobService
 from src.storage.repositories import JobDescriptionParsedRepo, JobDescriptionRepo
 
 
@@ -24,7 +24,7 @@ class JobDescriptionProcessor:
         parsed_repo: Repository for JobDescriptionParsed entities.
     """
 
-    def __init__(self, prompt_service: LLMPromptService, isTest: bool = True):
+    def __init__(self, prompt_service: LLMJobService, isTest: bool = True):
         self.prompt_service = prompt_service
         self.job_repo = JobDescriptionRepo(isTest)
         self.parsed_repo = JobDescriptionParsedRepo(isTest)

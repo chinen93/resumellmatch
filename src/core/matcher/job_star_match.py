@@ -9,7 +9,7 @@ from typing import List
 
 from config.logging import get_logger
 from src.core.matcher.strategies import MatchScoreCombiner
-from src.llm.client import LLMPromptService
+from src.llm.prompt.LLMMatchService import LLMMatchService
 from src.storage.repositories import StarEntryRepo, StarMetadataRepo
 
 
@@ -26,7 +26,7 @@ class JobStarMatch:
         _log: Logger instance.
     """
 
-    def __init__(self, prompt_service: LLMPromptService, isTest: bool):
+    def __init__(self, prompt_service: LLMMatchService, isTest: bool):
         self._log = get_logger("JobStarMatch")
         self._log.debug("Initializing JobStarMatch")
 

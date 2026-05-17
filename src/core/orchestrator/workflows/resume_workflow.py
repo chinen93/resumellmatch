@@ -9,6 +9,7 @@ from src.core.importer import ResumeImporter
 from src.core.orchestrator.workflows.handler import Handler
 from src.core.orchestrator.workflows.workflow_orchestrator import WorkflowOrchestrator
 from src.core.processor import ResumeProcessor
+from src.llm.prompt.LLMResumeService import LLMResumeService
 
 
 def run_resume_workflow():
@@ -26,10 +27,10 @@ def run_resume_workflow():
     log = get_logger("ResumeWorkflow")
     log.info("Starting resume workflow")
 
-    handler = Handler(isTest=False)
+    resume_handler = Handler(prompt_service=LLMResumeService, isTest=False)
     log.debug("Handler initialized for resume workflow")
 
-    orchestrator = WorkflowOrchestrator(handler)
+    orchestrator = WorkflowOrchestrator(resume_handler)
     log.debug("Workflow orchestrator created")
 
     # Process resume

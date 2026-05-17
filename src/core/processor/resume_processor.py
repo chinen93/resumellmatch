@@ -7,7 +7,7 @@ and persists both the original resume and extracted content to the database.
 from typing import Optional
 
 from config.logging import get_logger
-from src.llm.client.prompt_service import LLMPromptService
+from src.llm.prompt.LLMResumeService import LLMResumeService
 from src.storage.repositories import ResumeRepo
 
 
@@ -22,7 +22,7 @@ class ResumeProcessor:
         resume_repo: Repository for Resume entities.
     """
 
-    def __init__(self, prompt_service: LLMPromptService, isTest: bool = True):
+    def __init__(self, prompt_service: LLMResumeService, isTest: bool = True):
         self.prompt_service = prompt_service
         self.resume_repo = ResumeRepo(isTest)
         self._log = get_logger("ResumeProcessor")

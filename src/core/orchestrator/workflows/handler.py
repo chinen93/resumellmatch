@@ -5,8 +5,12 @@ and coordinating LLM-related services including caching, client connections,
 and prompt management.
 """
 
+from typing import Type
+
 from config.logging import get_logger
-from src.llm.client import LLMCacheManager, LLMPromptService, OllamaLocalClient
+from src.llm.client import OllamaLocalClient
+from src.llm.prompt.prompt_service import LLMPromptService
+from src.llm.utils.cache_manager import LLMCacheManager
 from src.storage.repositories import LLMCacheRepo
 
 
@@ -25,7 +29,7 @@ class Handler:
         isTest: If True, uses test database; if False, uses production database.
     """
 
-    def __init__(self, isTest: bool = False):
+    def __init__(self, prompt_service: Type[LLMPromptService], isTest: bool = False):
         self._log = get_logger("Handler")
         self._log.debug(f"Initializing Handler (test_mode={isTest})")
 
@@ -36,7 +40,7 @@ class Handler:
         self.llm_client = OllamaLocalClient(cache_manager)
         self._log.debug("Initialized Ollama LLM client")
 
-        self.prompt_service = LLMPromptService(self.llm_client)
+        self.prompt_service = prompt_service(self.llm_client)
         self._log.debug("Initialized LLM prompt service")
 
         self._log.info("Handler initialization complete")
