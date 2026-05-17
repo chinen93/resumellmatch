@@ -1,8 +1,8 @@
 from typing import Optional
 
 from src.llm.client.ollama import OllamaLocalClient
-from src.llm.prompt.prompt_service import LLMPromptService
-from src.llm.prompt.response import ExtractKeywordResponse
+from src.llm.prompt.responses.resume_response import ExtractKeywordResponse
+from src.llm.prompt.services.prompt_service import LLMPromptService
 
 PROMPT_EXTRACT_RESUME_KEYWORDS = "extract_resume_keywords.md"
 PROMPT_FOLDER = "resume"

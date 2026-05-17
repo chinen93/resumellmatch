@@ -4,7 +4,7 @@ from typing import Optional
 
 from config.logging import get_logger
 from config.settings import get_settings
-from src.llm.prompt.LLMMatchService import LLMMatchService
+from src.llm.prompt.services.LLMMatchService import LLMMatchService
 
 
 class LLMJobStarMatcher:

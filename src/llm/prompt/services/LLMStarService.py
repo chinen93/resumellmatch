@@ -1,8 +1,8 @@
 from typing import Optional
 
 from src.llm.client.ollama import OllamaLocalClient
-from src.llm.prompt.prompt_service import LLMPromptService
-from src.llm.prompt.response import RewriteStarResponse
+from src.llm.prompt.responses.star_response import RewriteStarResponse
+from src.llm.prompt.services.prompt_service import LLMPromptService
 
 PROMPT_REWRITE_STAR_BULLET_POINT = "rewrite_star_bullet_point.md"
 PROMPT_FOLDER = "star"

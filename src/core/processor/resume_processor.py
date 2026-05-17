@@ -7,7 +7,7 @@ and persists both the original resume and extracted content to the database.
 from typing import Optional
 
 from config.logging import get_logger
-from src.llm.prompt.LLMResumeService import LLMResumeService
+from src.llm.prompt.services.LLMResumeService import LLMResumeService
 from src.storage.repositories import ResumeRepo
 
 

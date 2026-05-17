@@ -8,7 +8,7 @@ import json
 from typing import Optional
 
 from config.logging import get_logger
-from src.llm.prompt.LLMJobService import LLMJobService
+from src.llm.prompt.services.LLMJobService import LLMJobService
 from src.storage.repositories import JobDescriptionParsedRepo, JobDescriptionRepo
 
 

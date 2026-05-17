@@ -1,8 +1,8 @@
 from typing import Optional
 
 from src.llm.client.ollama import OllamaLocalClient
-from src.llm.prompt.prompt_service import LLMPromptService
-from src.llm.prompt.response import MatchJobWithStarResponse
+from src.llm.prompt.responses.match_response import MatchJobWithStarResponse
+from src.llm.prompt.services.prompt_service import LLMPromptService
 
 PROMPT_MATCH_JOB_WITH_STAR = "match_job_with_star.md"
 PROMPT_FOLDER = "match"

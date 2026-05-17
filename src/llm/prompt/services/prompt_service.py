@@ -10,7 +10,7 @@ from typing import Optional
 
 from config.logging import get_logger
 from src.llm.client.ollama import OllamaLocalClient
-from src.llm.prompt.prompt_loader import PromptLoader
+from src.llm.utils.prompt_loader import PromptLoader
 
 
 # TODO: Transform this class into a simpler factory

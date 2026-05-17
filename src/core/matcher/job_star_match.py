@@ -9,7 +9,7 @@ from typing import List
 
 from config.logging import get_logger
 from src.core.matcher.strategies import MatchScoreCombiner
-from src.llm.prompt.LLMMatchService import LLMMatchService
+from src.llm.prompt.services.LLMMatchService import LLMMatchService
 from src.storage.repositories import StarEntryRepo, StarMetadataRepo
 
 

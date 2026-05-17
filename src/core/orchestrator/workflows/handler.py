@@ -9,7 +9,7 @@ from typing import Type
 
 from config.logging import get_logger
 from src.llm.client import OllamaLocalClient
-from src.llm.prompt.prompt_service import LLMPromptService
+from src.llm.prompt.services.prompt_service import LLMPromptService
 from src.llm.utils.cache_manager import LLMCacheManager
 from src.storage.repositories import LLMCacheRepo
 

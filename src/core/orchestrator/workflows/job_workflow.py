@@ -10,8 +10,8 @@ from src.core.matcher import JobStarMatch
 from src.core.orchestrator.workflows.handler import Handler
 from src.core.orchestrator.workflows.workflow_orchestrator import WorkflowOrchestrator
 from src.core.processor import JobDescriptionProcessor
-from src.llm.prompt.LLMJobService import LLMJobService
-from src.llm.prompt.LLMMatchService import LLMMatchService
+from src.llm.prompt.services.LLMJobService import LLMJobService
+from src.llm.prompt.services.LLMMatchService import LLMMatchService
 
 
 def run_job_workflow():

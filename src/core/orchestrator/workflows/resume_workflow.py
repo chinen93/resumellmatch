@@ -9,7 +9,7 @@ from src.core.importer import ResumeImporter
 from src.core.orchestrator.workflows.handler import Handler
 from src.core.orchestrator.workflows.workflow_orchestrator import WorkflowOrchestrator
 from src.core.processor import ResumeProcessor
-from src.llm.prompt.LLMResumeService import LLMResumeService
+from src.llm.prompt.services.LLMResumeService import LLMResumeService
 
 
 def run_resume_workflow():
