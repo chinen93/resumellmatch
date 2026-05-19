@@ -64,6 +64,8 @@ class OllamaLocalClient:
         """
 
         logging.getLogger("httpx").setLevel(logging.WARNING)
+        logging.getLogger("httpcore.http11").setLevel(logging.WARNING)
+
         self._log.debug(message.replace("\n", " "))
 
         try:

@@ -2,6 +2,7 @@ from typing import List
 
 from config.logging import get_logger
 from src.llm.client.ollama import OllamaLocalClient
+from src.llm.prompt.responses.base import BaseResponse
 from src.llm.prompt.responses.job_response import (
     JobCompensationResponse,
     JobDescriptioKeywordsResponse,
@@ -25,7 +26,6 @@ PROMPT_EXTRACT_TOOLS = "extract_job_tools.md"
 PROMPT_EXTRACT_ROLE = "extract_job_role.md"
 PROMPT_EXTRACT_COMPENSATION = "extract_job_compensation.md"
 
-
 PROMPT_FOLDER = "job"
 
 
@@ -47,132 +47,57 @@ class LLMJobService(LLMPromptService):
         """
         self._log.debug("Extract job description keywords")
 
+        prompt_responses: List[tuple] = [
+            ("summary", PROMPT_EXTRACT_SUMMARY, JobSummaryResponse),
+            ("role", PROMPT_EXTRACT_ROLE, JobRoleResponse),
+            ("tech_skill", PROMPT_EXTRACT_TECH_SKILLS, JobTechSkillResponse),
+            ("soft_skill", PROMPT_EXTRACT_SOFT_SKILLS, JobSoftSkillResponse),
+            (
+                "responsabilities",
+                PROMPT_EXTRACT_RESPONSABILITIES,
+                JobResponsabilitiesResponse,
+            ),
+            ("ownership", None, None),
+            ("tools", PROMPT_EXTRACT_TOOLS, JobToolsResponse),
+            ("methodologies", None, None),
+            ("domain_knowledge", None, None),
+            ("work_model", PROMPT_EXTRACT_WORK_MODEL, JobWorkModelResponse),
+            ("compensation", PROMPT_EXTRACT_COMPENSATION, JobCompensationResponse),
+        ]
+
         job_parsed = JobDescriptioKeywordsResponse(
-            summary=self._extract_summary(job_description),
-            role=self._extract_role(job_description),
-            technical_skills=self._extract_tech_skill(job_description),
-            soft_skills=self._extract_soft_skills(job_description),
-            responsabilities=self._extract_responsabilities(job_description),
-            ownership=[],
-            tools=self._extract_tools(job_description),
-            methodologies=[],
-            domain_knowledge=[],
-            work_model=self._extract_work_model(job_description),
-            compensation=self._extract_compensation(job_description),
+            summary=self._extract(job_description, prompt_responses[0]),
+            role=self._extract(job_description, prompt_responses[1]),
+            technical_skills=self._extract(job_description, prompt_responses[2]),
+            soft_skills=self._extract(job_description, prompt_responses[3]),
+            responsabilities=self._extract(job_description, prompt_responses[4]),
+            ownership="",
+            tools=self._extract(job_description, prompt_responses[6]),
+            methodologies="",
+            domain_knowledge="",
+            work_model=self._extract(job_description, prompt_responses[9]),
+            compensation=self._extract(job_description, prompt_responses[10]),
         )
 
         self._log.debug(job_parsed.model_dump_json())
 
         return job_parsed.model_dump_json()
 
-    def _extract_summary(self, job_description: str) -> str:
+    def _extract(self, job_description: str, prompt_responses: tuple) -> str:
+
+        key: str = prompt_responses[0]
+        prompt: str = prompt_responses[1]
+        response_type: type[BaseResponse] = prompt_responses[2]
+
+        self._log.debug(f"Extracting job {key}")
         json_response = self._run_prompt(
-            PROMPT_FOLDER,
-            PROMPT_EXTRACT_SUMMARY,
-            JobSummaryResponse,
+            prompt_folder=PROMPT_FOLDER,
+            prompt_filename=prompt,
+            response_type=response_type,
             job_description=job_description,
         )
 
         if json_response is None:
             return ""
 
-        response = JobSummaryResponse.model_validate_json(json_response)
-        return response.summary
-
-    def _extract_work_model(self, job_description: str) -> List[str]:
-        json_response = self._run_prompt(
-            PROMPT_FOLDER,
-            PROMPT_EXTRACT_WORK_MODEL,
-            JobWorkModelResponse,
-            job_description=job_description,
-        )
-
-        if json_response is None:
-            return []
-
-        response = JobWorkModelResponse.model_validate_json(json_response)
-        return response.work_model
-
-    def _extract_role(self, job_description: str) -> List[str]:
-        json_response = self._run_prompt(
-            PROMPT_FOLDER,
-            PROMPT_EXTRACT_ROLE,
-            JobRoleResponse,
-            job_description=job_description,
-        )
-
-        if json_response is None:
-            return []
-
-        response = JobRoleResponse.model_validate_json(json_response)
-        return response.role
-
-    def _extract_tech_skill(self, job_description: str) -> List[str]:
-        json_response = self._run_prompt(
-            PROMPT_FOLDER,
-            PROMPT_EXTRACT_TECH_SKILLS,
-            JobTechSkillResponse,
-            job_description=job_description,
-        )
-
-        if json_response is None:
-            return []
-
-        response = JobTechSkillResponse.model_validate_json(json_response)
-        return response.skills
-
-    def _extract_soft_skills(self, job_description: str) -> List[str]:
-        json_response = self._run_prompt(
-            PROMPT_FOLDER,
-            PROMPT_EXTRACT_SOFT_SKILLS,
-            JobSoftSkillResponse,
-            job_description=job_description,
-        )
-
-        if json_response is None:
-            return []
-
-        response = JobSoftSkillResponse.model_validate_json(json_response)
-        return response.skills
-
-    def _extract_responsabilities(self, job_description: str) -> List[str]:
-        json_response = self._run_prompt(
-            PROMPT_FOLDER,
-            PROMPT_EXTRACT_RESPONSABILITIES,
-            JobResponsabilitiesResponse,
-            job_description=job_description,
-        )
-
-        if json_response is None:
-            return []
-
-        response = JobResponsabilitiesResponse.model_validate_json(json_response)
-        return response.responsabilities
-
-    def _extract_compensation(self, job_description: str) -> List[str]:
-        json_response = self._run_prompt(
-            PROMPT_FOLDER,
-            PROMPT_EXTRACT_COMPENSATION,
-            JobCompensationResponse,
-            job_description=job_description,
-        )
-
-        if json_response is None:
-            return []
-
-        response = JobCompensationResponse.model_validate_json(json_response)
-        return response.compensation
-
-    def _extract_tools(self, job_description: str) -> List[str]:
-        json_response = self._run_prompt(
-            PROMPT_FOLDER,
-            PROMPT_EXTRACT_TOOLS,
-            JobToolsResponse,
-            job_description=job_description,
-        )
-
-        if json_response is None:
-            return []
-
-        response = JobToolsResponse.model_validate_json(json_response)
-        return response.tools
+        return json_response

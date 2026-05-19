@@ -1,5 +1,3 @@
-from typing import List
-
 from src.llm.prompt.responses.base import BaseResponse
 
 
@@ -9,16 +7,16 @@ class JobDescriptionResponse(BaseResponse):
 
 class JobDescriptioKeywordsResponse(BaseResponse):
     summary: str
-    role: List[str]
-    technical_skills: List[str]
-    soft_skills: List[str]
-    responsabilities: List[str]
-    ownership: List[str]
-    tools: List[str]
-    methodologies: List[str]
-    domain_knowledge: List[str]
-    work_model: List[str]
-    compensation: List[str]
+    role: str
+    technical_skills: str
+    soft_skills: str
+    responsabilities: str
+    ownership: str
+    tools: str
+    methodologies: str
+    domain_knowledge: str
+    work_model: str
+    compensation: str
 
 
 class JobSummaryResponse(BaseResponse):
@@ -26,28 +24,28 @@ class JobSummaryResponse(BaseResponse):
 
 
 class JobRoleResponse(BaseResponse):
-    role: List[str]
+    role: str
 
 
 class JobTechSkillResponse(BaseResponse):
-    skills: List[str]
+    skills: str
 
 
 class JobSoftSkillResponse(BaseResponse):
-    skills: List[str]
+    skills: str
 
 
 class JobResponsabilitiesResponse(BaseResponse):
-    responsabilities: List[str]
+    responsabilities: str
 
 
 class JobToolsResponse(BaseResponse):
-    tools: List[str]
+    tools: str
 
 
 class JobWorkModelResponse(BaseResponse):
-    work_model: List[str]
+    work_model: str
 
 
 class JobCompensationResponse(BaseResponse):
-    compensation: List[str]
+    compensation: str
