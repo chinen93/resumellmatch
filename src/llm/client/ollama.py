@@ -64,7 +64,7 @@ class OllamaLocalClient:
         """
 
         logging.getLogger("httpx").setLevel(logging.WARNING)
-        self._log.debug(message)
+        self._log.debug(message.replace("\n", " "))
 
         try:
             output = generate(
