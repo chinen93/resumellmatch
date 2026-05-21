@@ -6,6 +6,9 @@ from src.llm.prompt.responses.base import BaseResponse
 from src.llm.prompt.responses.job_response import (
     JobCompensationResponse,
     JobDescriptioKeywordsResponse,
+    JobDomainKnowledgeResponse,
+    JobMethodologiesResponse,
+    JobOwnershipResponse,
     JobResponsabilitiesResponse,
     JobRoleResponse,
     JobSoftSkillResponse,
@@ -25,6 +28,10 @@ PROMPT_EXTRACT_TECH_SKILLS = "extract_job_tech_skills.md"
 PROMPT_EXTRACT_TOOLS = "extract_job_tools.md"
 PROMPT_EXTRACT_ROLE = "extract_job_role.md"
 PROMPT_EXTRACT_COMPENSATION = "extract_job_compensation.md"
+PROMPT_EXTRACT_OWNERSHIP = "extract_job_owenership.md"
+PROMPT_EXTRACT_METHODOLOGIES = "extract_job_methodologies.md"
+PROMPT_EXTRACT_DOMAIN = "extract_job_domain.md"
+
 
 PROMPT_FOLDER = "job"
 
@@ -57,10 +64,10 @@ class LLMJobService(LLMPromptService):
                 PROMPT_EXTRACT_RESPONSABILITIES,
                 JobResponsabilitiesResponse,
             ),
-            ("ownership", None, None),
+            ("ownership", PROMPT_EXTRACT_OWNERSHIP, JobOwnershipResponse),
             ("tools", PROMPT_EXTRACT_TOOLS, JobToolsResponse),
-            ("methodologies", None, None),
-            ("domain_knowledge", None, None),
+            ("methodologies", PROMPT_EXTRACT_METHODOLOGIES, JobMethodologiesResponse),
+            ("domain_knowledge", PROMPT_EXTRACT_DOMAIN, JobDomainKnowledgeResponse),
             ("work_model", PROMPT_EXTRACT_WORK_MODEL, JobWorkModelResponse),
             ("compensation", PROMPT_EXTRACT_COMPENSATION, JobCompensationResponse),
         ]
@@ -71,10 +78,10 @@ class LLMJobService(LLMPromptService):
             technical_skills=self._extract(job_description, prompt_responses[2]),
             soft_skills=self._extract(job_description, prompt_responses[3]),
             responsabilities=self._extract(job_description, prompt_responses[4]),
-            ownership="",
+            ownership=self._extract(job_description, prompt_responses[5]),
             tools=self._extract(job_description, prompt_responses[6]),
-            methodologies="",
-            domain_knowledge="",
+            methodologies=self._extract(job_description, prompt_responses[7]),
+            domain_knowledge=self._extract(job_description, prompt_responses[8]),
             work_model=self._extract(job_description, prompt_responses[9]),
             compensation=self._extract(job_description, prompt_responses[10]),
         )

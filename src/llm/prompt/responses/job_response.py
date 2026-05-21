@@ -49,3 +49,15 @@ class JobWorkModelResponse(BaseResponse):
 
 class JobCompensationResponse(BaseResponse):
     compensation: str
+
+
+class JobOwnershipResponse(BaseResponse):
+    ownership: str
+
+
+class JobDomainKnowledgeResponse(BaseResponse):
+    domain: str
+
+
+class JobMethodologiesResponse(BaseResponse):
+    methodologies: str
