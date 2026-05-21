@@ -14,7 +14,7 @@ from src.llm.prompt.services.LLMJobService import LLMJobService
 from src.llm.prompt.services.LLMMatchService import LLMMatchService
 
 
-def run_job_workflow():
+def run_job_workflow(use_llm_cache: bool):
     """Execute the complete job description processing workflow.
 
     Steps:
@@ -26,7 +26,11 @@ def run_job_workflow():
     log = get_logger("JobWorkflow")
     log.info("Starting job description workflow")
 
-    job_handler = Handler(prompt_service=LLMJobService, isTest=False)
+    job_handler = Handler(
+        prompt_service=LLMJobService,
+        isTest=False,
+        use_llm_cache=use_llm_cache,
+    )
     log.debug("Handler initialized for job workflow")
 
     orchestrator = WorkflowOrchestrator(job_handler)
@@ -46,7 +50,11 @@ def run_job_workflow():
             "Job description processed successfully, proceeding with STAR matching"
         )
         # Match against STAR entries
-        match_handler = Handler(prompt_service=LLMMatchService, isTest=False)
+        match_handler = Handler(
+            prompt_service=LLMMatchService,
+            isTest=False,
+            use_llm_cache=use_llm_cache,
+        )
         job_star_match = JobStarMatch(match_handler.prompt_service, isTest=False)
         log.debug("Created job-STAR matcher")
 

@@ -10,7 +10,7 @@ from src.core.processor import StarEntryProcessor, StarMetadataProcessor
 from src.data_ingestion import CSVLoader
 
 
-def run_star_workflow():
+def run_star_workflow(use_llm_cache: bool):
     """Execute the STAR entries processing workflow.
 
     Imports STAR interview responses from CSV files into the system.
@@ -24,6 +24,7 @@ def run_star_workflow():
     """
     log = get_logger("StarWorkflow")
     log.info("Starting STAR responses workflow")
+    log.debug(f"use_llm_cache={use_llm_cache})")
 
     csv_loader = CSVLoader()
     log.debug("CSV loader initialized")

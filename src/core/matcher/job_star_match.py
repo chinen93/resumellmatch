@@ -10,6 +10,7 @@ from typing import List
 from config.logging import get_logger
 from src.core.matcher.strategies import MatchScoreCombiner
 from src.llm.prompt.services.LLMMatchService import LLMMatchService
+from src.llm.prompt.services.prompt_service import LLMPromptService
 from src.storage.repositories import StarEntryRepo, StarMetadataRepo
 
 
@@ -26,13 +27,14 @@ class JobStarMatch:
         _log: Logger instance.
     """
 
-    def __init__(self, prompt_service: LLMMatchService, isTest: bool):
+    def __init__(self, prompt_service: LLMPromptService, isTest: bool):
         self._log = get_logger("JobStarMatch")
         self._log.debug("Initializing JobStarMatch")
 
         self.star_metadata_repo = StarMetadataRepo(isTest)
         self.star_entry_repo = StarEntryRepo(isTest)
 
+        assert type(prompt_service) is LLMMatchService
         self.score_strategy = MatchScoreCombiner(prompt_service)
 
         self._log.debug("JobStarMatch initialized with repositories and matchers")

@@ -27,19 +27,27 @@ from src.main import handle_job, handle_resume, handle_star
     is_flag=True,
     help="Flag to import resume",
 )
-def main(job: bool, star: bool, resume: bool) -> None:
+@click.option(
+    "--no-llm-cache",
+    is_flag=True,
+    default=False,
+    help="Disable LLM cache so all requests are sent to the LLM client",
+)
+def main(job: bool, star: bool, resume: bool, no_llm_cache: bool) -> None:
     """CLI entrypoint: parse flags and dispatch to the correct function."""
 
+    use_llm_cache = not no_llm_cache
+
     if job:
-        handle_job()
+        handle_job(use_llm_cache=use_llm_cache)
         return
 
     if star:
-        handle_star()
+        handle_star(use_llm_cache=use_llm_cache)
         return
 
     if resume:
-        handle_resume()
+        handle_resume(use_llm_cache=use_llm_cache)
         return
 
 

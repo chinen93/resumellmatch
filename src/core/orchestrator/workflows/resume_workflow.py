@@ -12,7 +12,7 @@ from src.core.processor import ResumeProcessor
 from src.llm.prompt.services.LLMResumeService import LLMResumeService
 
 
-def run_resume_workflow():
+def run_resume_workflow(use_llm_cache: bool):
     """Execute the resume processing workflow.
 
     Imports a resume from a PDF file and processes it with LLM enhancement.
@@ -27,7 +27,11 @@ def run_resume_workflow():
     log = get_logger("ResumeWorkflow")
     log.info("Starting resume workflow")
 
-    resume_handler = Handler(prompt_service=LLMResumeService, isTest=False)
+    resume_handler = Handler(
+        prompt_service=LLMResumeService,
+        isTest=False,
+        use_llm_cache=use_llm_cache,
+    )
     log.debug("Handler initialized for resume workflow")
 
     orchestrator = WorkflowOrchestrator(resume_handler)

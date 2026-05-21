@@ -29,15 +29,22 @@ class Handler:
         isTest: If True, uses test database; if False, uses production database.
     """
 
-    def __init__(self, prompt_service: Type[LLMPromptService], isTest: bool = False):
+    def __init__(
+        self,
+        prompt_service: Type[LLMPromptService],
+        isTest: bool = False,
+        use_llm_cache: bool = True,
+    ):
         self._log = get_logger("Handler")
-        self._log.debug(f"Initializing Handler (test_mode={isTest})")
+        self._log.debug(
+            f"Initializing Handler (test_mode={isTest}, use_llm_cache={use_llm_cache})"
+        )
 
         cache_repo = LLMCacheRepo(isTest)
         cache_manager = LLMCacheManager(cache_repo)
         self._log.debug("Initialized LLM cache manager")
 
-        self.llm_client = OllamaLocalClient(cache_manager)
+        self.llm_client = OllamaLocalClient(cache_manager, use_cache=use_llm_cache)
         self._log.debug("Initialized Ollama LLM client")
 
         self.prompt_service = prompt_service(self.llm_client)

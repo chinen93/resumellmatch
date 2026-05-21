@@ -29,10 +29,11 @@ class OllamaLocalClient:
         _log: Logger instance.
     """
 
-    def __init__(self, cache_manager: LLMCacheManager):
+    def __init__(self, cache_manager: LLMCacheManager, use_cache: bool = True):
 
         self._log = get_logger("OllamaLocalClient")
         self.cache_manager = cache_manager
+        self.use_cache = use_cache
 
         settings = get_settings()
         assert (
@@ -138,10 +139,11 @@ class OllamaLocalClient:
 
         prompt_hash = compute_hash(message)
 
-        # Check cache
-        cached = self.cache_manager.get_cached(prompt_hash)
-        if cached:
-            return cached
+        if self.use_cache:
+            # Check cache
+            cached = self.cache_manager.get_cached(prompt_hash)
+            if cached:
+                return cached
 
         # Generate new response
         try:
@@ -150,8 +152,11 @@ class OllamaLocalClient:
             self._log.error(f"Generation failed: {e}")
             return None
 
-        # Save to cache
-        self.cache_manager.save_cache(prompt_hash, message, response_json)
+        if self.use_cache:
+            # Save to cache
+            self.cache_manager.save_cache(prompt_hash, message, response_json)
+        else:
+            self._log.debug("LLM cache disabled; response will not be cached")
 
         return response_json
 

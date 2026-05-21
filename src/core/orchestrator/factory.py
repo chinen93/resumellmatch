@@ -36,12 +36,13 @@ class WorkflowFactory:
     }
 
     @classmethod
-    def run_workflow(cls, workflow_type) -> None:
+    def run_workflow(cls, workflow_type, use_llm_cache: bool = True) -> None:
         """Run the specified workflow type.
 
         Args:
             workflow_type: The type of workflow to run. Can be a WorkflowType enum
                 or a string matching the enum value ('job', 'star', or 'resume').
+            use_llm_cache: Whether to use cached LLM responses.
 
         Raises:
             ValueError: If the workflow type is not recognized.
@@ -64,7 +65,7 @@ class WorkflowFactory:
 
         log.info(f"Executing workflow: {workflow_type.value}")
         try:
-            workflow_func()
+            workflow_func(use_llm_cache=use_llm_cache)
             log.info(f"Workflow {workflow_type.value} completed successfully")
         except Exception as e:
             log.error(f"Workflow {workflow_type.value} failed: {e}")
