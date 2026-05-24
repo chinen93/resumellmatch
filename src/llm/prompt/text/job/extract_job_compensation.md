@@ -13,10 +13,10 @@ Before generating the output, you must process the job description through these
 4. **Market Signal:** Look for signals of negotiation or flexibility (e.g., "Commensurate with experience," "Market rate").
 
 ### CONSTRAINTS AND RULES (ABSOLUTE) ###
-1. **Output Format:** Your entire output MUST be a single, valid JSON object. DO NOT include any commentary, preamble, or explanation outside of the JSON structure.
+1. **Output Format:** Your entire output MUST be a single concise paragraph.
 2. **Specificity:** Compensation items must be precise (e.g., "$120k - $140k," "10% annual bonus," not just "good salary").
 3. **Scope Restriction:** Only compensation and related financial/salary structure details are allowed. Absolutely ignore all technical tools, responsibilities, and soft skills.
-4. **Integrity:** Do NOT invent compensation values. If no specific details are found, use the value: `N/A` or `FAILED_TO_EXTRACT`.
+4. **Integrity:** Do NOT invent compensation values. If none are explicitly mentioned, use the value: `FAILED_TO_EXTRACT` without further explanation.
 5. **Deduplication:** Do not repeat monetary values or types of compensation.
 
 ---

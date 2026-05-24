@@ -4,14 +4,34 @@ This module handles the complete workflow for processing job descriptions,
 including parsing, keyword extraction, and matching against STAR entries.
 """
 
+from logging import Logger
+from typing import Optional, cast
+
 from config.logging import get_logger
 from src.core.importer import JobDescriptionImporter
 from src.core.matcher import JobStarMatch
 from src.core.orchestrator.workflows.handler import Handler
-from src.core.orchestrator.workflows.workflow_orchestrator import WorkflowOrchestrator
 from src.core.processor import JobDescriptionProcessor
 from src.llm.prompt.services.LLMJobService import LLMJobService
 from src.llm.prompt.services.LLMMatchService import LLMMatchService
+
+
+def _job_parser(use_llm_cache: bool, log: Logger) -> Optional[str]:
+    job_handler = Handler(
+        prompt_service=LLMJobService,
+        isTest=False,
+        use_llm_cache=use_llm_cache,
+    )
+    log.debug("Handler initialized for job workflow")
+
+    job_processor = JobDescriptionProcessor(
+        cast(LLMJobService, job_handler.prompt_service),
+        isTest=False,
+        use_llm_cache=use_llm_cache,
+    )
+    job_importer = JobDescriptionImporter(job_processor)
+
+    return job_importer.run("job_description.txt")
 
 
 def run_job_workflow(use_llm_cache: bool):
@@ -26,24 +46,7 @@ def run_job_workflow(use_llm_cache: bool):
     log = get_logger("JobWorkflow")
     log.info("Starting job description workflow")
 
-    job_handler = Handler(
-        prompt_service=LLMJobService,
-        isTest=False,
-        use_llm_cache=use_llm_cache,
-    )
-    log.debug("Handler initialized for job workflow")
-
-    orchestrator = WorkflowOrchestrator(job_handler)
-    log.debug("Workflow orchestrator created")
-
-    # Process job description
-    log.info("Processing job description from file")
-    job_parsed = orchestrator.run_simple_workflow(
-        JobDescriptionImporter,
-        JobDescriptionProcessor,
-        "job_description.txt",
-        isTest=False,
-    )
+    job_parsed = _job_parser(use_llm_cache=use_llm_cache, log=log)
 
     if job_parsed:
         log.info(

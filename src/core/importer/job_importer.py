@@ -55,7 +55,7 @@ class JobDescriptionImporter:
         existing = self.processor.exist_job_description(input_hash)
         if existing is not None:
             self._log.info("Using cached parsed job description from DB")
-            return existing
+            return str(existing.full_response)
 
         self._log.info("Processing new job description")
         result = self.processor.new_item(job_desc, input_hash)

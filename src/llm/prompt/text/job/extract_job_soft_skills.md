@@ -12,10 +12,10 @@ Before generating the output, you must process the job description through these
 3. **Behavioral Signal Detection:** What specific behaviors (e.g., "ability to handle ambiguity," "conflict resolution") are repeatedly mentioned?
 
 ### CONSTRAINTS AND RULES (ABSOLUTE) ###
-1. **Output Format:** Your entire output MUST be a single, valid JSON object. DO NOT include any commentary, preamble, or explanation outside of the JSON structure.
+1. **Output Format:** Your entire output MUST be a single concise paragraph.
 2. **Extraction Rule:** Keywords must be short, highly relevant behavioral phrases (2-5 words).
 3. **Focus:** Only extract human, interpersonal, or strategic skills. Ignore all technical tools, languages, or hard skills.
-4. **Integrity:** Do NOT invent skills. The skills extracted must be directly implied or stated in the text. If no soft skills are found, use the value: `FAILED_TO_EXTRACT`.
+4. **Integrity:** Do NOT invent skills. The skills extracted must be directly implied or stated in the text. If none are explicitly mentioned, use the value: `FAILED_TO_EXTRACT` without further explanation.
 5. **Deduplication:** Do not repeat concepts or skills within the same category.
 
 ---

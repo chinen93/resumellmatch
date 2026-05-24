@@ -15,7 +15,7 @@ Before generating the output, you must process the job description through these
 1. **Output Format:** Your entire output MUST be a single, valid JSON object. DO NOT include any commentary, preamble, or explanation outside of the JSON structure.
 2. **Specificity:** Domain knowledge must be precise (e.g., "US tax regulations" is better than "Finance rules").
 3. **Scope Restriction:** Only industry and domain context are allowed. Absolutely ignore technical tools, responsibilities, and soft skills.
-4. **Integrity:** Do NOT invent industry domains or knowledge requirements. If none are found, use the value: `[]` (an empty array) or `FAILED_TO_EXTRACT`.
+4. **Integrity:** Do NOT invent industry domains or knowledge requirements. If none are explicitly mentioned, use the value: `FAILED_TO_EXTRACT` without further explanation.
 5. **Deduplication:** Do not repeat concepts or knowledge areas.
 
 ---

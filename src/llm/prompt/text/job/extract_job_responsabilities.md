@@ -12,10 +12,10 @@ Before generating the output, you must process the job description through these
 3. **Verifiability:** Only list tasks that are explicitly mentioned or strongly implied as required work.
 
 ### CONSTRAINTS AND RULES (ABSOLUTE) ###
-1. **Output Format:** Your entire output MUST be a single, valid JSON object. DO NOT include any commentary, preamble, or explanation outside of the JSON structure.
+1. **Output Format:** Your entire output MUST be a single concise paragraph.
 2. **Extraction Rule:** Keywords must be short, action-oriented phrases (2-5 words).
 3. **Focus:** Only extract measurable tasks and duties. Absolutely ignore technologies, skills, or ownership scope (unless the scope is a duty, e.g., "Mentor junior staff").
-4. **Integrity:** Do NOT invent duties. The responsibilities must be directly evident in the source text. If no specific responsibilities are found, use the value: `FAILED_TO_EXTRACT`.
+4. **Integrity:** Do NOT invent duties. The responsibilities must be directly evident in the source text. If none are explicitly mentioned, use the value: `FAILED_TO_EXTRACT` without further explanation.
 5. **Deduplication:** Do not repeat tasks or duties.
 
 ---

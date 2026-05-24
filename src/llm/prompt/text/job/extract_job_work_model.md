@@ -12,10 +12,10 @@ Before generating the output, you must process the job description through these
 3. **Scheduling:** Identify any mandatory core working hours or specific availability requirements (e.g., "must overlap with PST team," "must be available 9-5 EST").
 
 ### CONSTRAINTS AND RULES (ABSOLUTE) ###
-1. **Output Format:** Your entire output MUST be a single, valid JSON object. DO NOT include any commentary, preamble, or explanation outside of the JSON structure.
+1. **Output Format:** Your entire output MUST be a single concise paragraph.
 2. **Clarity & Specificity:** The output must be precise (e.g., "Fully Remote within US-East Coast Time Zone," not just "Remote").
 3. **Scope Restriction:** Only logistical location and schedule constraints are allowed. Absolutely ignore all technical skills, responsibilities, and salary details.
-4. **Integrity:** Do NOT invent locations or work models. If no specific details are found, use the value: `[]` (an empty array) or `FAILED_TO_EXTRACT`.
+4. **Integrity:** Do NOT invent locations or work models. If none are explicitly mentioned, use the value: `FAILED_TO_EXTRACT` without further explanation.
 5. **Deduplication:** Do not repeat location constraints or work model types.
 
 ---

@@ -8,6 +8,7 @@ import json
 from typing import Optional
 
 from config.logging import get_logger
+from src.core.models import JobDescriptionParsed
 from src.llm.prompt.services.LLMJobService import LLMJobService
 from src.storage.repositories import JobDescriptionParsedRepo, JobDescriptionRepo
 
@@ -24,10 +25,16 @@ class JobDescriptionProcessor:
         parsed_repo: Repository for JobDescriptionParsed entities.
     """
 
-    def __init__(self, prompt_service: LLMJobService, isTest: bool = True):
+    def __init__(
+        self,
+        prompt_service: LLMJobService,
+        isTest: bool = True,
+        use_llm_cache: bool = True,
+    ):
         self.prompt_service = prompt_service
         self.job_repo = JobDescriptionRepo(isTest)
         self.parsed_repo = JobDescriptionParsedRepo(isTest)
+        self.use_llm_cache = use_llm_cache
         self._log = get_logger("JobDescriptionProcessor")
 
     def new_item(self, job_description: str, input_hash: str) -> Optional[str]:
@@ -61,7 +68,7 @@ class JobDescriptionProcessor:
 
         return job_parsed
 
-    def exist_job_description(self, input_hash: str) -> Optional[str]:
+    def exist_job_description(self, input_hash: str) -> Optional[JobDescriptionParsed]:
         """Check if job description has been previously processed.
 
         Looks up whether this job description (by hash) has been previously
@@ -73,13 +80,17 @@ class JobDescriptionProcessor:
         Returns:
             The previously processed result or None if not found.
         """
+        if not self.use_llm_cache:
+            self._log.debug("Bypass due to not using cache")
+            return None
+
         self._log.debug(
             f"Checking for existing job description with hash: {input_hash[:8]}..."
         )
         existing = self.parsed_repo.get_by_input_hash(input_hash)
         if existing:
             self._log.debug("Found cached job description processing result")
-            return str(existing.full_response)
+            return existing
         else:
             self._log.debug("No cached result found for job description")
 
@@ -97,12 +108,20 @@ class JobDescriptionProcessor:
             job_parsed: The LLM response as a JSON string.
         """
         self._log.debug("Persisting job description to database")
-        try:
+
+        existing = self.parsed_repo.get_by_input_hash(input_hash)
+        if existing:
+            job_id = existing.job_description_id
+            self._log.debug("Found cached job description processing result")
+        else:
             job_id = self.job_repo.create_from_fields(
                 id=None, url="", title="", raw_text=job_description
             )
             self._log.debug(f"Created job description record with ID: {job_id}")
 
+        assert job_id is not None
+
+        try:
             # attempt to extract fields from the LLM response JSON
             parsed_obj = json.loads(job_parsed)
             summary = parsed_obj.get("summary", "")

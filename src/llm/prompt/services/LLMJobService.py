@@ -1,3 +1,4 @@
+import json
 from typing import List
 
 from config.logging import get_logger
@@ -107,4 +108,8 @@ class LLMJobService(LLMPromptService):
         if json_response is None:
             return ""
 
-        return json_response
+        # Get value from first key
+        values = json.loads(json_response)
+        first_key = next(iter(values))
+
+        return values[first_key]

@@ -12,10 +12,10 @@ Before generating the output, you must process the job description through these
 3. **Core Function:** Define the fundamental domain and primary specialization (e.g., "Backend reliability engineering," "Client-facing e-commerce architect").
 
 ### CONSTRAINTS AND RULES (ABSOLUTE) ###
-1. **Output Format:** Your entire output MUST be a single, valid JSON object. DO NOT include any commentary, preamble, or explanation outside of the JSON structure.
+1. **Output Format:** Your entire output MUST be a single concise paragraph.
 2. **Accuracy:** The output must be a high-level synthesis, not a simple copy-paste of the job title.
 3. **Scope:** Do not extract technical skills or soft skills. Focus strictly on the *identity* and *place* of the job.
-4. **Integrity:** Do NOT invent roles or seniority levels. If the information cannot be found, use the value: `FAILED_TO_EXTRACT`.
+4. **Integrity:** Do NOT invent roles or seniority levels. If none are explicitly mentioned, use the value: `FAILED_TO_EXTRACT` without further explanation.
 
 ---
 

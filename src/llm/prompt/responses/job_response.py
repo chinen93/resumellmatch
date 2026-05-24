@@ -60,4 +60,4 @@ class JobDomainKnowledgeResponse(BaseResponse):
 
 
 class JobMethodologiesResponse(BaseResponse):
-    methodologies: str
+    summary: str

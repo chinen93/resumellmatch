@@ -12,10 +12,10 @@ Before generating the output, you must process the job description through these
 3. **Isolation:** Actively filter out programming languages and abstract concepts (like "scalability" or "problem-solving").
 
 ### CONSTRAINTS AND RULES (ABSOLUTE) ###
-1. **Output Format:** Your entire output MUST be a single, valid JSON object. DO NOT include any commentary, preamble, or explanation outside of the JSON structure.
+1. **Output Format:** Your entire output MUST be a single concise paragraph.
 2. **Specificity:** Every item must be a specific product or utility name, not a category (e.g., list "Docker," not "containerization").
 3. **Scope Restriction:** Only tools and platforms are allowed. Absolutely ignore soft skills, management duties, and abstract concepts.
-4. **Integrity:** Do NOT invent tools or platforms. If no tools are found, use the value: `[]` (an empty array).
+4. **Integrity:** Do NOT invent tools or platforms. If none are explicitly mentioned, use the value: `FAILED_TO_EXTRACT` without further explanation.
 5. **Deduplication:** Do not repeat the same tool or platform name.
 
 ---

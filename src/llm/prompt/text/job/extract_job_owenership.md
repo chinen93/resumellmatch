@@ -12,10 +12,10 @@ Before generating the output, you must process the job description through these
 3. **Leadership/Process Ownership:** Identify the level of autonomy and guidance required (e.g., "Mentor junior team members," "Drive roadmap decisions," "Set architectural standards").
 
 ### CONSTRAINTS AND RULES (ABSOLUTE) ###
-1. **Output Format:** Your entire output MUST be a single, valid JSON object. DO NOT include any commentary, preamble, or explanation outside of the JSON structure.
+1. **Output Format:** Your entire output MUST be a single concise paragraph.
 2. **Abstraction:** The extracted phrases must be high-level concepts of ownership, not concrete actions.
 3. **Scope Restriction:** Focus solely on the scope and accountability. Absolutely ignore technical tools, specific programming languages, and list of daily tasks.
-4. **Integrity:** Do NOT invent ownership domains. If no explicit ownership signals are found, use the value: `[]` (an empty array) or `FAILED_TO_EXTRACT`.
+4. **Integrity:** Do NOT invent ownership domains. If none are explicitly mentioned, use the value: `FAILED_TO_EXTRACT` without further explanation.
 5. **Deduplication:** Do not repeat areas of accountability or scope.
 
 ---

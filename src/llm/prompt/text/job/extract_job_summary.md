@@ -12,7 +12,7 @@ Before generating the output, you must process the job description through these
 3. **Synthesis:** Condense all extracted information (skills, tasks, tools) into a narrative that sounds professional, high-level, and exciting.
 
 ### CONSTRAINTS AND RULES (ABSOLUTE) ###
-1. **Output Format:** Your entire output MUST be a single, valid JSON object. DO NOT include any commentary, preamble, or explanation outside of the JSON structure.
+1. **Output Format:** Your entire output MUST be a single concise paragraph.
 2. **Tone:** The summary must maintain a highly professional, authoritative, and professional HR tone.
 3. **Conciseness:** The summary must be brief, yet comprehensive (no more than 3-5 sentences).
 4. **Integrity:** Do NOT invent skills, technologies, or phrases. The summary must accurately reflect the source material.

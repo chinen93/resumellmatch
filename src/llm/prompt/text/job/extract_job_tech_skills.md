@@ -14,10 +14,10 @@ Before generating the output, you must process the job description through these
 5. **Pattern Recognition:** Identify architectural patterns or engineering practices that require specific technical knowledge (e.g., "Microservices architecture," "GraphQL," "Event Streaming").
 
 ### CONSTRAINTS AND RULES (ABSOLUTE) ###
-1. **Output Format:** Your entire output MUST be a single, valid JSON object. DO NOT include any commentary, preamble, or explanation outside of the JSON structure.
+1. **Output Format:** Your entire output MUST be a single concise paragraph.
 2. **Precision:** All skills must be listed as the precise, recognized name (e.g., "TypeScript," not "advanced JavaScript").
 3. **Scope Restriction:** Only technical items are allowed. Absolutely ignore soft skills, management duties, or compensation.
-4. **Integrity:** Do NOT invent technologies or skills. If a category is empty, use the value: `[]` (an empty array).
+4. **Integrity:** Do NOT invent technologies or skills. If none are explicitly mentioned, use the value: `FAILED_TO_EXTRACT` without further explanation.
 5. **Deduplication:** Do not repeat concepts or skills within the same category.
 
 ---
