@@ -15,7 +15,7 @@ Before generating the output, you must process the job description through these
 1. **Output Format:** Your entire output MUST be a single concise paragraph.
 2. **Specificity:** Methodologies must be precise and industry-recognized (e.g., "Scrum," "Continuous Integration/Continuous Deployment," not just "testing").
 3. **Scope Restriction:** Only process workflows, processes, and systematic practices. Absolutely ignore tools, programming languages, and general responsibilities.
-4. **Integrity:** Do NOT invent methodologies. If none are explicitly mentioned, use the value: `FAILED_TO_EXTRACT`.
+4. **Integrity:** Do NOT invent methodologies. If none are explicitly mentioned, use the value: `FAILED_TO_EXTRACT` without further explanation.
 5. **Deduplication:** Do not repeat process names.
 
 ---

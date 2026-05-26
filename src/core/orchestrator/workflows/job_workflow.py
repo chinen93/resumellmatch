@@ -15,6 +15,8 @@ from src.core.processor import JobDescriptionProcessor
 from src.llm.prompt.services.LLMJobService import LLMJobService
 from src.llm.prompt.services.LLMMatchService import LLMMatchService
 
+JOB_DESCRIPTION_FILE = "job_description.txt"
+
 
 def _job_parser(use_llm_cache: bool, log: Logger) -> Optional[str]:
     job_handler = Handler(
@@ -31,7 +33,7 @@ def _job_parser(use_llm_cache: bool, log: Logger) -> Optional[str]:
     )
     job_importer = JobDescriptionImporter(job_processor)
 
-    return job_importer.run("job_description.txt")
+    return job_importer.run(JOB_DESCRIPTION_FILE)
 
 
 def run_job_workflow(use_llm_cache: bool):
@@ -65,6 +67,8 @@ def run_job_workflow(use_llm_cache: bool):
         log.info("Starting job-STAR matching process")
         _ = job_star_match.get_matching_star(job_parsed)
         log.info("Job-STAR matching completed")
+
+        # TODO after matching some STAR, implement logic to recreate the resume with the new information
     else:
         log.warning("Job description processing failed or returned no results")
 

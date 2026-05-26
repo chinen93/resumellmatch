@@ -4,12 +4,15 @@ This module handles the workflow for processing and enhancing resume documents,
 including PDF reading, content extraction, and LLM-based enhancement.
 """
 
+from typing import cast
+
 from config.logging import get_logger
 from src.core.importer import ResumeImporter
 from src.core.orchestrator.workflows.handler import Handler
-from src.core.orchestrator.workflows.workflow_orchestrator import WorkflowOrchestrator
 from src.core.processor import ResumeProcessor
 from src.llm.prompt.services.LLMResumeService import LLMResumeService
+
+RESUME_FILE = "resume.pdf"
 
 
 def run_resume_workflow(use_llm_cache: bool):
@@ -34,14 +37,13 @@ def run_resume_workflow(use_llm_cache: bool):
     )
     log.debug("Handler initialized for resume workflow")
 
-    orchestrator = WorkflowOrchestrator(resume_handler)
-    log.debug("Workflow orchestrator created")
-
-    # Process resume
-    log.info("Processing resume from PDF file")
-    orchestrator.run_simple_workflow(
-        ResumeImporter, ResumeProcessor, "resume.pdf", isTest=False
+    resume_processor = ResumeProcessor(
+        cast(LLMResumeService, resume_handler.prompt_service), isTest=False
     )
+    resume_importer = ResumeImporter(resume_processor)
+
+    log.info("Processing resume from PDF file")
+    resume_importer.run(RESUME_FILE)
     log.debug("Resume processing completed")
 
     log.info("Resume workflow completed")
