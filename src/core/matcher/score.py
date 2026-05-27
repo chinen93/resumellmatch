@@ -1,3 +1,4 @@
+import json
 from typing import Optional
 
 from config.logging import get_logger
@@ -32,6 +33,8 @@ class MatchScoreCombiner:
         string_score = self._text_matcher.score(job_parsed, entry_text)
         combined_score = self.combine(llm_score, string_score)
 
+        is_above = False
+
         if combined_score > self._settings.MATCH_THRESHOLD:
             self._log.info("STAR entry matched with job description")
             self._log.debug(
@@ -40,12 +43,14 @@ class MatchScoreCombiner:
                 f"combined score={combined_score:.2f} "
                 f"threshold score={self._settings.MATCH_THRESHOLD:.2f}"
             )
-            return True
+            is_above = True
+        else:
+            self._log.debug(
+                f"STAR entry did not meet threshold: combined score={combined_score:.2f}, "
+                f"threshold score={self._settings.MATCH_THRESHOLD:.2f}, "
+                f"LLM score={llm_score:.2f}, "
+                f"string score={string_score:.2f}"
+            )
 
-        self._log.debug(
-            f"STAR entry did not meet threshold: combined score={combined_score:.2f}, "
-            f"threshold score={self._settings.MATCH_THRESHOLD:.2f}, "
-            f"LLM score={llm_score:.2f}, "
-            f"string score={string_score:.2f}"
-        )
-        return False
+        self._log.debug(json.dumps({"job": job_parsed, "star": entry_text}))
+        return is_above
