@@ -5,7 +5,7 @@ with built-in response caching and performance metrics logging.
 """
 
 import logging
-from typing import Optional
+from typing import Any, Optional
 
 from ollama import generate
 
@@ -41,6 +41,8 @@ class OllamaLocalClient:
         ), "AGENT_MODEL must be set in environment variables"
 
         self.agent_model = settings.AGENT_MODEL
+
+        self._log.debug(f"Agent model = '{self.agent_model}'")
 
         # Check if ready (optional, for backward compatibility)
         self.ready = self._check_readiness()
@@ -89,20 +91,21 @@ class OllamaLocalClient:
         prompt_eval_count = int(output["prompt_eval_count"])
         eval_count = int(output["eval_count"])
 
-        if load_duration > total_duration:
-            self._log.debug("Loading Model could be bottleneck")
-
-        if prompt_eval_duration > total_duration:
-            self._log.debug("Prompt overly complex and require further refinement")
-
-        self._log.debug(f"Total Duration: {total_duration:.2f}s")
-        self._log.debug(
-            f"Load Duration: {load_duration:.2f}s (Disk > RAM; Default 5min inactive unloads model)"
-        )
-        self._log.debug(f"Prompt Eval Duration: {prompt_eval_duration:.2f}s")
-        self._log.debug(f"Eval Duration: {eval_duration:.2f}s")
-        self._log.debug(f"Prompt Eval Count: {prompt_eval_count}")
-        self._log.debug(f"Eval Count: {eval_count}")
+        message_log: dict[str, Any] = {
+            "total_duration": "",
+            "load_duration": "",
+            "prompt": {"duration": "", "token": ""},
+            "eval": {"duration": "", "token": ""},
+        }
+        message_log["total_duration"] = f"{total_duration:.2f}"
+        message_log["load_duration"] = f"{load_duration:.2f}"
+        message_log["prompt"] = {}
+        message_log["prompt"]["duration"] = f"{prompt_eval_duration:.2f}"
+        message_log["prompt"]["token"] = f"{prompt_eval_count}"
+        message_log["eval"] = {}
+        message_log["eval"]["duration"] = f"{eval_duration:.2f}"
+        message_log["eval"]["token"] = f"{eval_count}"
+        self._log.debug(message_log)
 
         response = output["response"]
 
@@ -172,5 +175,6 @@ class OllamaLocalClient:
             test_message = "Hello"
             self._generate(test_message, SimpleResponse)
             return True
-        except Exception:
+        except Exception as e:
+            self._log.debug(e)
             return False

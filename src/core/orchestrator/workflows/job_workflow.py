@@ -5,7 +5,7 @@ including parsing, keyword extraction, and matching against STAR entries.
 """
 
 from logging import Logger
-from typing import Optional, cast
+from typing import List, Optional, cast
 
 from config.logging import get_logger
 from src.core.importer import JobDescriptionImporter
@@ -36,6 +36,20 @@ def _job_parser(use_llm_cache: bool, log: Logger) -> Optional[str]:
     return job_importer.run(JOB_DESCRIPTION_FILE)
 
 
+def _matching_stars(job_parsed: str, use_llm_cache: bool, log: Logger) -> List[str]:
+    # Match against STAR entries
+    match_handler = Handler(
+        prompt_service=LLMMatchService,
+        isTest=False,
+        use_llm_cache=use_llm_cache,
+    )
+    job_star_match = JobStarMatch(match_handler.prompt_service, isTest=False)
+    log.debug("Created job-STAR matcher")
+
+    log.info("Starting job-STAR matching process")
+    return job_star_match.get_matching_star(job_parsed)
+
+
 def run_job_workflow(use_llm_cache: bool):
     """Execute the complete job description processing workflow.
 
@@ -49,27 +63,23 @@ def run_job_workflow(use_llm_cache: bool):
     log.info("Starting job description workflow")
 
     job_parsed = _job_parser(use_llm_cache=use_llm_cache, log=log)
+    if not job_parsed:
+        log.info("Job description could not be parsed")
+        return
 
-    if job_parsed:
-        log.info(
-            "Job description processed successfully, proceeding with STAR matching"
-        )
-        # Match against STAR entries
-        match_handler = Handler(
-            prompt_service=LLMMatchService,
-            isTest=False,
-            use_llm_cache=use_llm_cache,
-        )
-        job_star_match = JobStarMatch(match_handler.prompt_service, isTest=False)
-        log.debug("Created job-STAR matcher")
+    log.info("Job description processed successfully, proceeding with STAR matching")
 
-        # TODO: Implement matching logic
-        log.info("Starting job-STAR matching process")
-        _ = job_star_match.get_matching_star(job_parsed)
-        log.info("Job-STAR matching completed")
+    matching_stars = _matching_stars(
+        job_parsed=job_parsed, use_llm_cache=use_llm_cache, log=log
+    )
+    if len(matching_stars) == 0:
+        log.info("No STAR response matched with job description")
+        return
 
-        # TODO after matching some STAR, implement logic to recreate the resume with the new information
-    else:
-        log.warning("Job description processing failed or returned no results")
+    log.info("Job-STAR matching completed")
+
+    # TODO: Rewrite the matching STARs to use the same keywords as the job description
+
+    # TODO: Write the resume with the updated STAR
 
     log.info("Job description workflow completed")
