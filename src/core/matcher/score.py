@@ -25,9 +25,14 @@ class MatchScoreCombiner:
         """Combine LLM and string similarity scores into a single float."""
         if llm_score is None:
             llm_score = 0
+
+        assert llm_score >= 0 and llm_score <= 10, "LLM score should be between 0 - 10"
+        assert (
+            string_score >= 0 and string_score <= 10
+        ), "String score should be between 0 - 10"
+
         return llm_score * self.llm_weight + string_score * self.text_weight
 
-    # TODO: Add more information on the debug to say why the match does meet or not meet the threshold
     def above_threshold(self, job_parsed: str, entry_text: str) -> bool:
         llm_score = self._llm_matcher.score(job_parsed, entry_text)
         string_score = self._text_matcher.score(job_parsed, entry_text)

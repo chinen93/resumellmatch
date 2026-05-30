@@ -90,7 +90,6 @@ class CSVLoader:
         Raises:
             ValueError: If headers don't match expected headers.
         """
-        # TODO: raise exception with the list of missing headers so it is easier to fix after seeing the logs
         missed = []
         for header in expected_headers:
             if header not in headers:

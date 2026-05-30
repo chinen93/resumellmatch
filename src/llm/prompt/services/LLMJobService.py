@@ -37,7 +37,6 @@ PROMPT_EXTRACT_DOMAIN = "extract_job_domain.md"
 PROMPT_FOLDER = "job"
 
 
-# TODO: Make it easier to change the values
 class LLMJobService(LLMPromptService):
 
     def __init__(self, llm_client: OllamaLocalClient):
