@@ -39,6 +39,10 @@ class JobDescriptionRepo:
         self, id: Optional[int], url: str, title: str, raw_text: str
     ) -> int:
         """Create using individual fields (builds model internally)."""
+
+        if id is None:
+            id = self._retrive_id_by_raw_text(raw_text)
+
         model = JobDescriptionMapper.from_raw_fields(id, url, title, raw_text)
         return self.create_or_update(model)
 
@@ -114,6 +118,19 @@ class JobDescriptionRepo:
                 .first()
             )
 
+    def _retrive_id_by_raw_text(self, raw_text: str) -> Optional[int]:
+        with self.db.get_session() as session:
+            model = (
+                session.query(JobDescription)
+                .filter(JobDescription.raw_text == raw_text)
+                .first()
+            )
+
+            if model is None:
+                return None
+
+            return model.id
+
     def _update(
         self, storage_model: JobDescription, core_model: JobDescriptionModel
     ) -> int:
@@ -182,10 +199,14 @@ class JobDescriptionParsedRepo:
         required_skills: str,
         prefered_skills: str,
         keywords: str,
-        input_hash: str | None = None,
+        input_hash: str,
         full_response: str | None = None,
     ) -> int:
         """Create using individual fields (builds model internally)."""
+
+        if id is None:
+            id = self._retrived_id_by_input_hash(input_hash)
+
         model = JobDescriptionParsedMapper.from_raw_fields(
             id=id,
             job_description_id=job_description_id,
@@ -305,6 +326,19 @@ class JobDescriptionParsedRepo:
                 .filter(JobDescriptionParsed.input_hash == input_hash)
                 .first()
             )
+
+    def _retrived_id_by_input_hash(self, input_hash: str) -> Optional[int]:
+        with self.db.get_session() as session:
+            model = (
+                session.query(JobDescriptionParsed)
+                .filter(JobDescriptionParsed.input_hash == input_hash)
+                .first()
+            )
+
+            if model is None:
+                return None
+
+            return model.id
 
     def _update(
         self, storage_model: JobDescriptionParsed, core_model: JobDescriptionParsedModel

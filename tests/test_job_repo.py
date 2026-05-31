@@ -135,12 +135,12 @@ class TestJobDescriptionParsedRepo(BaseTestCase):
         parsed_id = self.job_desc_parsed_repo.create_from_fields(
             1,
             job_id,
-            "hash123",
-            "full response",
             "Summary",
             "skill1,skill2",
             "skill3",
             "keyword1,keyword2",
+            "hash123",
+            "full response",
         )
         self.assertIsInstance(parsed_id, int)
         self.assertGreater(parsed_id, 0)
